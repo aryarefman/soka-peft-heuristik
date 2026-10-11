@@ -182,6 +182,37 @@ Dokumen ini disusun sebagai **buku saku dan bukti kepatuhan 100% (zero loophole 
 
 ---
 
+### 10B. PANDUAN MENJAWAB PERILAKU TIAP GRAFIK (KENAPA NAIK, TURUN, FLUKTUASI, ATAU FLAT)
+
+Ketika Bu Henning menunjuk grafik di layar dan bertanya *"Kenapa kurvanya berbentuk seperti ini?"*, gunakan panduan berikut:
+
+1. **Grafik Makespan Sintetis (100–1.000 & 1.000–10.000):**
+   * **Pertanyaan:** *"Kenapa kurvanya naik linier dan PEFT konsisten di bawah?"*
+   * **Jawaban:**
+     > *"Kurva naik linier karena total beban komputasi (Million Instructions) bertambah seiring jumlah task, sementara kapasitas total cloud kita tetap (30 VM = 45.000 MIPS). Karena task datang terkonsentrasi dalam jendela 0–300 detik, antrean bertambah secara proporsional. PEFT selalu tercepat (menghemat hingga 3.440 detik pada 10.000 task) karena PEFT memetakan task besar (proporsi 30%) ke VM Large di DC-3 (2.000 MIPS). Sebaliknya, FCFS dan Round Robin mengalami **Convoy Effect**, di mana task besar dialokasikan secara buta ke VM lambat, memblokir puluhan task di belakangnya."*
+
+2. **Grafik Makespan Real Trace NASA iPSC (100–1.000):**
+   * **Pertanyaan:** *"Kenapa di trace NASA makespan ketiga algoritma hampir sama persis (berimpit di ~180.250 detik)?"*
+   * **Jawaban:**
+     > *"Ini adalah karakteristik **Arrival-Bounded Makespan**. Trace supercomputer NASA iPSC membentang selama 48 jam (180.000 detik). Task ke-1000 baru disubmit pada detik ke-180.200. Karena sistem tidak bisa menyelesaikan task sebelum task tersebut disubmit oleh user, maka makespan sistem secara fundamental dibatasi oleh waktu kedatangan task terakhir, bukan oleh kecepatan komputasi server. Itulah sebabnya ketiga algoritma selesai di waktu yang relatif identik."*
+
+3. **Grafik Waiting Time NASA iPSC (100–1.000):**
+   * **Pertanyaan:** *"Kenapa waktu tunggu FCFS naik-turun bergelombang (5s -> 44s -> 20s), sedangkan PEFT mendatar sempurna di 0 detik?"*
+   * **Jawaban:**
+     > *"Fluktuasi naik-turun pada FCFS disebabkan oleh fenomena **Job Burst** (semburan tugas) dari peneliti NASA. Pada rentang 200–350 task, beberapa tim peneliti mengirimkan puluhan task secara serentak, menyebabkan antrean lokal FCFS melonjak ke puncak 44,38 detik sebelum terurai kembali saat jeda kedatangan merenggang. Sementara itu, PEFT berhasil mendatar di **0,00 detik (flat)** karena PEFT secara proaktif memantau status seluruh 30 VM dan langsung mengalihkan semburan task ke core-core prosesor yang sedang menganggur (*idle core*) lintas 3 Datacenter."*
+
+4. **Grafik Konsumsi Energi SPECpower (1.000–10.000):**
+   * **Pertanyaan:** *"Kenapa energi naik dan bagaimana PEFT bisa menghemat hingga 10 Megajoule?"*
+   * **Jawaban:**
+     > *"Energi naik secara linier seiring volume tugas dan durasi operasional 24 host server. PEFT lebih hemat (hemat 2,80 kWh / 10,07 MJ pada 10k task) karena efisiensi pemangkasan **Idle Power**. Host server fisik tetap mengonsumsi daya dasar ~40% daya maksimum saat idle. Karena PEFT menuntaskan seluruh beban 3.440 detik lebih cepat, periode pemborosan daya idle pada host terpangkas drastis."*
+
+5. **Grafik Load Balance StdDev (1.000–10.000):**
+   * **Pertanyaan:** *"Kenapa ketimpangan beban FCFS/RR meledak dari 20 ke 205, sedangkan PEFT tetap sangat rendah di kisaran 48?"*
+   * **Jawaban:**
+     > *"FCFS dan Round Robin membagikan task tanpa melihat kecepatan VM (VM Small 1.000 MIPS vs VM Large 8.000 MIPS). Akibatnya, VM lambat menerima volume MI yang setara dengan VM cepat, menciptakan jurang ketimpangan beban yang meledak seiring skala tugas. Sebaliknya, PEFT mendistribusikan beban secara proporsional sesuai rasio MIPS, sehingga seluruh VM selesai hampir bersamaan. Ketimpangan beban berhasil diredam hingga **-76,37%**."*
+
+---
+
 ## RINGKASAN COMMAND LINE UNTUK DEMO KEPADA DOSEN
 
 | Perintah Terminal | Kegunaan Demo |

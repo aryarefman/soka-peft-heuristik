@@ -312,13 +312,52 @@ Berikut adalah rekaman tangkapan layar eksekusi simulasi (`./gradlew runAll`) pa
 | :---: | :---: |
 | <img src="docs/images/grafik_makespan_sintetis_100_1000.png" alt="Grafik Makespan 100-1000" width="460"><br><sub><em>Makespan vs Task 100 - 1.000 (Sintetis)</em></sub> | <img src="docs/images/grafik_makespan_sintetis_1000_10000.png" alt="Grafik Makespan 1000-10000" width="460"><br><sub><em>Makespan vs Task 1.000 - 10.000 (Sintetis)</em></sub> |
 
+#### 🔬 Analisis Grafik 1 & 2: Dinamika Makespan Dataset Sintetis (100 s.d. 10.000 Task)
+1. **Mengapa Tren Kurva Selalu Meningkat Linier?**
+   - Kurva makespan menunjukkan pertumbuhan monotonik positif yang proporsional ($R^2 \approx 0,99$). Seiring bertambahnya task dari 100 hingga 10.000, akumulasi beban instruksi komputasi (*Million Instructions* / MI) bertambah secara linier, sementara kapasitas agregat infrastruktur cloud tetap konstan (3 Datacenter, 30 VM heterogen = 45.000 MIPS). Karena seluruh task datang dalam jendela waktu kedatangan padat (*arrival window* 0–300 detik), antrean komputasi di VM memanjang secara proporsional.
+2. **Mengapa PEFT Selalu Konsisten di Bawah (Paling Cepat / Unggul)?**
+   - **Pada 100 Task:** PEFT menyelesaikan seluruh pekerjaan dalam **621,41 s**, lebih cepat dibanding FCFS (**712,80 s**) dan Round Robin (**679,44 s**).
+   - **Pada 500 Task (*Sweet Spot* Saturasi):** Keunggulan PEFT melonjak hingga **-21,51%** (2.174,16 s vs 2.770,09 s), mereduksi waktu sebesar 595,93 detik.
+   - **Pada 10.000 Task (Skala Masif):** Gap keunggulan mutlak PEFT melebar drastis menjadi **3.440,73 detik (hampir 1 jam lebih cepat!)**, yaitu 41.456,99 s vs 44.897,72 s pada FCFS.
+   - **Mekanisme Ilmiah:** PEFT secara adaptif menghitung matriks *Earliest Finish Time* (EFT) dan memprioritaskan *Longest Processing Time* (LPT). Task berskala besar (proporsi 30%, 50.000–500.000 MI) diarahkan ke VM Large di DC-3 (2.000 MIPS x 4 core), sementara task mikro dialokasikan ke VM Small di DC-1. Sebaliknya, FCFS dan Round Robin mengalami fenomena ***Convoy Effect*** (antrean macet), di mana task berukuran raksasa dialokasikan secara buta ke VM lambat (1.000 MIPS), memblokir puluhan task di belakangnya.
+3. **Mengapa Kurva FCFS dan Round Robin Saling Berimpit / Bersilangan?**
+   - Round Robin mendistribusikan task secara berurutan modulo 30 tanpa evaluasi beban. Pada skala masif (>= 5.000 task), efek statistik acak Round Robin menghasilkan profil utilisasi yang nyaris serupa dengan FCFS, sehingga garis keduanya saling berdekatan dan berada jauh di atas efisiensi PEFT.
+
+---
+
 | Makespan Real Trace NASA iPSC (100 - 1.000) | Eliminasi Waktu Antre NASA iPSC (100 - 1.000) |
 | :---: | :---: |
 | <img src="docs/images/grafik_makespan_nasa_100_1000.png" alt="Grafik Makespan NASA" width="460"><br><sub><em>Makespan NASA iPSC vs Task 100 - 1.000</em></sub> | <img src="docs/images/grafik_waiting_time_nasa_100_1000.png" alt="Grafik Waiting Time NASA" width="460"><br><sub><em>Eliminasi Waiting Time PEFT (0 detik)</em></sub> |
 
+#### 🔬 Analisis Grafik 3 & 4: Perilaku Real Trace NASA Ames iPSC/860
+1. **Mengapa Makespan Ketiga Algoritma Berimpit / Sama Persis pada 1.000 Task (~180.250 detik)?**
+   - **Karakteristik *Arrival-Bounded Makespan*:** Berbeda dengan dataset sintetis yang padat di awal, log *supercomputer* NASA iPSC adalah rekaman kerja riil yang membentang selama 48 jam (~180.000 detik). Task terakhir (#1000) baru masuk disubmit ke sistem pada detik ke-180.200.
+   - Karena $Makespan = \max_i (\text{Waktu Selesai Task } i)$ dan waktu selesai pasti $\ge$ waktu submit, sistem secara fundamental tidak dapat menyelesaikan task sebelum task tersebut disubmit oleh pengguna. Sehingga makespan trace NASA **dibatasi oleh interval kedatangan (*arrival-bound*)**, bukan oleh keterbatasan daya komputasi (*compute-bound*).
+2. **Mengapa Grafik Waiting Time FCFS Berfluktuasi Naik-Turun (5,5 s $\rightarrow$ 44,3 s $\rightarrow$ 20,5 s)?**
+   - **Fenomena *Job Burst* (Semburan Tugas Riil):** Pada riwayat NASA, pengiriman tugas oleh peneliti terjadi secara berkelompok (*burst*).
+   - Pada rentang 200–350 task, terjadi gelombang submit bersamaan dari beberapa tim riset. FCFS menumpuk task tersebut pada antrean VM yang sedang sibuk, memicu lonjakan waktu tunggu (*waiting time peak*) hingga **44,38 detik**.
+   - Begitu semburan tugas mereda dan interval kedatangan kembali renggang, antrean terurai sehingga waktu tunggu rata-rata turun kembali ke kisaran 20–28 detik.
+3. **Mengapa Garis PEFT Mendatar Sempurna di 0,00 Detik (*Zero Waiting Time*)?**
+   - PEFT secara proaktif memantau kesiapan seluruh 30 VM. Saat terjadi gelombang kedatangan serentak (*burst*), PEFT segera mendistribusikan task ke core-core prosesor yang sedang menganggur (*idle core*) lintas 3 Datacenter, alih-alih menumpuknya pada VM yang sedang sibuk. Hasilnya, **waktu antre tereliminasi 100% (0,00 detik)** dan rata-rata waktu tanggap (*turnaround time*) terpangkas sebesar **-24,19%** (198,95 s vs 262,43 s).
+
+---
+
 | Konsumsi Energi SPECpower (1.000 - 10.000 Task) | Pemerataan Beban Antar-VM (Std Dev) |
 | :---: | :---: |
 | <img src="docs/images/grafik_energi_specpower_1000_10000.png" alt="Grafik Energi" width="460"><br><sub><em>Konsumsi Energi SPECpower (kWh)</em></sub> | <img src="docs/images/grafik_load_balance_1000_10000.png" alt="Grafik Load Balance" width="460"><br><sub><em>Load Balance Imbalance (Std Dev Beban)</em></sub> |
+
+#### 🔬 Analisis Grafik 5 & 6: Konsumsi Energi SPECpower dan Pemerataan Beban (Load Balancing)
+1. **Mengapa Konsumsi Energi (kWh) Naik Linier Seiring Skala Task?**
+   - Model daya SPECpower mengkalkulasi konsumsi energi dinamis berdasarkan kurva beban prosesor non-linier pada 24 host fisik:
+     $$E = \sum_{h=1}^{24} \int_{0}^{Makespan} P_h(u(t)) \, dt$$
+     Semakin besar volume task (dari 1.000 ke 10.000), durasi operasional aktif dan utilisasi CPU server meningkat, mengakibatkan total akumulasi kilowatt-hour (kWh) naik dari ~4,78 kWh menjadi ~47,60 kWh (PEFT) dan ~5,38 kWh menjadi ~50,40 kWh (FCFS).
+2. **Mengapa PEFT Mampu Menghemat Energi Signifikan (Hingga 10,07 Megajoule / 2,80 kWh pada 10k Task)?**
+   - **Efisiensi Waktu Daya Menganggur (*Idle Power Reduction*):** Host fisik server mengonsumsi sekitar 40% daya maksimum bahkan saat utilisasi CPU 0% (*static idle power*). Karena PEFT menuntaskan seluruh 10.000 tugas **3.440 detik lebih cepat**, periode pemborosan daya *idle* pada host fisik terpangkas drastis, menghasilkan efisiensi energi global sebesar **-5,55% s.d. -12,20%**.
+3. **Mengapa Ketimpangan Beban (Load Balance StdDev) FCFS/RR Meledak Naik (20,55 $\rightarrow$ 205,48), sedangkan PEFT Sangat Stabil dan Rata (5,32 $\rightarrow$ 48,55)?**
+   - **Penyebab Ledakan StdDev FCFS/RR:** FCFS dan RR mengalokasikan task tanpa mempertimbangkan heterogenitas VM (VM Small 1.000 MIPS vs VM Large 8.000 MIPS). Akibatnya, VM berkecepatan rendah menerima kuantitas MI yang setara dengan VM berkecepatan tinggi. Pada skala 10.000 task, akumulasi selisih beban antar-VM meledak hingga standar deviasi mencapai **205,48**.
+   - **Stabilitas Heuristik PEFT:** PEFT membagi beban secara proporsional dengan kapabilitas komputasi (VM besar memproses MI lebih banyak, VM kecil memproses MI lebih sedikit), sehingga waktu selesai (*completion time*) seluruh VM berakhir hampir bersamaan. Ketimpangan beban berhasil diredam hingga **-76,37%**, membuktikan ketangguhan algoritma dalam menjaga stabilitas termal server dan keandalan hardware.
+
+---
 
 | Evaluasi Tambahan: Makespan GoCJ (100 - 1.000) | Visualisasi Ringkasan Eksekusi |
 | :---: | :---: |
