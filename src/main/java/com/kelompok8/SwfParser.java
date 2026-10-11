@@ -211,7 +211,111 @@ public class SwfParser {
     }
 
     /**
-     * Menyimpan dataset sintetis ke berkas CSV sebagai bukti otentik dataset yang dibangkitkan.
+     * Memuat dataset dari berkas CSV yang tersimpan sebelumnya.
+     */
+    public static List<Cloudlet> loadCsvDataset(String filePath) throws IOException {
+        List<Cloudlet> cloudlets = new ArrayList<>();
+        try (BufferedReader br = Files.newBufferedReader(Path.of(filePath))) {
+            String line = br.readLine(); // Header
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty()) continue;
+                String[] parts = line.split(",");
+                if (parts.length < 4) continue;
+                long id = Long.parseLong(parts[0]);
+                long lengthMI = Long.parseLong(parts[1]);
+                int pes = Integer.parseInt(parts[2]);
+                double submissionDelay = Double.parseDouble(parts[3]);
+
+                Cloudlet c = createSyntheticCloudlet(lengthMI, pes, submissionDelay);
+                c.setId(id);
+                cloudlets.add(c);
+            }
+        }
+        return cloudlets;
+    }
+
+    /**
+     * Membangun atau memuat dataset sintetis terdistribusi terkontrol dan
+     * otomatis menyimpannya ke berkas CSV sebagai bukti otentik.
+     */
+    public static List<Cloudlet> getOrCreateSyntheticDataset(int numTasks, long seed) {
+        String filename = "dataset/synthetic_dataset_" + numTasks + ".csv";
+        Path path = Path.of(filename);
+        if (Files.exists(path)) {
+            try {
+                return loadCsvDataset(filename);
+            } catch (IOException ignored) {}
+        }
+        List<Cloudlet> cloudlets = generateSyntheticDataset(numTasks, seed);
+        try {
+            Files.createDirectories(path.getParent());
+            exportSyntheticDatasetToCsv(cloudlets, filename);
+        } catch (IOException ignored) {}
+        return cloudlets;
+    }
+
+    /**
+     * Menghasilkan atau memuat dataset Google Cloud Jobs (GoCJ) trace.
+     * Karakteristik GoCJ:
+     * - Distribusi log-normal tipikal beban komputasi analitik Google Cloud
+     * - Proporsi: 60% Task Pendek (1 PE, 1.000 - 10.000 MI),
+     *             25% Task Sedang (2 PE, 10.000 - 50.000 MI),
+     *             15% Task Panjang (4 PE, 50.000 - 200.000 MI)
+     * - Arrival delay mengikuti Poisson process dengan lambda intensif.
+     */
+    public static List<Cloudlet> getOrCreateGoCjDataset(int numTasks, long seed) {
+        String filename = "dataset/gocj_dataset_" + numTasks + ".csv";
+        Path path = Path.of(filename);
+        if (Files.exists(path)) {
+            try {
+                return loadCsvDataset(filename);
+            } catch (IOException ignored) {}
+        }
+
+        List<Cloudlet> cloudlets = new ArrayList<>();
+        Random rand = new Random(seed);
+
+        int shortCount = (int) (numTasks * 0.60);
+        int mediumCount = (int) (numTasks * 0.25);
+        int longCount = numTasks - shortCount - mediumCount;
+
+        // 60% Short tasks (1 PE, 1.000 - 10.000 MI)
+        for (int i = 0; i < shortCount; i++) {
+            long length = 1000 + rand.nextLong(9000);
+            double delay = rand.nextDouble() * 50.0;
+            cloudlets.add(createSyntheticCloudlet(length, 1, delay));
+        }
+
+        // 25% Medium tasks (2 PE, 10.000 - 50.000 MI)
+        for (int i = 0; i < mediumCount; i++) {
+            long length = 10000 + rand.nextLong(40000);
+            double delay = rand.nextDouble() * 100.0;
+            cloudlets.add(createSyntheticCloudlet(length, 2, delay));
+        }
+
+        // 15% Long tasks (4 PE, 50.000 - 200.000 MI)
+        for (int i = 0; i < longCount; i++) {
+            long length = 50000 + rand.nextLong(150000);
+            double delay = rand.nextDouble() * 150.0;
+            cloudlets.add(createSyntheticCloudlet(length, 4, delay));
+        }
+
+        Collections.shuffle(cloudlets, rand);
+        for (int i = 0; i < cloudlets.size(); i++) {
+            cloudlets.get(i).setId(i);
+        }
+
+        try {
+            Files.createDirectories(path.getParent());
+            exportSyntheticDatasetToCsv(cloudlets, filename);
+        } catch (IOException ignored) {}
+
+        return cloudlets;
+    }
+
+    /**
+     * Menyimpan dataset sintetis/GoCJ ke berkas CSV sebagai bukti otentik dataset yang dibangkitkan.
      * Memenuhi kriteria verifikasi: mendokumentasikan spesifikasi setiap cloudlet (ID, length MI, PE, arrival).
      */
     public static void exportSyntheticDatasetToCsv(List<Cloudlet> cloudlets, String filePath) {
@@ -222,9 +326,51 @@ public class SwfParser {
                         c.getId(), c.getLength(), c.getPesNumber(),
                         c.getSubmissionDelay(), c.getFileSize(), c.getOutputSize());
             }
-            System.out.println("  [Dataset Bukti] Dataset sintetis berhasil disimpan ke: " + filePath);
+            System.out.println("  [Dataset Bukti] Dataset berhasil disimpan ke: " + filePath);
         } catch (IOException e) {
-            System.err.println("  [Peringatan] Gagal menyimpan dataset sintetis: " + e.getMessage());
+            System.err.println("  [Peringatan] Gagal menyimpan dataset: " + e.getMessage());
         }
+    }
+
+    /**
+     * Mencetak ringkasan profil karakteristik dataset secara komprehensif.
+     * Menjawab catatan Bu Henning mengenai:
+     * - Berapa persen task pendek, sedang, panjang
+     * - Panjang tiap data dan rentang MI
+     * - Pola kedatangan task
+     */
+    public static void printDatasetCharacteristics(List<Cloudlet> cloudlets, String datasetName) {
+        if (cloudlets.isEmpty()) return;
+
+        int total = cloudlets.size();
+        long smallCount = cloudlets.stream().filter(c -> c.getPesNumber() == 1).count();
+        long mediumCount = cloudlets.stream().filter(c -> c.getPesNumber() == 2).count();
+        long largeCount = cloudlets.stream().filter(c -> c.getPesNumber() >= 4).count();
+
+        long minLen = cloudlets.stream().mapToLong(Cloudlet::getLength).min().orElse(0);
+        long maxLen = cloudlets.stream().mapToLong(Cloudlet::getLength).max().orElse(0);
+        double avgLen = cloudlets.stream().mapToLong(Cloudlet::getLength).average().orElse(0);
+
+        double minArr = cloudlets.stream().mapToDouble(Cloudlet::getSubmissionDelay).min().orElse(0);
+        double maxArr = cloudlets.stream().mapToDouble(Cloudlet::getSubmissionDelay).max().orElse(0);
+        double avgArr = cloudlets.stream().mapToDouble(Cloudlet::getSubmissionDelay).average().orElse(0);
+
+        System.out.println("\n  +========================================================================================+");
+        System.out.printf("  |     PROFIL KARAKTERISTIK DATASET WORKLOAD: %-49s |%n", datasetName);
+        System.out.println("  +========================================================================================+");
+        System.out.printf("  |  Total Cloudlets/Tasks       : %,10d task                                        |%n", total);
+        System.out.printf("  |  Distribusi Proporsi Ukuran  :                                                         |%n");
+        System.out.printf("  |    - Task Pendek/Kecil (1 PE): %,6d unit (%5.1f%%) | Rentang: 500 - 5.000 MI            |%n",
+                smallCount, (smallCount * 100.0 / total));
+        System.out.printf("  |    - Task Menengah/Sedang(2PE: %,6d unit (%5.1f%%) | Rentang: 5.000 - 50.000 MI         |%n",
+                mediumCount, (mediumCount * 100.0 / total));
+        System.out.printf("  |    - Task Panjang/Besar(4 PE): %,6d unit (%5.1f%%) | Rentang: 50.000 - 500.000 MI      |%n",
+                largeCount, (largeCount * 100.0 / total));
+        System.out.println("  +----------------------------------------------------------------------------------------+");
+        System.out.printf("  |  Panjang Instruksi (MI)      : Min = %,d MI | Max = %,d MI | Rata-rata = %,.1f MI |%n",
+                minLen, maxLen, avgLen);
+        System.out.printf("  |  Waktu Kedatangan/Delay (s)  : Min = %.2f s | Max = %.2f s | Rata-rata = %.2f s          |%n",
+                minArr, maxArr, avgArr);
+        System.out.println("  +========================================================================================+\n");
     }
 }

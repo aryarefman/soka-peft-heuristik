@@ -25,3 +25,10 @@ scratch/
 *.bak
 *Updated_3DC*
 *.tmp*
+*.class
+*.backup.docx
+docs/images/cropped/
+docs/images/cropped_perfect/
+docs/images/extracted/
+docs/images/final_terminal/
+

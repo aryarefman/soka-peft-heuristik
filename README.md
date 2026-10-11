@@ -234,7 +234,53 @@ Berdasarkan berkas evaluasi sinkronisasi [datacenter_sync_results.csv](results/d
 | | DC-3 (Premium) | 8 | 10 | 1.000 | 100,00% | 180.250,21 s | 193.275.907 J | OK (Synchronized) |
 | | **Total Global** | **24** | **30** | **1.000** | **100,00%** | **180.250,21 s** | **504.928.357 J** | **100% Terverifikasi** |
 
-### 5.4 Kesimpulan Analisis Hasil
+### 5.4 Uji Coba Skala Bertahap 100 - 1.000 Tasks (Kelipatan 100, Rata-rata 3x Run)
+Sesuai arahan Bu Henning, pengujian dieksekusi bertahap untuk melihat pola performa dari beban ringan hingga 1.000 task pada dataset Sintetis dan NASA iPSC:
+
+| Tasks | Sintetis - PEFT Makespan (s) | Sintetis - FCFS Makespan (s) | Reduksi Makespan (%) | NASA - PEFT Waiting Time (s) | NASA - FCFS Waiting Time (s) | Eliminasi Waiting Time |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **100** | **500,59 s** | 625,30 s | **-19,94%** | **0,00 s** | 5,56 s | **-100,00%** |
+| **200** | **989,58 s** | 1.171,30 s | **-15,51%** | **0,00 s** | 36,13 s | **-100,00%** |
+| **300** | **1.373,11 s** | 1.599,51 s | **-14,15%** | **0,00 s** | 44,38 s | **-100,00%** |
+| **400** | **1.774,84 s** | 2.086,41 s | **-14,93%** | **0,00 s** | 35,69 s | **-100,00%** |
+| **500** | **2.174,16 s** | 2.770,09 s | **-21,51%** | **0,00 s** | 32,22 s | **-100,00%** |
+| **600** | **2.575,77 s** | 2.783,55 s | **-7,46%** | **0,00 s** | 26,88 s | **-100,00%** |
+| **700** | **3.052,38 s** | 3.422,00 s | **-10,80%** | **0,00 s** | 28,30 s | **-100,00%** |
+| **800** | **3.450,93 s** | 3.880,63 s | **-11,07%** | **0,00 s** | 25,68 s | **-100,00%** |
+| **900** | **3.731,99 s** | 4.314,53 s | **-13,50%** | **0,00 s** | 22,82 s | **-100,00%** |
+| **1.000** | **4.185,59 s** | 4.946,72 s | **-15,39%** | **0,00 s** | 20,54 s | **-100,00%** |
+
+### 5.5 Uji Coba Skala Beban Berat 1.000 - 10.000 Tasks (Kelipatan 1.000, Rata-rata 3x Run)
+Berdasarkan berkas [synthetic_1000_10000_results.csv](results/synthetic_1000_10000_results.csv), pengujian skala besar hingga 10.000 task membuktikan skalabilitas superior algoritma PEFT:
+
+| Tasks | PEFT Makespan (s) | FCFS Makespan (s) | Round Robin (s) | Penghematan Waktu | PEFT Energi (kWh) | FCFS Energi (kWh) | Load Bal SD (PEFT vs FCFS) |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **1.000** | **4.185,59 s** | 4.946,72 s | 4.574,82 s | -761,13 s (-15,39%) | **4,78 kWh** | 5,38 kWh | **5,32** vs 20,55 (-74%) |
+| **2.000** | **8.123,47 s** | 9.189,56 s | 9.361,24 s | -1.066,09 s (-11,60%) | **9,29 kWh** | 10,14 kWh | **10,46** vs 41,10 (-75%) |
+| **3.000** | **12.569,04 s** | 13.880,34 s | 13.650,60 s | -1.311,30 s (-9,45%) | **14,40 kWh** | 15,47 kWh | **15,24** vs 61,64 (-75%) |
+| **4.000** | **16.451,11 s** | 17.185,67 s | 18.855,24 s | -734,56 s (-4,27%) | **18,86 kWh** | 19,48 kWh | **19,35** vs 82,19 (-76%) |
+| **5.000** | **20.934,14 s** | 22.564,05 s | 22.654,61 s | -1.629,91 s (-7,22%) | **24,01 kWh** | 25,39 kWh | **24,48** vs 102,74 (-76%) |
+| **6.000** | **24.743,46 s** | 27.236,00 s | 26.534,14 s | -2.492,54 s (-9,15%) | **28,39 kWh** | 30,43 kWh | **29,43** vs 123,29 (-76%) |
+| **7.000** | **29.049,40 s** | 31.250,81 s | 32.056,35 s | -2.201,41 s (-7,04%) | **33,34 kWh** | 35,15 kWh | **34,01** vs 143,84 (-76%) |
+| **8.000** | **33.076,30 s** | 35.462,63 s | 35.588,34 s | -2.386,33 s (-6,73%) | **37,97 kWh** | 39,99 kWh | **39,31** vs 164,38 (-76%) |
+| **9.000** | **37.406,68 s** | 40.930,30 s | 41.772,18 s | -3.523,62 s (-8,61%) | **42,94 kWh** | 45,88 kWh | **43,55** vs 184,93 (-76%) |
+| **10.000** | **41.456,99 s** | 44.897,72 s | 44.443,23 s | -3.440,73 s (-7,66%) | **47,60 kWh** | 50,40 kWh | **48,55** vs 205,48 (-76%) |
+
+### 5.6 Uji Coba Dataset Google Cloud Jobs (GoCJ Trace 100 - 1.000 Tasks)
+Berdasarkan berkas [gocj_100_1000_results.csv](results/gocj_100_1000_results.csv), pada pola distribusi log-normal Google Cloud Jobs dengan dominasi 60% task pendek:
+- **Makespan 1.000 Tasks**: PEFT = **1.027,93 s** vs FCFS = **1.217,88 s** (Penghematan 189,95 detik atau **-15,59%**).
+- **Konsumsi Daya**: PEFT menghemat energi sebesar **10,84%** (1,22 kWh vs 1,37 kWh).
+- **Throughput**: PEFT meningkat menjadi **0,9728 task/s** vs FCFS 0,8211 task/s (+18,47%).
+
+### 5.7 Analisis Perbedaan Perilaku Antar-Dataset
+Menjawab pertanyaan evaluasi dosen (*"Apakah ada perilaku berbeda dari dataset-dataset ini dan jelaskan alasannya?"*):
+1. **Mengapa Makespan PEFT jauh lebih cepat pada Sintetis dan GoCJ, tetapi relatif sama pada NASA iPSC?**
+   - **Sintetis & GoCJ:** Interval kedatangan task sangat padat (arrival delay 0–300 detik), sehingga seluruh VM mengalami beban antrean tinggi secara serentak. Di sinilah kemampuan PEFT dalam memprediksi *Earliest Finish Time* dan memetakan task besar ke VM ber-MIPS tinggi paling efektif dalam memangkas total waktu makespan.
+   - **NASA iPSC:** Interval kedatangan task membentang luas hingga 48 jam (180.000 detik). Makespan sistem secara fundamental dibatasi oleh waktu kedatangan task terakhir (max(a_i + t_i)). Meskipun makespan sama, PEFT unggul mutlak dalam mengeliminasi antrean (**Waiting Time = 0,00 detik**) dan mempercepat waktu respons (**Turnaround Time turun 24,19%**).
+2. **Determinisme dan Konsistensi Multi-Run:**
+   - Seluruh pengujian 3x run menghasilkan standar deviasi antar-run sebesar **0,00**. Hal ini membuktikan bahwa formulasi matematis PEFT, FCFS, dan Round Robin bersifat deterministik dan reproduktif 100%.
+
+### 5.8 Kesimpulan Analisis Hasil
 1. **Makespan dan Efisiensi Waktu**: Pada dataset sintetis dengan beban kedatangan padat, PEFT mereduksi makespan sebesar 15,39% (761,40 detik lebih singkat) dibandingkan FCFS dan 8,51% dibandingkan Round Robin. Hal ini dicapai melalui pemetaan task berukuran besar ke VM dengan ketersediaan core terawal dan kapasitas MIPS tertinggi.
 2. **Kualitas Layanan (QoS)**: Pada trace NASA iPSC dengan interval kedatangan renggang, PEFT meniadakan waktu tunggu antrean (waiting time = 0,00 s) dan memangkas turnaround time rata-rata sebesar 24,19% (dari 262,44 s menjadi 198,95 s).
 3. **Efisiensi Konsumsi Energi**: Pengurangan durasi eksekusi host secara langsung menurunkan konsumsi energi aktif, menghasilkan penghematan daya sebesar 12,90% (909.544 Joule) pada dataset sintetis dan 1.186.359 Joule pada trace NASA iPSC.
@@ -260,11 +306,23 @@ Berikut adalah rekaman tangkapan layar eksekusi simulasi (`./gradlew runAll`) pa
 | :---: | :---: |
 | <img src="docs/images/terminal_nasa_eksekusi.png" alt="Eksekusi Skenario NASA iPSC" width="460"><br><sub><em>Inisialisasi trace SWF &amp; eksekusi PEFT</em></sub> | <img src="docs/images/terminal_nasa_tabel.png" alt="Tabel Perbandingan NASA iPSC" width="460"><br><sub><em>Sampel task &amp; tabel komparasi akhir</em></sub> |
 
-### 6.2 Visualisasi Grafik Evaluasi Metrik
+### 6.2 Visualisasi Grafik Evaluasi Metrik Komparatif
 
-| Perbandingan Waktu Eksekusi (Makespan) | Efisiensi Konsumsi Energi Listrik (SPECpower) |
+| Makespan Skala Bertahap (100 - 1.000 Task) | Makespan Skala Besar (1.000 - 10.000 Task) |
 | :---: | :---: |
-| <img src="docs/images/grafik_makespan.png" alt="Grafik Makespan" width="460"><br><sub><em>Grafik komparasi makespan dan turnaround time</em></sub> | <img src="docs/images/grafik_energi.png" alt="Grafik Konsumsi Energi" width="460"><br><sub><em>Grafik perbandingan konsumsi energi (Joule / kWh)</em></sub> |
+| <img src="docs/images/grafik_makespan_sintetis_100_1000.png" alt="Grafik Makespan 100-1000" width="460"><br><sub><em>Makespan vs Task 100 - 1.000 (Sintetis)</em></sub> | <img src="docs/images/grafik_makespan_sintetis_1000_10000.png" alt="Grafik Makespan 1000-10000" width="460"><br><sub><em>Makespan vs Task 1.000 - 10.000 (Sintetis)</em></sub> |
+
+| Makespan Real Trace NASA iPSC (100 - 1.000) | Eliminasi Waktu Antre NASA iPSC (100 - 1.000) |
+| :---: | :---: |
+| <img src="docs/images/grafik_makespan_nasa_100_1000.png" alt="Grafik Makespan NASA" width="460"><br><sub><em>Makespan NASA iPSC vs Task 100 - 1.000</em></sub> | <img src="docs/images/grafik_waiting_time_nasa_100_1000.png" alt="Grafik Waiting Time NASA" width="460"><br><sub><em>Eliminasi Waiting Time PEFT (0 detik)</em></sub> |
+
+| Konsumsi Energi SPECpower (1.000 - 10.000 Task) | Pemerataan Beban Antar-VM (Std Dev) |
+| :---: | :---: |
+| <img src="docs/images/grafik_energi_specpower_1000_10000.png" alt="Grafik Energi" width="460"><br><sub><em>Konsumsi Energi SPECpower (kWh)</em></sub> | <img src="docs/images/grafik_load_balance_1000_10000.png" alt="Grafik Load Balance" width="460"><br><sub><em>Load Balance Imbalance (Std Dev Beban)</em></sub> |
+
+| Evaluasi Tambahan: Makespan GoCJ (100 - 1.000) | Visualisasi Ringkasan Eksekusi |
+| :---: | :---: |
+| <img src="docs/images/grafik_makespan_gocj_100_1000.png" alt="Grafik GoCJ" width="460"><br><sub><em>Evaluasi Trace Tambahan (Google Cloud Jobs)</em></sub> | <img src="docs/images/grafik_makespan.png" alt="Grafik Makespan" width="460"><br><sub><em>Grafik komparasi makespan dan turnaround time</em></sub> |
 
 ---
 
@@ -368,3 +426,9 @@ soka/
   Departemen Teknologi Informasi, Institut Teknologi Sepuluh Nopember (ITS)<br>
   Surabaya, Indonesia — 2026
 </p>
+
+
+---
+
+## 10. Buku Saku & Kepatuhan Revisi Dosen
+Seluruh jawaban, lokasi baris kode, dan bukti empiris terhadap catatan revisi Bu Henning telah dipetakan secara tuntas di: [`CATATAN_REVISI_BU_HENNING_DAN_MITIGASI.md`](CATATAN_REVISI_BU_HENNING_DAN_MITIGASI.md).

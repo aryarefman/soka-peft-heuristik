@@ -60,3 +60,19 @@ tasks.register('runAll', JavaExec) {
     args = ['ALL']
 }
 
+tasks.register('testAllocation', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.kelompok8.TestVmHostAllocation'
+}
+
+tasks.register('runBatch', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.kelompok8.BatchExperimentSuite'
+}
+
+tasks.register('generateCharts', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.kelompok8.GenerateEvaluationCharts'
+}
+
+
