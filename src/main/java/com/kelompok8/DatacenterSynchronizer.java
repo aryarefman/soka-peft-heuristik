@@ -156,7 +156,7 @@ public class DatacenterSynchronizer {
 
         if (report.isFullySynchronized) {
             report.syncMessage = String.format(
-                    "SINKRONISASI BERHASIL: 100%% Task (%d/%d) terdistribusi dan selesai pada 3 Datacenter " +
+                    "SINKRONISASI BERHASIL: 100%% Task (%d/%d) terdistribusi dan selesai pada 3 Datacenter " +   // [LABEL] angka "3" jika jumlah DC diubah
                     "tanpa redudansi maupun packet loss. Waktu simulasi barrier: %.2f detik.",
                     aggregatedTasks, totalTasksSubmitted, simulationClock);
         } else {
@@ -246,7 +246,7 @@ public class DatacenterSynchronizer {
         System.out.println("+===================================================================================+");
 
         System.out.println("  [HASIL VERIFIKASI SINKRONISASI]:");
-        System.out.println("   [OK] Protokol Barrier Sinkronisasi : SEMUA 3 Datacenter selesai sebelum simulation clock.");
+        System.out.println("   [OK] Protokol Barrier Sinkronisasi : SEMUA 3 Datacenter selesai sebelum simulation clock.");   // [LABEL]
         System.out.printf("   [OK] Integritas Alokasi Task       : %d/%d Task selesai (Loss = 0, Duplikat = 0).%n",
                 report.totalTasksCompleted, report.totalTasksExpected);
         System.out.printf("   [OK] Total Komputasi Terealisasi   : %,d MI selesai dikomputasi lintas DC.%n", grandTotalMi);

@@ -43,12 +43,26 @@ import java.util.*;
  */
 public class DatacenterBuilder {
 
-    private static final int PES_PER_HOST = 8;
+    // =========================================================================
+    // PANDUAN UBAH KONFIGURASI (cari penanda berikut dengan Ctrl+F):
+    //   [UBAH-HOST] : jumlah / spesifikasi host per datacenter
+    //   [UBAH-VM]   : jumlah / spesifikasi VM per datacenter
+    //   [UBAH-DC]   : jumlah datacenter (tambah/hapus DC)
+    //   [LABEL]     : teks tampilan saja (tidak memengaruhi simulasi), sesuaikan agar output konsisten
+    // Semua perhitungan lain (broker, metrik, sinkronisasi) otomatis mengikuti konfigurasi di file ini.
+    // Jumlah host per DC  = NUM_HOSTS_PER_TYPE x 2 (setiap DC berisi 2 tipe host)
+    // Jumlah VM per DC    = kolom vmCount pada DC_CONFIGS
+    // Jumlah datacenter   = jumlah baris DC_CONFIGS (harus sama dengan jumlah elemen DC_NAMES)
+    // =========================================================================
+
+    private static final int PES_PER_HOST = 8;          // [UBAH-HOST] jumlah core per host (harus >= vmPes terbesar)
     private static final long HOST_STORAGE = 1_000_000; // 1 TB in MB
     private static final long HOST_BW = 10_000;         // 10 Gbps in Mbps
-    private static final int NUM_HOSTS_PER_TYPE = 4;    // 4 host per tipe dalam setiap DC
+    private static final int NUM_HOSTS_PER_TYPE = 4;    // [UBAH-HOST] 4 host per tipe -> 4 x 2 tipe = 8 host per DC
+                                                        //   contoh: 2 -> 4 host/DC (total 12), 5 -> 10 host/DC (total 30)
 
-    // Host Types: {MIPS/core, RAM_GB}
+    // [UBAH-HOST] Tipe host: {MIPS/core, RAM_GB}. Tambah baris baru jika butuh tipe E
+    //   (wajib tambah juga baris di POWER_SPECS dan huruf di typeNames pada createHostsForDc()).
     public static final int[][] HOST_TYPES = {
             {1000, 8},     // Type A: 1000 MIPS/core, 8 GB RAM
             {1500, 16},    // Type B: 1500 MIPS/core, 16 GB RAM
@@ -56,6 +70,7 @@ public class DatacenterBuilder {
             {3000, 32},    // Type D: 3000 MIPS/core, 32 GB RAM
     };
 
+    // [UBAH-HOST] Jumlah baris POWER_SPECS harus sama dengan HOST_TYPES (indeks sejajar).
     // SPECpower benchmark power specs: {idle_power_watts, max_power_watts}
     // References: Beloglazov & Buyya (2012) - HP ProLiant and IBM System benchmarks
     public static final double[][] POWER_SPECS = {
@@ -73,13 +88,24 @@ public class DatacenterBuilder {
      * DC-2: Host Tipe B(1) + C(2), VM Medium (2 PE, 2048 MB, 1500 MIPS, 10 unit)
      * DC-3: Host Tipe C(2) + D(3), VM Large  (4 PE, 4096 MB, 2000 MIPS, 10 unit)
      */
+    // [UBAH-VM] Ubah kolom terakhir (vmCount) untuk mengganti jumlah VM per DC.
+    //   contoh 30 VM -> 15 VM: ganti 10 menjadi 5 di ketiga baris.
+    //   Syarat agar VM berhasil dibuat di host:
+    //     vmPes  <= PES_PER_HOST,  vmMips <= MIPS/core host di DC tsb (lihat HOST_TYPES),
+    //     total RAM & PE seluruh VM muat di host-host DC tsb.
+    //   Wajib ada minimal 1 VM dengan vmPes >= 4, karena task dataset bisa butuh 4 PE
+    //     (lihat MAX_PES_PER_CLOUDLET di SwfParser).
+    // [UBAH-DC] Tambah/hapus BARIS untuk menambah/mengurangi datacenter,
+    //   lalu tambah/hapus nama di DC_NAMES (jumlah harus sama!).
+    //   contoh DC ke-4: {1, 3,  4, 4096, 2000, 10},  (host tipe B + D, 10 VM Large)
     private static final int[][] DC_CONFIGS = {
             // { hostTypeIdx1, hostTypeIdx2, vmPes, vmRamMB, vmMips, vmCount }
-            {0, 1,  1, 1024, 1000, 10},   // DC-1: Entry-Level
-            {1, 2,  2, 2048, 1500, 10},   // DC-2: Standard
-            {2, 3,  4, 4096, 2000, 10},   // DC-3: Premium
+            {0, 1,  1, 1024, 1000, 10},   // DC-1: Entry-Level   [UBAH-VM] vmCount = 10
+            {1, 2,  2, 2048, 1500, 10},   // DC-2: Standard      [UBAH-VM] vmCount = 10
+            {2, 3,  4, 4096, 2000, 10},   // DC-3: Premium       [UBAH-VM] vmCount = 10
     };
 
+    // [UBAH-DC] Satu nama per baris DC_CONFIGS (urutan sejajar).
     private static final String[] DC_NAMES = {
             "DC-1: Jakarta (Entry-Level / Low-Grade)",
             "DC-2: Surabaya (Standard / Mid-Grade)",
@@ -121,10 +147,11 @@ public class DatacenterBuilder {
         List<Host> allHosts = new ArrayList<>();
         Map<Vm, Datacenter> vmToDcMap = new IdentityHashMap<>();
 
-        System.out.println("\n  Membangun 3 Datacenter Heterogen Multi-Region...");
+        System.out.println("\n  Membangun 3 Datacenter Heterogen Multi-Region...");   // [LABEL] angka "3" jika jumlah DC diubah
         System.out.printf("  [Kebijakan Alokasi VM-ke-Host] : %s (Penyerataan: Bebas Host Nganggur)%n", mode);
         System.out.println("  " + "-".repeat(60));
 
+        // [UBAH-DC] Loop ini otomatis mengikuti jumlah baris DC_CONFIGS; tidak perlu diubah.
         for (int dcIdx = 0; dcIdx < DC_CONFIGS.length; dcIdx++) {
             System.out.printf("%n  [%s]%n", DC_NAMES[dcIdx]);
 
@@ -201,13 +228,14 @@ public class DatacenterBuilder {
      */
     private static List<Host> createHostsForDc(int typeA, int typeB, String dcName) {
         List<Host> hostList = new ArrayList<>();
-        String[] typeNames = {"A", "B", "C", "D"};
-        int[] types = {typeA, typeB};
+        String[] typeNames = {"A", "B", "C", "D"};   // [UBAH-HOST] tambah "E" jika HOST_TYPES ditambah baris
+        int[] types = {typeA, typeB};                // 2 tipe host per DC
 
         for (int typeIdx : types) {
             int mipsPerCore = HOST_TYPES[typeIdx][0];
             int ramGB       = HOST_TYPES[typeIdx][1];
 
+            // [UBAH-HOST] Jumlah host per tipe dikontrol NUM_HOSTS_PER_TYPE (di atas class).
             for (int unit = 0; unit < NUM_HOSTS_PER_TYPE; unit++) {
                 List<Pe> peList = new ArrayList<>();
                 for (int pe = 0; pe < PES_PER_HOST; pe++) {
@@ -244,6 +272,7 @@ public class DatacenterBuilder {
         List<Vm> vmList = new ArrayList<>();
         String vmType = pes == 1 ? "Small" : (pes == 2 ? "Medium" : "Large");
 
+        // [UBAH-VM] count berasal dari kolom vmCount di DC_CONFIGS; ubah di sana, bukan di sini.
         for (int i = 0; i < count; i++) {
             Vm vm = new VmSimple(mips, pes)
                     .setRam(ramMB)
@@ -288,7 +317,7 @@ public class DatacenterBuilder {
         System.out.println("  +------------------------------------------------------------+");
         System.out.printf("    %-20s : %2d Host | %2d VM | %,7d MIPS | %5.1f GB RAM%n",
                 "TOTAL INFRASTRUKTUR", allHosts.size(), allVms.size(), grandTotalMips, grandTotalRam / 1024.0);
-        System.out.println("    [SINKRONISASI]       : Seluruh VM dari 3 DC dikelola 1 Broker");
+        System.out.println("    [SINKRONISASI]       : Seluruh VM dari 3 DC dikelola 1 Broker");   // [LABEL] angka "3"
         System.out.println("  +============================================================+\n");
     }
 
@@ -320,7 +349,7 @@ public class DatacenterBuilder {
             }
             System.out.println("  +----------------------------------------+------------+------------------+----------------+----------------+");
         }
-        System.out.println("  | Status Verifikasi: 100% Host Aktif Berimbang (6 Host x 1 VM, 2 Host x 2 VM per DC)              |");
+        System.out.println("  | Status Verifikasi: 100% Host Aktif Berimbang (6 Host x 1 VM, 2 Host x 2 VM per DC)              |");   // [LABEL] pola 6x1 & 2x2 hanya benar untuk 8 host + 10 VM per DC
         System.out.println("  +==================================================================================================+\n");
     }
 

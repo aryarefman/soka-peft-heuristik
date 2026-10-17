@@ -141,13 +141,14 @@ public class MainSimulation {
         System.out.printf("  |  Algoritma   : %-44s |%n", getAlgorithmName(algorithm));
         System.out.printf("  |  Dataset     : %-44s |%n", datasetName);
         System.out.printf("  |  Tasks       : %-44d |%n", MAX_TASKS);
-        System.out.printf("  |  Infrastruktur: %-43s |%n", "3 Datacenter (24 Host, 30 VM)");
+        System.out.printf("  |  Infrastruktur: %-43s |%n", "3 Datacenter (24 Host, 30 VM)");   // [LABEL] sesuaikan jumlah DC/host/VM
         System.out.printf("  +-------------------------------------------------------------+%n%n");
 
         CloudSimPlus simulation = new CloudSimPlus();
 
         // 1. Bangun 3 Datacenter Heterogen
         System.out.println("  [1/5] Membangun Arsitektur 3 Datacenter Heterogen...");
+        // [UBAH-DC/HOST/VM] Konfigurasi infrastruktur diatur di DatacenterBuilder.java (DC_CONFIGS, NUM_HOSTS_PER_TYPE).
         DatacenterBuilder.MultiDatacenterResult multiDcResult =
                 DatacenterBuilder.buildMultiple(simulation);
 
@@ -250,11 +251,11 @@ public class MainSimulation {
         System.out.println("   Kelompok 8 - Strategi Optimasi Komputasi Awan                    ");
         System.out.println("   Departemen Teknologi Informasi, ITS                              ");
         System.out.println("                                                                    ");
-        System.out.println("   Arsitektur          : 3 Datacenter Heterogen                     ");
+        System.out.println("   Arsitektur          : 3 Datacenter Heterogen                     ");   // [LABEL]
         System.out.println("                         - DC-1: Entry-Level (Host A & B, VM Small) ");
         System.out.println("                         - DC-2: Standard    (Host B & C, VM Medium)");
         System.out.println("                         - DC-3: Premium     (Host C & D, VM Large) ");
-        System.out.println("   Kapasitas Total     : 24 Host, 30 VM, SPECpower Energy Model     ");
+        System.out.println("   Kapasitas Total     : 24 Host, 30 VM, SPECpower Energy Model     ");   // [LABEL]
         System.out.println("   Algoritma Diusulkan : PEFT (Predict Earliest Finish Time)        ");
         System.out.println("   Algoritma Baseline  : FCFS, Round Robin                          ");
         System.out.println("   Simulator           : CloudSim Plus 8.0                          ");
