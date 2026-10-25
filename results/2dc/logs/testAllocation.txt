@@ -1,0 +1,50 @@
+
+  Membangun 2 Datacenter Heterogen (skenario 2dc)...
+  [Kebijakan Alokasi VM-ke-Host] : PENYERATAAN_ROUND_ROBIN
+  ------------------------------------------------------------
+
+  [DC-1: Jakarta (Standard)]
+    [Host Tipe-A #1] 1000 MIPS/core x 16 PE, 32 GB RAM
+    [Host Tipe-A #2] 1000 MIPS/core x 16 PE, 32 GB RAM
+    [Host Tipe-A #3] 1000 MIPS/core x 16 PE, 32 GB RAM
+    [Host Tipe-B #4] 1500 MIPS/core x 16 PE, 32 GB RAM
+    [Host Tipe-B #5] 1500 MIPS/core x 16 PE, 32 GB RAM
+    [VM Medium] 1000 MIPS x 2 PE, 2048 MB RAM x 20 unit
+
+  [DC-2: Bandung (Premium)]
+    [Host Tipe-C #1] 2000 MIPS/core x 16 PE, 64 GB RAM
+    [Host Tipe-C #2] 2000 MIPS/core x 16 PE, 64 GB RAM
+    [Host Tipe-C #3] 2000 MIPS/core x 16 PE, 64 GB RAM
+    [Host Tipe-D #4] 3000 MIPS/core x 16 PE, 64 GB RAM
+    [Host Tipe-D #5] 3000 MIPS/core x 16 PE, 64 GB RAM
+    [VM Large] 2000 MIPS x 4 PE, 4096 MB RAM x 20 unit
+
+  +==============================================================================+
+  |                    RINGKASAN ARSITEKTUR MULTI-DATACENTER                     |
+  +==============================================================================+
+    DC-1: Jakarta (Standard)       :  5 Host | 20 VM |  96,000 MIPS |  160.0 GB RAM
+    DC-2: Bandung (Premium)        :  5 Host | 20 VM | 192,000 MIPS |  320.0 GB RAM
+  +------------------------------------------------------------------------------+
+    TOTAL INFRASTRUKTUR            : 10 Host | 40 VM | 288,000 MIPS |  480.0 GB RAM
+    [SINKRONISASI] Seluruh VM dari 2 DC dikelola 1 broker global
+  +==============================================================================+
+
+
+  BUKTI VERIFIKASI ALOKASI VM KE HOST FISIK
+  +------------------------------+----------+----------------+------------------+----------------------------------------+
+  | Datacenter                   | Host     | Kapasitas      | RAM Terpakai     | VM Ditempatkan                         |
+  +------------------------------+----------+----------------+------------------+----------------------------------------+
+  | DC-1: Jakarta (Standard)     | #1       | 16 PE x 1000   |   8192/ 32768 MB | 4 VM [0, 5, 10, 15]                    |
+  | DC-1: Jakarta (Standard)     | #2       | 16 PE x 1000   |   8192/ 32768 MB | 4 VM [1, 6, 11, 16]                    |
+  | DC-1: Jakarta (Standard)     | #3       | 16 PE x 1000   |   8192/ 32768 MB | 4 VM [2, 7, 12, 17]                    |
+  | DC-1: Jakarta (Standard)     | #4       | 16 PE x 1500   |   8192/ 32768 MB | 4 VM [3, 8, 13, 18]                    |
+  | DC-1: Jakarta (Standard)     | #5       | 16 PE x 1500   |   8192/ 32768 MB | 4 VM [4, 9, 14, 19]                    |
+  +------------------------------+----------+----------------+------------------+----------------------------------------+
+  | DC-2: Bandung (Premium)      | #1       | 16 PE x 2000   |  16384/ 65536 MB | 4 VM [20, 25, 30, 35]                  |
+  | DC-2: Bandung (Premium)      | #2       | 16 PE x 2000   |  16384/ 65536 MB | 4 VM [21, 26, 31, 36]                  |
+  | DC-2: Bandung (Premium)      | #3       | 16 PE x 2000   |  16384/ 65536 MB | 4 VM [22, 27, 32, 37]                  |
+  | DC-2: Bandung (Premium)      | #4       | 16 PE x 3000   |  16384/ 65536 MB | 4 VM [23, 28, 33, 38]                  |
+  | DC-2: Bandung (Premium)      | #5       | 16 PE x 3000   |  16384/ 65536 MB | 4 VM [24, 29, 34, 39]                  |
+  +------------------------------+----------+----------------+------------------+----------------------------------------+
+  Status: 10 dari 10 host aktif, 0 host menganggur. Pola penempatan: 10 host x 4 VM
+

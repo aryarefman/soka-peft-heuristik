@@ -13,17 +13,17 @@ import java.util.*;
 /**
  * Modul Sinkronisasi Multi-Datacenter (Post-Simulation Synchronization & Verification).
  *
- * Mengelola dan memvalidasi sinkronisasi state antar 3 Datacenter:
+ * Mengelola dan memvalidasi sinkronisasi state antar-datacenter (3 DC atau 2 DC, sesuai Skenario):
  * 1. Barrier & Time Synchronization:
  *    - Memastikan seluruh datacenter mencapai titik henti (barrier) yang konsisten.
  *    - Sinkronisasi global makespan terhadap waktu penyelesaian datacenter terpanjang.
  *
  * 2. Workload & Data Integrity Synchronization:
- *    - Verifikasi integritas: Total task selesai di DC-1 + DC-2 + DC-3 == Total task yang disubmit.
+ *    - Verifikasi integritas: Jumlah task selesai di seluruh DC == total task yang disubmit.
  *    - Memastikan tidak ada task yang hilang, dropped, atau terduplikasi antar-DC.
  *
  * 3. Resource State Synchronization:
- *    - Memverifikasi bahwa seluruh VM dan Host pada ketiga DC telah kembali ke status idle
+ *    - Memverifikasi bahwa seluruh VM dan Host pada seluruh DC telah kembali ke status idle
  *      (tidak ada cloudlet menggantung di antrian eksekusi).
  *
  * 4. Konsolidasi & Ekspor Metrik Sinkronisasi:
@@ -61,7 +61,7 @@ public class DatacenterSynchronizer {
     }
 
     /**
-     * Melakukan proses sinkronisasi dan verifikasi komprehensif terhadap 3 Datacenter.
+     * Melakukan proses sinkronisasi dan verifikasi komprehensif terhadap seluruh datacenter.
      */
     public static MultiDatacenterSyncReport synchronizeAndVerify(
             String algorithm,
@@ -156,9 +156,9 @@ public class DatacenterSynchronizer {
 
         if (report.isFullySynchronized) {
             report.syncMessage = String.format(
-                    "SINKRONISASI BERHASIL: 100%% Task (%d/%d) terdistribusi dan selesai pada 3 Datacenter " +   // [LABEL] angka "3" jika jumlah DC diubah
-                    "tanpa redudansi maupun packet loss. Waktu simulasi barrier: %.2f detik.",
-                    aggregatedTasks, totalTasksSubmitted, simulationClock);
+                    "SINKRONISASI BERHASIL: 100%% Task (%d/%d) terdistribusi dan selesai pada %d Datacenter " +
+                    "tanpa redundansi maupun packet loss. Waktu simulasi barrier: %.2f detik.",
+                    aggregatedTasks, totalTasksSubmitted, report.dcStats.size(), simulationClock);
         } else {
             report.syncMessage = String.format(
                     "PERINGATAN SINKRONISASI: Ditemukan diskrepansi (Tasks: %d/%d, Duplikat: %b, ClockSync: %b).",
@@ -208,7 +208,7 @@ public class DatacenterSynchronizer {
      */
     public static void printSyncConsoleReport(MultiDatacenterSyncReport report) {
         System.out.println("\n+===================================================================================+");
-        System.out.println("|         LAPORAN SINKRONISASI & VERIFIKASI MULTI-DATACENTER (3 DATACENTER)         |");
+        System.out.printf("|         LAPORAN SINKRONISASI & VERIFIKASI MULTI-DATACENTER (%d DATACENTER)         |%n", report.dcStats.size());
         System.out.println("+===================================================================================+");
         System.out.printf("| Algoritma      : %-64s |%n", report.algorithm);
         System.out.printf("| Total Target   : %-64s |%n", report.totalTasksExpected + " Task");
@@ -246,7 +246,7 @@ public class DatacenterSynchronizer {
         System.out.println("+===================================================================================+");
 
         System.out.println("  [HASIL VERIFIKASI SINKRONISASI]:");
-        System.out.println("   [OK] Protokol Barrier Sinkronisasi : SEMUA 3 Datacenter selesai sebelum simulation clock.");   // [LABEL]
+        System.out.printf("   [OK] Protokol Barrier Sinkronisasi : SEMUA %d Datacenter selesai sebelum simulation clock.%n", report.dcStats.size());
         System.out.printf("   [OK] Integritas Alokasi Task       : %d/%d Task selesai (Loss = 0, Duplikat = 0).%n",
                 report.totalTasksCompleted, report.totalTasksExpected);
         System.out.printf("   [OK] Total Komputasi Terealisasi   : %,d MI selesai dikomputasi lintas DC.%n", grandTotalMi);
@@ -273,6 +273,7 @@ public class DatacenterSynchronizer {
                 }
             }
         }
-        System.out.printf("  [CSV] Rekapitulasi sinkronisasi 3 Datacenter disimpan ke: %s%n", filename);
+        System.out.printf("  [CSV] Rekapitulasi sinkronisasi %d Datacenter disimpan ke: %s%n",
+                reports.isEmpty() ? 0 : reports.get(0).dcStats.size(), filename);
     }
 }

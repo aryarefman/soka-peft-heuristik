@@ -1,0 +1,602 @@
+====================================================================
+    SOKA - BATCH EXPERIMENT SUITE (KELOMPOK 8)
+    Multi-Run (3x) & Multi-Scale Benchmark Suite
+    Skenario: 2dc - 2 Datacenter (10 Host, 40 VM)
+====================================================================
+
+
+================================================================================
+  SUITE 1: PENGUJIAN SKALA 100 - 1.000 TASKS (KELIPATAN 100) [3x RUNS]
+================================================================================
+
+>>> PENGUJIAN WORKLOAD: 100 TASKS <<<
+
+  PROFIL DATASET: Sintetis 100 Task (100 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :     30 ( 30.0%) | 503 - 4,965 MI
+    Task 2 PE :     40 ( 40.0%) | 6,314 - 49,275 MI
+    Task 4 PE :     30 ( 30.0%) | 94,032 - 452,814 MI
+    Panjang   : min 503 MI | maks 452,814 MI | rata-rata 99,440.0 MI
+    Kedatangan: min 5.46 s | maks 299.91 s | rata-rata 107.39 s
+  ------------------------------------------------------------------------------
+    PEFT | Synthetic  |   100 tasks | Avg Makespan:   480.90 s | Avg Energy:    748,793 J (0.2080 kWh) | StdDev Run: 0.00
+    FCFS | Synthetic  |   100 tasks | Avg Makespan:   511.68 s | Avg Energy:    797,388 J (0.2215 kWh) | StdDev Run: 0.00
+    RR   | Synthetic  |   100 tasks | Avg Makespan:   541.51 s | Avg Energy:    835,975 J (0.2322 kWh) | StdDev Run: 0.00
+  [SWF Parser] Berhasil memuat 100 task dari dataset/NASA-iPSC-1993-3.1-cln.swf.gz
+  [SWF Parser] Rentang panjang: 3000 - 10927000 MI
+    PEFT | NASA-iPSC  |   100 tasks | Avg Makespan: 44,214.71 s | Avg Energy: 50,979,954 J (14.1611 kWh) | StdDev Run: 0.00
+    FCFS | NASA-iPSC  |   100 tasks | Avg Makespan: 44,214.71 s | Avg Energy: 51,245,929 J (14.2350 kWh) | StdDev Run: 0.00
+    RR   | NASA-iPSC  |   100 tasks | Avg Makespan: 44,214.71 s | Avg Energy: 51,245,929 J (14.2350 kWh) | StdDev Run: 0.00
+
+>>> PENGUJIAN WORKLOAD: 200 TASKS <<<
+
+  PROFIL DATASET: Sintetis 200 Task (200 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :     60 ( 30.0%) | 503 - 4,965 MI
+    Task 2 PE :     80 ( 40.0%) | 5,389 - 49,415 MI
+    Task 4 PE :     60 ( 30.0%) | 64,586 - 495,839 MI
+    Panjang   : min 503 MI | maks 495,839 MI | rata-rata 92,393.8 MI
+    Kedatangan: min 1.35 s | maks 294.79 s | rata-rata 104.52 s
+  ------------------------------------------------------------------------------
+    PEFT | Synthetic  |   200 tasks | Avg Makespan:   616.86 s | Avg Energy:  1,096,990 J (0.3047 kWh) | StdDev Run: 0.00
+    FCFS | Synthetic  |   200 tasks | Avg Makespan:   712.58 s | Avg Energy:  1,200,152 J (0.3334 kWh) | StdDev Run: 0.00
+    RR   | Synthetic  |   200 tasks | Avg Makespan:   788.90 s | Avg Energy:  1,290,396 J (0.3584 kWh) | StdDev Run: 0.00
+  [SWF Parser] Berhasil memuat 200 task dari dataset/NASA-iPSC-1993-3.1-cln.swf.gz
+  [SWF Parser] Rentang panjang: 3000 - 19761000 MI
+    PEFT | NASA-iPSC  |   200 tasks | Avg Makespan: 145,202.60 s | Avg Energy: 166,645,440 J (46.2904 kWh) | StdDev Run: 0.00
+    FCFS | NASA-iPSC  |   200 tasks | Avg Makespan: 145,202.60 s | Avg Energy: 167,264,023 J (46.4622 kWh) | StdDev Run: 0.00
+    RR   | NASA-iPSC  |   200 tasks | Avg Makespan: 145,202.60 s | Avg Energy: 167,264,023 J (46.4622 kWh) | StdDev Run: 0.00
+
+>>> PENGUJIAN WORKLOAD: 300 TASKS <<<
+
+  PROFIL DATASET: Sintetis 300 Task (300 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :     90 ( 30.0%) | 503 - 4,965 MI
+    Task 2 PE :    120 ( 40.0%) | 5,275 - 49,426 MI
+    Task 4 PE :     90 ( 30.0%) | 55,486 - 495,497 MI
+    Panjang   : min 503 MI | maks 495,497 MI | rata-rata 95,658.0 MI
+    Kedatangan: min 0.27 s | maks 297.45 s | rata-rata 105.32 s
+  ------------------------------------------------------------------------------
+    PEFT | Synthetic  |   300 tasks | Avg Makespan:   801.55 s | Avg Energy:  1,531,883 J (0.4255 kWh) | StdDev Run: 0.00
+    FCFS | Synthetic  |   300 tasks | Avg Makespan:   937.03 s | Avg Energy:  1,682,871 J (0.4675 kWh) | StdDev Run: 0.00
+    RR   | Synthetic  |   300 tasks | Avg Makespan: 1,051.08 s | Avg Energy:  1,811,123 J (0.5031 kWh) | StdDev Run: 0.00
+  [SWF Parser] Berhasil memuat 300 task dari dataset/NASA-iPSC-1993-3.1-cln.swf.gz
+  [SWF Parser] Rentang panjang: 2000 - 19761000 MI
+    PEFT | NASA-iPSC  |   300 tasks | Avg Makespan: 293,139.10 s | Avg Energy: 335,237,256 J (93.1215 kWh) | StdDev Run: 0.00
+    FCFS | NASA-iPSC  |   300 tasks | Avg Makespan: 293,139.10 s | Avg Energy: 336,156,098 J (93.3767 kWh) | StdDev Run: 0.00
+    RR   | NASA-iPSC  |   300 tasks | Avg Makespan: 293,139.10 s | Avg Energy: 336,156,098 J (93.3767 kWh) | StdDev Run: 0.00
+
+>>> PENGUJIAN WORKLOAD: 400 TASKS <<<
+
+  PROFIL DATASET: Sintetis 400 Task (400 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :    120 ( 30.0%) | 503 - 4,965 MI
+    Task 2 PE :    160 ( 40.0%) | 5,249 - 49,692 MI
+    Task 4 PE :    120 ( 30.0%) | 55,486 - 495,497 MI
+    Panjang   : min 503 MI | maks 495,497 MI | rata-rata 95,543.1 MI
+    Kedatangan: min 0.27 s | maks 291.71 s | rata-rata 102.04 s
+  ------------------------------------------------------------------------------
+    PEFT | Synthetic  |   400 tasks | Avg Makespan:   987.66 s | Avg Energy:  1,955,992 J (0.5433 kWh) | StdDev Run: 0.00
+    FCFS | Synthetic  |   400 tasks | Avg Makespan: 1,250.61 s | Avg Energy:  2,246,828 J (0.6241 kWh) | StdDev Run: 0.00
+    RR   | Synthetic  |   400 tasks | Avg Makespan: 1,201.80 s | Avg Energy:  2,191,332 J (0.6087 kWh) | StdDev Run: 0.00
+  [SWF Parser] Berhasil memuat 400 task dari dataset/NASA-iPSC-1993-3.1-cln.swf.gz
+  [SWF Parser] Rentang panjang: 2000 - 19761000 MI
+    PEFT | NASA-iPSC  |   400 tasks | Avg Makespan: 317,360.71 s | Avg Energy: 363,183,310 J (100.8843 kWh) | StdDev Run: 0.00
+    FCFS | NASA-iPSC  |   400 tasks | Avg Makespan: 317,360.71 s | Avg Energy: 364,266,971 J (101.1853 kWh) | StdDev Run: 0.00
+    RR   | NASA-iPSC  |   400 tasks | Avg Makespan: 317,360.71 s | Avg Energy: 364,266,971 J (101.1853 kWh) | StdDev Run: 0.00
+
+>>> PENGUJIAN WORKLOAD: 500 TASKS <<<
+
+  PROFIL DATASET: Sintetis 500 Task (500 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :    150 ( 30.0%) | 503 - 4,965 MI
+    Task 2 PE :    200 ( 40.0%) | 5,249 - 49,692 MI
+    Task 4 PE :    150 ( 30.0%) | 53,699 - 496,516 MI
+    Panjang   : min 503 MI | maks 496,516 MI | rata-rata 93,583.0 MI
+    Kedatangan: min 0.18 s | maks 293.96 s | rata-rata 104.86 s
+  ------------------------------------------------------------------------------
+    PEFT | Synthetic  |   500 tasks | Avg Makespan: 1,183.63 s | Avg Energy:  2,368,987 J (0.6581 kWh) | StdDev Run: 0.00
+    FCFS | Synthetic  |   500 tasks | Avg Makespan: 1,656.16 s | Avg Energy:  2,885,071 J (0.8014 kWh) | StdDev Run: 0.00
+    RR   | Synthetic  |   500 tasks | Avg Makespan: 1,394.64 s | Avg Energy:  2,589,876 J (0.7194 kWh) | StdDev Run: 0.00
+  [SWF Parser] Berhasil memuat 500 task dari dataset/NASA-iPSC-1993-3.1-cln.swf.gz
+  [SWF Parser] Rentang panjang: 2000 - 19761000 MI
+    PEFT | NASA-iPSC  |   500 tasks | Avg Makespan: 383,272.21 s | Avg Energy: 439,041,441 J (121.9560 kWh) | StdDev Run: 0.00
+    FCFS | NASA-iPSC  |   500 tasks | Avg Makespan: 383,272.21 s | Avg Energy: 440,356,572 J (122.3213 kWh) | StdDev Run: 0.00
+    RR   | NASA-iPSC  |   500 tasks | Avg Makespan: 383,272.21 s | Avg Energy: 440,356,572 J (122.3213 kWh) | StdDev Run: 0.00
+
+>>> PENGUJIAN WORKLOAD: 600 TASKS <<<
+
+  PROFIL DATASET: Sintetis 600 Task (600 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :    180 ( 30.0%) | 503 - 4,965 MI
+    Task 2 PE :    240 ( 40.0%) | 5,249 - 49,692 MI
+    Task 4 PE :    180 ( 30.0%) | 50,472 - 499,729 MI
+    Panjang   : min 503 MI | maks 499,729 MI | rata-rata 91,996.7 MI
+    Kedatangan: min 0.18 s | maks 297.19 s | rata-rata 102.26 s
+  ------------------------------------------------------------------------------
+    PEFT | Synthetic  |   600 tasks | Avg Makespan: 1,372.77 s | Avg Energy:  2,775,898 J (0.7711 kWh) | StdDev Run: 0.00
+    FCFS | Synthetic  |   600 tasks | Avg Makespan: 1,561.16 s | Avg Energy:  2,966,438 J (0.8240 kWh) | StdDev Run: 0.00
+    RR   | Synthetic  |   600 tasks | Avg Makespan: 1,589.70 s | Avg Energy:  3,002,451 J (0.8340 kWh) | StdDev Run: 0.00
+  [SWF Parser] Berhasil memuat 600 task dari dataset/NASA-iPSC-1993-3.1-cln.swf.gz
+  [SWF Parser] Rentang panjang: 2000 - 19761000 MI
+    PEFT | NASA-iPSC  |   600 tasks | Avg Makespan: 406,427.21 s | Avg Energy: 466,552,727 J (129.5980 kWh) | StdDev Run: 0.00
+    FCFS | NASA-iPSC  |   600 tasks | Avg Makespan: 406,427.21 s | Avg Energy: 468,308,960 J (130.0858 kWh) | StdDev Run: 0.00
+    RR   | NASA-iPSC  |   600 tasks | Avg Makespan: 406,427.21 s | Avg Energy: 468,308,960 J (130.0858 kWh) | StdDev Run: 0.00
+
+>>> PENGUJIAN WORKLOAD: 700 TASKS <<<
+
+  PROFIL DATASET: Sintetis 700 Task (700 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :    210 ( 30.0%) | 503 - 4,965 MI
+    Task 2 PE :    280 ( 40.0%) | 5,249 - 49,942 MI
+    Task 4 PE :    210 ( 30.0%) | 50,090 - 499,729 MI
+    Panjang   : min 503 MI | maks 499,729 MI | rata-rata 95,009.8 MI
+    Kedatangan: min 0.18 s | maks 297.19 s | rata-rata 99.40 s
+  ------------------------------------------------------------------------------
+    PEFT | Synthetic  |   700 tasks | Avg Makespan: 1,623.50 s | Avg Energy:  3,294,729 J (0.9152 kWh) | StdDev Run: 0.00
+    FCFS | Synthetic  |   700 tasks | Avg Makespan: 1,827.76 s | Avg Energy:  3,505,944 J (0.9739 kWh) | StdDev Run: 0.00
+    RR   | Synthetic  |   700 tasks | Avg Makespan: 1,939.27 s | Avg Energy:  3,639,975 J (1.0111 kWh) | StdDev Run: 0.00
+  [SWF Parser] Berhasil memuat 700 task dari dataset/NASA-iPSC-1993-3.1-cln.swf.gz
+  [SWF Parser] Rentang panjang: 1000 - 19761000 MI
+    PEFT | NASA-iPSC  |   700 tasks | Avg Makespan: 467,015.21 s | Avg Energy: 536,537,719 J (149.0383 kWh) | StdDev Run: 0.00
+    FCFS | NASA-iPSC  |   700 tasks | Avg Makespan: 467,015.21 s | Avg Energy: 538,705,897 J (149.6405 kWh) | StdDev Run: 0.00
+    RR   | NASA-iPSC  |   700 tasks | Avg Makespan: 467,015.21 s | Avg Energy: 538,705,897 J (149.6405 kWh) | StdDev Run: 0.00
+
+>>> PENGUJIAN WORKLOAD: 800 TASKS <<<
+
+  PROFIL DATASET: Sintetis 800 Task (800 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :    240 ( 30.0%) | 503 - 4,965 MI
+    Task 2 PE :    320 ( 40.0%) | 5,275 - 49,942 MI
+    Task 4 PE :    240 ( 30.0%) | 50,090 - 499,729 MI
+    Panjang   : min 503 MI | maks 499,729 MI | rata-rata 95,887.4 MI
+    Kedatangan: min 0.06 s | maks 299.16 s | rata-rata 99.70 s
+  ------------------------------------------------------------------------------
+    PEFT | Synthetic  |   800 tasks | Avg Makespan: 1,795.17 s | Avg Energy:  3,644,197 J (1.0123 kWh) | StdDev Run: 0.00
+    FCFS | Synthetic  |   800 tasks | Avg Makespan: 1,964.30 s | Avg Energy:  3,894,140 J (1.0817 kWh) | StdDev Run: 0.00
+    RR   | Synthetic  |   800 tasks | Avg Makespan: 2,112.46 s | Avg Energy:  4,079,376 J (1.1332 kWh) | StdDev Run: 0.00
+  [SWF Parser] Berhasil memuat 800 task dari dataset/NASA-iPSC-1993-3.1-cln.swf.gz
+  [SWF Parser] Rentang panjang: 1000 - 19761000 MI
+    PEFT | NASA-iPSC  |   800 tasks | Avg Makespan: 488,392.71 s | Avg Energy: 561,185,612 J (155.8849 kWh) | StdDev Run: 0.00
+    FCFS | NASA-iPSC  |   800 tasks | Avg Makespan: 488,392.60 s | Avg Energy: 563,488,589 J (156.5246 kWh) | StdDev Run: 0.00
+    RR   | NASA-iPSC  |   800 tasks | Avg Makespan: 488,392.60 s | Avg Energy: 563,488,589 J (156.5246 kWh) | StdDev Run: 0.00
+
+>>> PENGUJIAN WORKLOAD: 900 TASKS <<<
+
+  PROFIL DATASET: Sintetis 900 Task (900 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :    270 ( 30.0%) | 503 - 4,965 MI
+    Task 2 PE :    360 ( 40.0%) | 5,039 - 49,942 MI
+    Task 4 PE :    270 ( 30.0%) | 50,090 - 498,719 MI
+    Panjang   : min 503 MI | maks 498,719 MI | rata-rata 91,644.6 MI
+    Kedatangan: min 0.06 s | maks 299.85 s | rata-rata 100.17 s
+  ------------------------------------------------------------------------------
+    PEFT | Synthetic  |   900 tasks | Avg Makespan: 1,967.69 s | Avg Energy:  3,994,417 J (1.1096 kWh) | StdDev Run: 0.00
+    FCFS | Synthetic  |   900 tasks | Avg Makespan: 2,532.84 s | Avg Energy:  4,649,661 J (1.2916 kWh) | StdDev Run: 0.00
+    RR   | Synthetic  |   900 tasks | Avg Makespan: 2,371.04 s | Avg Energy:  4,479,166 J (1.2442 kWh) | StdDev Run: 0.00
+  [SWF Parser] Berhasil memuat 900 task dari dataset/NASA-iPSC-1993-3.1-cln.swf.gz
+  [SWF Parser] Rentang panjang: 1000 - 19761000 MI
+    PEFT | NASA-iPSC  |   900 tasks | Avg Makespan: 566,291.10 s | Avg Energy: 650,773,730 J (180.7705 kWh) | StdDev Run: 0.00
+    FCFS | NASA-iPSC  |   900 tasks | Avg Makespan: 566,297.10 s | Avg Energy: 653,460,193 J (181.5167 kWh) | StdDev Run: 0.00
+    RR   | NASA-iPSC  |   900 tasks | Avg Makespan: 566,297.10 s | Avg Energy: 653,460,193 J (181.5167 kWh) | StdDev Run: 0.00
+
+>>> PENGUJIAN WORKLOAD: 1,000 TASKS <<<
+
+  PROFIL DATASET: Sintetis 1000 Task (1,000 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :    300 ( 30.0%) | 503 - 4,997 MI
+    Task 2 PE :    400 ( 40.0%) | 5,039 - 49,942 MI
+    Task 4 PE :    300 ( 30.0%) | 53,087 - 499,886 MI
+    Panjang   : min 503 MI | maks 499,886 MI | rata-rata 92,725.1 MI
+    Kedatangan: min 0.06 s | maks 299.85 s | rata-rata 100.78 s
+  ------------------------------------------------------------------------------
+    PEFT | Synthetic  | 1,000 tasks | Avg Makespan: 2,172.86 s | Avg Energy:  4,410,911 J (1.2253 kWh) | StdDev Run: 0.00
+    FCFS | Synthetic  | 1,000 tasks | Avg Makespan: 3,094.28 s | Avg Energy:  5,505,295 J (1.5292 kWh) | StdDev Run: 0.00
+    RR   | Synthetic  | 1,000 tasks | Avg Makespan: 2,476.28 s | Avg Energy:  4,807,121 J (1.3353 kWh) | StdDev Run: 0.00
+  [SWF Parser] Berhasil memuat 1000 task dari dataset/NASA-iPSC-1993-3.1-cln.swf.gz
+  [SWF Parser] Rentang panjang: 1000 - 19761000 MI
+    PEFT | NASA-iPSC  | 1,000 tasks | Avg Makespan: 587,101.10 s | Avg Energy: 675,055,068 J (187.5153 kWh) | StdDev Run: 0.00
+    FCFS | NASA-iPSC  | 1,000 tasks | Avg Makespan: 587,101.10 s | Avg Energy: 677,848,561 J (188.2913 kWh) | StdDev Run: 0.00
+    RR   | NASA-iPSC  | 1,000 tasks | Avg Makespan: 587,101.10 s | Avg Energy: 677,848,561 J (188.2913 kWh) | StdDev Run: 0.00
+
+  [CSV Export] Berhasil mengekspor ringkasan batch ke: results/2dc/batch_100_1000_results.csv
+
++================================================================================================================================+
+| RINGKASAN SKALA 100 - 1.000 TASKS (RATA-RATA 3x RUN)                                                                           |
++================================================================================================================================+
+| Algo   | Dataset    | Tasks      | Makespan (s)   | Turnaround (s) | Waiting (s)  | Throughput   | Energi (kWh)   | Load Bal (SD)  |
++--------+------------+------------+----------------+----------------+--------------+--------------+----------------+----------------+
+| PEFT   | Synthetic  |        100 |         480.90 |          49.91 |         0.00 |       0.2079 |         0.2080 |           4.26 |
+| FCFS   | Synthetic  |        100 |         511.68 |          81.13 |        28.58 |       0.1954 |         0.2215 |           0.87 |
+| RR     | Synthetic  |        100 |         541.51 |          78.60 |        25.60 |       0.1847 |         0.2322 |           0.87 |
+| PEFT   | NASA-iPSC  |        100 |      44,214.71 |         254.48 |         0.00 |       0.0023 |        14.1611 |          11.16 |
+| FCFS   | NASA-iPSC  |        100 |      44,214.71 |         260.27 |         0.00 |       0.0023 |        14.2350 |           1.55 |
+| RR     | NASA-iPSC  |        100 |      44,214.71 |         260.27 |         0.00 |       0.0023 |        14.2350 |           1.55 |
+| PEFT   | Synthetic  |        200 |         616.86 |          61.37 |        12.45 |       0.3242 |         0.3047 |           5.77 |
+| FCFS   | Synthetic  |        200 |         712.58 |          88.17 |        38.50 |       0.2807 |         0.3334 |           1.00 |
+| RR     | Synthetic  |        200 |         788.90 |          95.63 |        46.25 |       0.2535 |         0.3584 |           1.00 |
+| PEFT   | NASA-iPSC  |        200 |     145,202.60 |         330.21 |         0.00 |       0.0014 |        46.2904 |          21.13 |
+| FCFS   | NASA-iPSC  |        200 |     145,202.60 |         334.36 |         0.00 |       0.0014 |        46.4622 |           2.95 |
+| RR     | NASA-iPSC  |        200 |     145,202.60 |         334.36 |         0.00 |       0.0014 |        46.4622 |           2.95 |
+| PEFT   | Synthetic  |        300 |         801.55 |          88.22 |        36.35 |       0.3743 |         0.4255 |           6.09 |
+| FCFS   | Synthetic  |        300 |         937.03 |         123.78 |        72.61 |       0.3202 |         0.4675 |           2.06 |
+| RR     | Synthetic  |        300 |       1,051.08 |         127.70 |        76.55 |       0.2854 |         0.5031 |           2.06 |
+| PEFT   | NASA-iPSC  |        300 |     293,139.10 |         336.99 |         0.00 |       0.0010 |        93.1215 |          34.17 |
+| FCFS   | NASA-iPSC  |        300 |     293,139.10 |         340.78 |         0.00 |       0.0010 |        93.3767 |           4.23 |
+| RR     | NASA-iPSC  |        300 |     293,139.10 |         340.78 |         0.00 |       0.0010 |        93.3767 |           4.23 |
+| PEFT   | Synthetic  |        400 |         987.66 |         128.14 |        75.64 |       0.4050 |         0.5433 |           6.11 |
+| FCFS   | Synthetic  |        400 |       1,250.61 |         171.10 |       119.96 |       0.3198 |         0.6241 |           3.00 |
+| RR     | Synthetic  |        400 |       1,201.80 |         186.80 |       135.68 |       0.3328 |         0.6087 |           3.00 |
+| PEFT   | NASA-iPSC  |        400 |     317,360.71 |         295.92 |         0.00 |       0.0013 |       100.8843 |          43.43 |
+| FCFS   | NASA-iPSC  |        400 |     317,360.71 |         301.19 |         0.11 |       0.0013 |       101.1853 |           5.79 |
+| RR     | NASA-iPSC  |        400 |     317,360.71 |         301.19 |         0.11 |       0.0013 |       101.1853 |           5.79 |
+| PEFT   | Synthetic  |        500 |       1,183.63 |         151.33 |        99.83 |       0.4224 |         0.6581 |           6.33 |
+| FCFS   | Synthetic  |        500 |       1,656.16 |         195.97 |       145.98 |       0.3019 |         0.8014 |           3.57 |
+| RR     | Synthetic  |        500 |       1,394.64 |         196.53 |       146.49 |       0.3585 |         0.7194 |           3.57 |
+| PEFT   | NASA-iPSC  |        500 |     383,272.21 |         309.12 |         0.00 |       0.0013 |       121.9560 |          53.51 |
+| FCFS   | NASA-iPSC  |        500 |     383,272.21 |         327.61 |        10.96 |       0.0013 |       122.3213 |           6.82 |
+| RR     | NASA-iPSC  |        500 |     383,272.21 |         327.61 |        10.96 |       0.0013 |       122.3213 |           6.82 |
+| PEFT   | Synthetic  |        600 |       1,372.77 |         188.70 |       137.64 |       0.4371 |         0.7711 |           6.53 |
+| FCFS   | Synthetic  |        600 |       1,561.16 |         225.42 |       176.24 |       0.3843 |         0.8240 |           4.00 |
+| RR     | Synthetic  |        600 |       1,589.70 |         228.64 |       179.39 |       0.3774 |         0.8340 |           4.00 |
+| PEFT   | NASA-iPSC  |        600 |     406,427.21 |         321.02 |         0.00 |       0.0015 |       129.5980 |          59.59 |
+| FCFS   | NASA-iPSC  |        600 |     406,427.21 |         346.15 |        10.51 |       0.0015 |       130.0858 |           8.05 |
+| RR     | NASA-iPSC  |        600 |     406,427.21 |         346.15 |        10.51 |       0.0015 |       130.0858 |           8.05 |
+| PEFT   | Synthetic  |        700 |       1,623.50 |         242.71 |       189.73 |       0.4312 |         0.9152 |           7.04 |
+| FCFS   | Synthetic  |        700 |       1,827.76 |         278.03 |       227.43 |       0.3830 |         0.9739 |           5.02 |
+| RR     | Synthetic  |        700 |       1,939.27 |         287.32 |       236.71 |       0.3610 |         1.0111 |           5.02 |
+| PEFT   | NASA-iPSC  |        700 |     467,015.21 |         335.35 |         0.00 |       0.0015 |       149.0383 |          69.15 |
+| FCFS   | NASA-iPSC  |        700 |     467,015.21 |         357.38 |         9.29 |       0.0015 |       149.6405 |           9.52 |
+| RR     | NASA-iPSC  |        700 |     467,015.21 |         357.38 |         9.29 |       0.0015 |       149.6405 |           9.52 |
+| PEFT   | Synthetic  |        800 |       1,795.17 |         292.66 |       239.09 |       0.4456 |         1.0123 |           8.63 |
+| FCFS   | Synthetic  |        800 |       1,964.30 |         314.77 |       263.77 |       0.4073 |         1.0817 |           6.00 |
+| RR     | Synthetic  |        800 |       2,112.46 |         327.87 |       276.83 |       0.3787 |         1.1332 |           6.00 |
+| PEFT   | NASA-iPSC  |        800 |     488,392.71 |         311.51 |         0.00 |       0.0016 |       155.8849 |          79.99 |
+| FCFS   | NASA-iPSC  |        800 |     488,392.60 |         334.41 |         8.86 |       0.0016 |       156.5246 |          10.81 |
+| RR     | NASA-iPSC  |        800 |     488,392.60 |         334.41 |         8.86 |       0.0016 |       156.5246 |          10.81 |
+| PEFT   | Synthetic  |        900 |       1,967.69 |         321.71 |       270.24 |       0.4574 |         1.1096 |           9.06 |
+| FCFS   | Synthetic  |        900 |       2,532.84 |         333.98 |       285.04 |       0.3553 |         1.2916 |           6.54 |
+| RR     | Synthetic  |        900 |       2,371.04 |         346.62 |       297.59 |       0.3796 |         1.2442 |           6.54 |
+| PEFT   | NASA-iPSC  |        900 |     566,291.10 |         324.38 |         0.00 |       0.0016 |       180.7705 |          91.30 |
+| FCFS   | NASA-iPSC  |        900 |     566,297.10 |         346.24 |         7.88 |       0.0016 |       181.5167 |          12.16 |
+| RR     | NASA-iPSC  |        900 |     566,297.10 |         346.24 |         7.88 |       0.0016 |       181.5167 |          12.16 |
+| PEFT   | Synthetic  |      1,000 |       2,172.86 |         360.84 |       308.85 |       0.4602 |         1.2253 |           9.86 |
+| FCFS   | Synthetic  |      1,000 |       3,094.28 |         370.70 |       321.14 |       0.3232 |         1.5292 |           7.00 |
+| RR     | Synthetic  |      1,000 |       2,476.28 |         375.91 |       326.34 |       0.4038 |         1.3353 |           7.00 |
+| PEFT   | NASA-iPSC  |      1,000 |     587,101.10 |         312.32 |         0.00 |       0.0017 |       187.5153 |         100.70 |
+| FCFS   | NASA-iPSC  |      1,000 |     587,101.10 |         332.09 |         7.09 |       0.0017 |       188.2913 |          14.46 |
+| RR     | NASA-iPSC  |      1,000 |     587,101.10 |         332.09 |         7.09 |       0.0017 |       188.2913 |          14.46 |
++================================================================================================================================+
+
+
+================================================================================
+  SUITE 2: PENGUJIAN SKALA BESAR 1.000 - 10.000 TASKS (KELIPATAN 1.000) [3x RUNS]
+================================================================================
+
+>>> PENGUJIAN WORKLOAD SINTETIS SKALA BESAR: 1,000 TASKS <<<
+
+  PROFIL DATASET: Sintetis 1000 Task (1,000 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :    300 ( 30.0%) | 503 - 4,997 MI
+    Task 2 PE :    400 ( 40.0%) | 5,039 - 49,942 MI
+    Task 4 PE :    300 ( 30.0%) | 53,087 - 499,886 MI
+    Panjang   : min 503 MI | maks 499,886 MI | rata-rata 92,725.1 MI
+    Kedatangan: min 0.06 s | maks 299.85 s | rata-rata 100.78 s
+  ------------------------------------------------------------------------------
+    PEFT | Synthetic  | 1,000 tasks | Avg Makespan: 2,172.86 s | Avg Energy:  4,410,911 J (1.2253 kWh) | StdDev Run: 0.00
+    FCFS | Synthetic  | 1,000 tasks | Avg Makespan: 3,094.28 s | Avg Energy:  5,505,295 J (1.5292 kWh) | StdDev Run: 0.00
+    RR   | Synthetic  | 1,000 tasks | Avg Makespan: 2,476.28 s | Avg Energy:  4,807,121 J (1.3353 kWh) | StdDev Run: 0.00
+
+>>> PENGUJIAN WORKLOAD SINTETIS SKALA BESAR: 2,000 TASKS <<<
+
+  PROFIL DATASET: Sintetis 2000 Task (2,000 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :    600 ( 30.0%) | 503 - 4,997 MI
+    Task 2 PE :    800 ( 40.0%) | 5,024 - 49,944 MI
+    Task 4 PE :    600 ( 30.0%) | 50,842 - 499,890 MI
+    Panjang   : min 503 MI | maks 499,890 MI | rata-rata 91,270.4 MI
+    Kedatangan: min 0.04 s | maks 299.17 s | rata-rata 102.58 s
+  ------------------------------------------------------------------------------
+    PEFT | Synthetic  | 2,000 tasks | Avg Makespan: 4,142.86 s | Avg Energy:  8,410,000 J (2.3361 kWh) | StdDev Run: 0.00
+    FCFS | Synthetic  | 2,000 tasks | Avg Makespan: 4,917.34 s | Avg Energy:  9,524,459 J (2.6457 kWh) | StdDev Run: 0.00
+    RR   | Synthetic  | 2,000 tasks | Avg Makespan: 4,732.71 s | Avg Energy:  9,295,746 J (2.5822 kWh) | StdDev Run: 0.00
+
+>>> PENGUJIAN WORKLOAD SINTETIS SKALA BESAR: 3,000 TASKS <<<
+
+  PROFIL DATASET: Sintetis 3000 Task (3,000 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :    900 ( 30.0%) | 503 - 4,998 MI
+    Task 2 PE :  1,200 ( 40.0%) | 5,020 - 49,944 MI
+    Task 4 PE :    900 ( 30.0%) | 50,251 - 499,994 MI
+    Panjang   : min 503 MI | maks 499,994 MI | rata-rata 94,370.3 MI
+    Kedatangan: min 0.02 s | maks 299.32 s | rata-rata 101.74 s
+  ------------------------------------------------------------------------------
+    PEFT | Synthetic  | 3,000 tasks | Avg Makespan: 6,382.55 s | Avg Energy: 12,956,582 J (3.5991 kWh) | StdDev Run: 0.00
+    FCFS | Synthetic  | 3,000 tasks | Avg Makespan: 7,538.12 s | Avg Energy: 14,691,228 J (4.0809 kWh) | StdDev Run: 0.00
+    RR   | Synthetic  | 3,000 tasks | Avg Makespan: 7,291.61 s | Avg Energy: 14,383,115 J (3.9953 kWh) | StdDev Run: 0.00
+
+>>> PENGUJIAN WORKLOAD SINTETIS SKALA BESAR: 4,000 TASKS <<<
+
+  PROFIL DATASET: Sintetis 4000 Task (4,000 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :  1,200 ( 30.0%) | 503 - 4,998 MI
+    Task 2 PE :  1,600 ( 40.0%) | 5,020 - 49,994 MI
+    Task 4 PE :  1,200 ( 30.0%) | 50,390 - 498,920 MI
+    Panjang   : min 503 MI | maks 498,920 MI | rata-rata 93,113.0 MI
+    Kedatangan: min 0.02 s | maks 299.60 s | rata-rata 101.38 s
+  ------------------------------------------------------------------------------
+    PEFT | Synthetic  | 4,000 tasks | Avg Makespan: 8,322.98 s | Avg Energy: 16,895,653 J (4.6932 kWh) | StdDev Run: 0.00
+    FCFS | Synthetic  | 4,000 tasks | Avg Makespan: 9,212.38 s | Avg Energy: 18,493,693 J (5.1371 kWh) | StdDev Run: 0.00
+    RR   | Synthetic  | 4,000 tasks | Avg Makespan: 9,807.11 s | Avg Energy: 19,167,109 J (5.3242 kWh) | StdDev Run: 0.00
+
+>>> PENGUJIAN WORKLOAD SINTETIS SKALA BESAR: 5,000 TASKS <<<
+
+  PROFIL DATASET: Sintetis 5000 Task (5,000 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :  1,500 ( 30.0%) | 500 - 4,998 MI
+    Task 2 PE :  2,000 ( 40.0%) | 5,020 - 49,994 MI
+    Task 4 PE :  1,500 ( 30.0%) | 50,225 - 499,768 MI
+    Panjang   : min 500 MI | maks 499,768 MI | rata-rata 94,921.5 MI
+    Kedatangan: min 0.02 s | maks 299.56 s | rata-rata 101.56 s
+  ------------------------------------------------------------------------------
+    PEFT | Synthetic  | 5,000 tasks | Avg Makespan: 10,556.84 s | Avg Energy: 21,430,390 J (5.9529 kWh) | StdDev Run: 0.00
+    FCFS | Synthetic  | 5,000 tasks | Avg Makespan: 11,858.51 s | Avg Energy: 23,716,760 J (6.5880 kWh) | StdDev Run: 0.00
+    RR   | Synthetic  | 5,000 tasks | Avg Makespan: 11,813.30 s | Avg Energy: 23,643,774 J (6.5677 kWh) | StdDev Run: 0.00
+
+>>> PENGUJIAN WORKLOAD SINTETIS SKALA BESAR: 6,000 TASKS <<<
+
+  PROFIL DATASET: Sintetis 6000 Task (6,000 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :  1,800 ( 30.0%) | 500 - 4,998 MI
+    Task 2 PE :  2,400 ( 40.0%) | 5,020 - 49,994 MI
+    Task 4 PE :  1,800 ( 30.0%) | 50,115 - 499,821 MI
+    Panjang   : min 500 MI | maks 499,821 MI | rata-rata 93,779.2 MI
+    Kedatangan: min 0.02 s | maks 299.76 s | rata-rata 102.19 s
+  ------------------------------------------------------------------------------
+    PEFT | Synthetic  | 6,000 tasks | Avg Makespan: 12,436.11 s | Avg Energy: 25,245,293 J (7.0126 kWh) | StdDev Run: 0.00
+    FCFS | Synthetic  | 6,000 tasks | Avg Makespan: 14,382.22 s | Avg Energy: 28,447,144 J (7.9020 kWh) | StdDev Run: 0.00
+    RR   | Synthetic  | 6,000 tasks | Avg Makespan: 13,450.29 s | Avg Energy: 27,277,494 J (7.5771 kWh) | StdDev Run: 0.00
+
+>>> PENGUJIAN WORKLOAD SINTETIS SKALA BESAR: 7,000 TASKS <<<
+
+  PROFIL DATASET: Sintetis 7000 Task (7,000 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :  2,100 ( 30.0%) | 500 - 4,998 MI
+    Task 2 PE :  2,800 ( 40.0%) | 5,048 - 49,994 MI
+    Task 4 PE :  2,100 ( 30.0%) | 50,115 - 499,821 MI
+    Panjang   : min 500 MI | maks 499,821 MI | rata-rata 94,365.5 MI
+    Kedatangan: min 0.02 s | maks 299.76 s | rata-rata 101.49 s
+  ------------------------------------------------------------------------------
+    PEFT | Synthetic  | 7,000 tasks | Avg Makespan: 14,590.49 s | Avg Energy: 29,618,685 J (8.2274 kWh) | StdDev Run: 0.00
+    FCFS | Synthetic  | 7,000 tasks | Avg Makespan: 16,412.61 s | Avg Energy: 32,893,482 J (9.1371 kWh) | StdDev Run: 0.00
+    RR   | Synthetic  | 7,000 tasks | Avg Makespan: 16,364.26 s | Avg Energy: 32,855,724 J (9.1266 kWh) | StdDev Run: 0.00
+
+>>> PENGUJIAN WORKLOAD SINTETIS SKALA BESAR: 8,000 TASKS <<<
+
+  PROFIL DATASET: Sintetis 8000 Task (8,000 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :  2,400 ( 30.0%) | 500 - 4,998 MI
+    Task 2 PE :  3,200 ( 40.0%) | 5,048 - 49,994 MI
+    Task 4 PE :  2,400 ( 30.0%) | 50,115 - 499,821 MI
+    Panjang   : min 500 MI | maks 499,821 MI | rata-rata 94,047.5 MI
+    Kedatangan: min 0.02 s | maks 299.85 s | rata-rata 101.42 s
+  ------------------------------------------------------------------------------
+    PEFT | Synthetic  | 8,000 tasks | Avg Makespan: 16,627.44 s | Avg Energy: 33,753,695 J (9.3760 kWh) | StdDev Run: 0.00
+    FCFS | Synthetic  | 8,000 tasks | Avg Makespan: 18,314.93 s | Avg Energy: 37,037,410 J (10.2882 kWh) | StdDev Run: 0.00
+    RR   | Synthetic  | 8,000 tasks | Avg Makespan: 18,887.81 s | Avg Energy: 37,749,453 J (10.4860 kWh) | StdDev Run: 0.00
+
+>>> PENGUJIAN WORKLOAD SINTETIS SKALA BESAR: 9,000 TASKS <<<
+
+  PROFIL DATASET: Sintetis 9000 Task (9,000 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :  2,700 ( 30.0%) | 500 - 4,998 MI
+    Task 2 PE :  3,600 ( 40.0%) | 5,048 - 49,970 MI
+    Task 4 PE :  2,700 ( 30.0%) | 50,304 - 499,649 MI
+    Panjang   : min 500 MI | maks 499,649 MI | rata-rata 94,574.1 MI
+    Kedatangan: min 0.02 s | maks 299.89 s | rata-rata 101.21 s
+  ------------------------------------------------------------------------------
+    PEFT | Synthetic  | 9,000 tasks | Avg Makespan: 18,793.19 s | Avg Energy: 38,150,173 J (10.5973 kWh) | StdDev Run: 0.00
+    FCFS | Synthetic  | 9,000 tasks | Avg Makespan: 20,908.85 s | Avg Energy: 42,101,323 J (11.6948 kWh) | StdDev Run: 0.00
+    RR   | Synthetic  | 9,000 tasks | Avg Makespan: 21,099.67 s | Avg Energy: 42,295,284 J (11.7487 kWh) | StdDev Run: 0.00
+
+>>> PENGUJIAN WORKLOAD SINTETIS SKALA BESAR: 10,000 TASKS <<<
+
+  PROFIL DATASET: Sintetis 10000 Task (10,000 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :  3,000 ( 30.0%) | 500 - 4,998 MI
+    Task 2 PE :  4,000 ( 40.0%) | 5,048 - 49,974 MI
+    Task 4 PE :  3,000 ( 30.0%) | 50,232 - 499,533 MI
+    Panjang   : min 500 MI | maks 499,533 MI | rata-rata 94,339.6 MI
+    Kedatangan: min 0.02 s | maks 299.89 s | rata-rata 101.24 s
+  ------------------------------------------------------------------------------
+    PEFT | Synthetic  | 10,000 tasks | Avg Makespan: 20,827.21 s | Avg Energy: 42,279,236 J (11.7442 kWh) | StdDev Run: 0.00
+    FCFS | Synthetic  | 10,000 tasks | Avg Makespan: 23,185.11 s | Avg Energy: 46,650,592 J (12.9585 kWh) | StdDev Run: 0.00
+    RR   | Synthetic  | 10,000 tasks | Avg Makespan: 22,714.22 s | Avg Energy: 46,055,471 J (12.7932 kWh) | StdDev Run: 0.00
+
+  [CSV Export] Berhasil mengekspor ringkasan batch ke: results/2dc/synthetic_1000_10000_results.csv
+
++================================================================================================================================+
+| RINGKASAN SKALA BESAR 1.000 - 10.000 TASKS (RATA-RATA 3x RUN)                                                                  |
++================================================================================================================================+
+| Algo   | Dataset    | Tasks      | Makespan (s)   | Turnaround (s) | Waiting (s)  | Throughput   | Energi (kWh)   | Load Bal (SD)  |
++--------+------------+------------+----------------+----------------+--------------+--------------+----------------+----------------+
+| PEFT   | Synthetic  |      1,000 |       2,172.86 |         360.84 |       308.85 |       0.4602 |         1.2253 |           9.86 |
+| FCFS   | Synthetic  |      1,000 |       3,094.28 |         370.70 |       321.14 |       0.3232 |         1.5292 |           7.00 |
+| RR     | Synthetic  |      1,000 |       2,476.28 |         375.91 |       326.34 |       0.4038 |         1.3353 |           7.00 |
+| PEFT   | Synthetic  |      2,000 |       4,142.86 |         782.68 |       731.23 |       0.4828 |         2.3361 |          20.64 |
+| FCFS   | Synthetic  |      2,000 |       4,917.34 |         722.97 |       674.15 |       0.4067 |         2.6457 |          15.00 |
+| RR     | Synthetic  |      2,000 |       4,732.71 |         738.11 |       689.29 |       0.4226 |         2.5822 |          15.00 |
+| PEFT   | Synthetic  |      3,000 |       6,382.55 |       1,259.34 |     1,206.27 |       0.4700 |         3.5991 |          28.84 |
+| FCFS   | Synthetic  |      3,000 |       7,538.12 |       1,128.06 |     1,077.76 |       0.3980 |         4.0809 |          22.00 |
+| RR     | Synthetic  |      3,000 |       7,291.61 |       1,174.64 |     1,124.31 |       0.4114 |         3.9953 |          22.00 |
+| PEFT   | Synthetic  |      4,000 |       8,322.98 |       1,707.44 |     1,654.93 |       0.4806 |         4.6932 |          40.45 |
+| FCFS   | Synthetic  |      4,000 |       9,212.38 |       1,514.80 |     1,465.13 |       0.4342 |         5.1371 |          30.00 |
+| RR     | Synthetic  |      4,000 |       9,807.11 |       1,536.23 |     1,486.54 |       0.4079 |         5.3242 |          30.00 |
+| PEFT   | Synthetic  |      5,000 |      10,556.84 |       2,179.44 |     2,125.93 |       0.4736 |         5.9529 |          48.02 |
+| FCFS   | Synthetic  |      5,000 |      11,858.51 |       1,861.29 |     1,810.71 |       0.4216 |         6.5880 |          37.00 |
+| RR     | Synthetic  |      5,000 |      11,813.30 |       1,859.64 |     1,809.02 |       0.4233 |         6.5677 |          37.00 |
+| PEFT   | Synthetic  |      6,000 |      12,436.11 |       2,586.19 |     2,533.27 |       0.4825 |         7.0126 |          57.95 |
+| FCFS   | Synthetic  |      6,000 |      14,382.22 |       2,275.03 |     2,224.97 |       0.4172 |         7.9020 |          45.00 |
+| RR     | Synthetic  |      6,000 |      13,450.29 |       2,273.74 |     2,223.70 |       0.4461 |         7.5771 |          45.00 |
+| PEFT   | Synthetic  |      7,000 |      14,590.49 |       3,060.93 |     3,007.68 |       0.4798 |         8.2274 |          67.70 |
+| FCFS   | Synthetic  |      7,000 |      16,412.61 |       2,679.79 |     2,629.43 |       0.4265 |         9.1371 |          52.00 |
+| RR     | Synthetic  |      7,000 |      16,364.26 |       2,701.91 |     2,651.52 |       0.4278 |         9.1266 |          52.00 |
+| PEFT   | Synthetic  |      8,000 |      16,627.44 |       3,532.09 |     3,479.00 |       0.4811 |         9.3760 |          78.75 |
+| FCFS   | Synthetic  |      8,000 |      18,314.93 |       3,144.49 |     3,094.32 |       0.4368 |        10.2882 |          60.00 |
+| RR     | Synthetic  |      8,000 |      18,887.81 |       3,126.63 |     3,076.44 |       0.4236 |        10.4860 |          60.00 |
+| PEFT   | Synthetic  |      9,000 |      18,793.19 |       4,007.08 |     3,953.70 |       0.4789 |        10.5973 |          88.69 |
+| FCFS   | Synthetic  |      9,000 |      20,908.85 |       3,542.64 |     3,492.23 |       0.4304 |        11.6948 |          67.00 |
+| RR     | Synthetic  |      9,000 |      21,099.67 |       3,700.61 |     3,650.20 |       0.4265 |        11.7487 |          67.00 |
+| PEFT   | Synthetic  |     10,000 |      20,827.21 |       4,497.84 |     4,444.63 |       0.4801 |        11.7442 |          97.91 |
+| FCFS   | Synthetic  |     10,000 |      23,185.11 |       4,165.97 |     4,115.65 |       0.4313 |        12.9585 |          75.00 |
+| RR     | Synthetic  |     10,000 |      22,714.22 |       3,984.87 |     3,934.52 |       0.4403 |        12.7932 |          75.00 |
++================================================================================================================================+
+
+
+================================================================================
+  SUITE 3: PENGUJIAN DATASET GoCJ (GOOGLE CLOUD JOBS) 100 - 1.000 TASKS [3x RUNS]
+================================================================================
+
+  PROFIL DATASET: GoCJ 100 Task (100 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :    100 (100.0%) | 15,000 - 900,000 MI
+    Panjang   : min 15,000 MI | maks 900,000 MI | rata-rata 135,095.0 MI
+    Kedatangan: min 0.00 s | maks 0.00 s | rata-rata 0.00 s
+  ------------------------------------------------------------------------------
+    PEFT | GoCJ       |   100 tasks | Avg Makespan:   450.21 s | Avg Energy:    584,447 J (0.1623 kWh) | StdDev Run: 0.00
+    FCFS | GoCJ       |   100 tasks | Avg Makespan:   900.28 s | Avg Energy:  1,139,308 J (0.3165 kWh) | StdDev Run: 0.00
+    RR   | GoCJ       |   100 tasks | Avg Makespan:   900.28 s | Avg Energy:  1,139,308 J (0.3165 kWh) | StdDev Run: 0.00
+
+  PROFIL DATASET: GoCJ 200 Task (200 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :    200 (100.0%) | 15,000 - 900,000 MI
+    Panjang   : min 15,000 MI | maks 900,000 MI | rata-rata 136,097.5 MI
+    Kedatangan: min 0.00 s | maks 0.00 s | rata-rata 0.00 s
+  ------------------------------------------------------------------------------
+    PEFT | GoCJ       |   200 tasks | Avg Makespan:   450.21 s | Avg Energy:    677,394 J (0.1882 kWh) | StdDev Run: 0.00
+    FCFS | GoCJ       |   200 tasks | Avg Makespan: 1,019.49 s | Avg Energy:  1,379,149 J (0.3831 kWh) | StdDev Run: 0.00
+    RR   | GoCJ       |   200 tasks | Avg Makespan: 1,019.49 s | Avg Energy:  1,379,149 J (0.3831 kWh) | StdDev Run: 0.00
+
+  PROFIL DATASET: GoCJ 300 Task (300 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :    300 (100.0%) | 15,000 - 900,000 MI
+    Panjang   : min 15,000 MI | maks 900,000 MI | rata-rata 138,420.0 MI
+    Kedatangan: min 0.00 s | maks 0.00 s | rata-rata 0.00 s
+  ------------------------------------------------------------------------------
+    PEFT | GoCJ       |   300 tasks | Avg Makespan:   450.21 s | Avg Energy:    776,692 J (0.2157 kWh) | StdDev Run: 0.00
+    FCFS | GoCJ       |   300 tasks | Avg Makespan: 1,101.98 s | Avg Energy:  1,585,950 J (0.4405 kWh) | StdDev Run: 0.00
+    RR   | GoCJ       |   300 tasks | Avg Makespan: 1,101.98 s | Avg Energy:  1,585,950 J (0.4405 kWh) | StdDev Run: 0.00
+
+  PROFIL DATASET: GoCJ 400 Task (400 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :    400 (100.0%) | 15,000 - 900,000 MI
+    Panjang   : min 15,000 MI | maks 900,000 MI | rata-rata 129,673.8 MI
+    Kedatangan: min 0.00 s | maks 0.00 s | rata-rata 0.00 s
+  ------------------------------------------------------------------------------
+    PEFT | GoCJ       |   400 tasks | Avg Makespan:   450.21 s | Avg Energy:    849,638 J (0.2360 kWh) | StdDev Run: 0.00
+    FCFS | GoCJ       |   400 tasks | Avg Makespan: 1,627.98 s | Avg Energy:  2,285,696 J (0.6349 kWh) | StdDev Run: 0.00
+    RR   | GoCJ       |   400 tasks | Avg Makespan: 1,627.98 s | Avg Energy:  2,285,696 J (0.6349 kWh) | StdDev Run: 0.00
+
+  PROFIL DATASET: GoCJ 500 Task (500 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :    500 (100.0%) | 15,000 - 900,000 MI
+    Panjang   : min 15,000 MI | maks 900,000 MI | rata-rata 130,003.0 MI
+    Kedatangan: min 0.00 s | maks 0.00 s | rata-rata 0.00 s
+  ------------------------------------------------------------------------------
+    PEFT | GoCJ       |   500 tasks | Avg Makespan:   450.21 s | Avg Energy:    913,926 J (0.2539 kWh) | StdDev Run: 0.00
+    FCFS | GoCJ       |   500 tasks | Avg Makespan: 1,478.46 s | Avg Energy:  2,234,529 J (0.6207 kWh) | StdDev Run: 0.00
+    RR   | GoCJ       |   500 tasks | Avg Makespan: 1,478.46 s | Avg Energy:  2,234,529 J (0.6207 kWh) | StdDev Run: 0.00
+
+  PROFIL DATASET: GoCJ 600 Task (600 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :    600 (100.0%) | 15,000 - 900,000 MI
+    Panjang   : min 15,000 MI | maks 900,000 MI | rata-rata 137,235.0 MI
+    Kedatangan: min 0.00 s | maks 0.00 s | rata-rata 0.00 s
+  ------------------------------------------------------------------------------
+    PEFT | GoCJ       |   600 tasks | Avg Makespan:   450.21 s | Avg Energy:    913,926 J (0.2539 kWh) | StdDev Run: 0.00
+    FCFS | GoCJ       |   600 tasks | Avg Makespan: 1,546.95 s | Avg Energy:  2,428,497 J (0.6746 kWh) | StdDev Run: 0.00
+    RR   | GoCJ       |   600 tasks | Avg Makespan: 1,546.95 s | Avg Energy:  2,428,497 J (0.6746 kWh) | StdDev Run: 0.00
+
+  PROFIL DATASET: GoCJ 700 Task (700 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :    700 (100.0%) | 15,000 - 900,000 MI
+    Panjang   : min 15,000 MI | maks 900,000 MI | rata-rata 124,990.7 MI
+    Kedatangan: min 0.00 s | maks 0.00 s | rata-rata 0.00 s
+  ------------------------------------------------------------------------------
+    PEFT | GoCJ       |   700 tasks | Avg Makespan:   450.21 s | Avg Energy:    913,926 J (0.2539 kWh) | StdDev Run: 0.00
+    FCFS | GoCJ       |   700 tasks | Avg Makespan: 2,348.07 s | Avg Energy:  3,393,155 J (0.9425 kWh) | StdDev Run: 0.00
+    RR   | GoCJ       |   700 tasks | Avg Makespan: 2,348.07 s | Avg Energy:  3,393,155 J (0.9425 kWh) | StdDev Run: 0.00
+
+  PROFIL DATASET: GoCJ 800 Task (800 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :    800 (100.0%) | 15,000 - 900,000 MI
+    Panjang   : min 15,000 MI | maks 900,000 MI | rata-rata 123,697.5 MI
+    Kedatangan: min 0.00 s | maks 0.00 s | rata-rata 0.00 s
+  ------------------------------------------------------------------------------
+    PEFT | GoCJ       |   800 tasks | Avg Makespan:   505.81 s | Avg Energy:  1,026,794 J (0.2852 kWh) | StdDev Run: 0.00
+    FCFS | GoCJ       |   800 tasks | Avg Makespan: 1,913.33 s | Avg Energy:  3,013,188 J (0.8370 kWh) | StdDev Run: 0.00
+    RR   | GoCJ       |   800 tasks | Avg Makespan: 1,913.33 s | Avg Energy:  3,013,188 J (0.8370 kWh) | StdDev Run: 0.00
+
+  PROFIL DATASET: GoCJ 900 Task (900 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :    900 (100.0%) | 15,000 - 900,000 MI
+    Panjang   : min 15,000 MI | maks 900,000 MI | rata-rata 133,385.6 MI
+    Kedatangan: min 0.00 s | maks 0.00 s | rata-rata 0.00 s
+  ------------------------------------------------------------------------------
+    PEFT | GoCJ       |   900 tasks | Avg Makespan:   610.01 s | Avg Energy:  1,238,320 J (0.3440 kWh) | StdDev Run: 0.00
+    FCFS | GoCJ       |   900 tasks | Avg Makespan: 2,524.70 s | Avg Energy:  3,876,531 J (1.0768 kWh) | StdDev Run: 0.00
+    RR   | GoCJ       |   900 tasks | Avg Makespan: 2,524.70 s | Avg Energy:  3,876,531 J (1.0768 kWh) | StdDev Run: 0.00
+
+  PROFIL DATASET: GoCJ 1000 Task (1,000 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :  1,000 (100.0%) | 15,000 - 900,000 MI
+    Panjang   : min 15,000 MI | maks 900,000 MI | rata-rata 129,662.0 MI
+    Kedatangan: min 0.00 s | maks 0.00 s | rata-rata 0.00 s
+  ------------------------------------------------------------------------------
+    PEFT | GoCJ       | 1,000 tasks | Avg Makespan:   661.39 s | Avg Energy:  1,342,622 J (0.3730 kWh) | StdDev Run: 0.00
+    FCFS | GoCJ       | 1,000 tasks | Avg Makespan: 3,180.74 s | Avg Energy:  4,676,722 J (1.2991 kWh) | StdDev Run: 0.00
+    RR   | GoCJ       | 1,000 tasks | Avg Makespan: 3,180.74 s | Avg Energy:  4,676,722 J (1.2991 kWh) | StdDev Run: 0.00
+
+  [CSV Export] Berhasil mengekspor ringkasan batch ke: results/2dc/gocj_100_1000_results.csv
+
++================================================================================================================================+
+| RINGKASAN GoCJ 100 - 1.000 TASKS (RATA-RATA 3x RUN)                                                                            |
++================================================================================================================================+
+| Algo   | Dataset    | Tasks      | Makespan (s)   | Turnaround (s) | Waiting (s)  | Throughput   | Energi (kWh)   | Load Bal (SD)  |
++--------+------------+------------+----------------+----------------+--------------+--------------+----------------+----------------+
+| PEFT   | GoCJ       |        100 |         450.21 |          72.06 |         0.00 |       0.2221 |         0.1623 |           1.66 |
+| FCFS   | GoCJ       |        100 |         900.28 |         124.98 |        13.35 |       0.1111 |         0.3165 |           0.50 |
+| RR     | GoCJ       |        100 |         900.28 |         124.98 |        13.35 |       0.1111 |         0.3165 |           0.50 |
+| PEFT   | GoCJ       |        200 |         450.21 |         103.05 |        25.99 |       0.4442 |         0.1882 |           3.35 |
+| FCFS   | GoCJ       |        200 |       1,019.49 |         144.56 |        43.56 |       0.1962 |         0.3831 |           0.00 |
+| RR     | GoCJ       |        200 |       1,019.49 |         144.56 |        43.56 |       0.1962 |         0.3831 |           0.00 |
+| PEFT   | GoCJ       |        300 |         450.21 |         141.70 |        61.41 |       0.6664 |         0.2157 |           5.09 |
+| FCFS   | GoCJ       |        300 |       1,101.98 |         190.92 |        87.88 |       0.2722 |         0.4405 |           0.50 |
+| RR     | GoCJ       |        300 |       1,101.98 |         190.92 |        87.88 |       0.2722 |         0.4405 |           0.50 |
+| PEFT   | GoCJ       |        400 |         450.21 |         181.04 |       104.36 |       0.8885 |         0.2360 |           6.55 |
+| FCFS   | GoCJ       |        400 |       1,627.98 |         236.44 |       136.69 |       0.2457 |         0.6349 |           0.00 |
+| RR     | GoCJ       |        400 |       1,627.98 |         236.44 |       136.69 |       0.2457 |         0.6349 |           0.00 |
+| PEFT   | GoCJ       |        500 |         450.21 |         232.55 |       155.55 |       1.1106 |         0.2539 |           9.06 |
+| FCFS   | GoCJ       |        500 |       1,478.46 |         288.21 |       188.92 |       0.3382 |         0.6207 |           0.50 |
+| RR     | GoCJ       |        500 |       1,478.46 |         288.21 |       188.92 |       0.3382 |         0.6207 |           0.50 |
+| PEFT   | GoCJ       |        600 |         450.21 |         298.22 |       216.42 |       1.3327 |         0.2539 |          10.75 |
+| FCFS   | GoCJ       |        600 |       1,546.95 |         321.30 |       220.76 |       0.3879 |         0.6746 |           0.00 |
+| RR     | GoCJ       |        600 |       1,546.95 |         321.30 |       220.76 |       0.3879 |         0.6746 |           0.00 |
+| PEFT   | GoCJ       |        700 |         450.21 |         312.90 |       237.73 |       1.5548 |         0.2539 |          10.93 |
+| FCFS   | GoCJ       |        700 |       2,348.07 |         379.12 |       284.78 |       0.2981 |         0.9425 |           0.50 |
+| RR     | GoCJ       |        700 |       2,348.07 |         379.12 |       284.78 |       0.2981 |         0.9425 |           0.50 |
+| PEFT   | GoCJ       |        800 |         505.81 |         360.53 |       286.17 |       1.5816 |         0.2852 |          11.11 |
+| FCFS   | GoCJ       |        800 |       1,913.33 |         402.85 |       310.03 |       0.4181 |         0.8370 |           0.00 |
+| RR     | GoCJ       |        800 |       1,913.33 |         402.85 |       310.03 |       0.4181 |         0.8370 |           0.00 |
+| PEFT   | GoCJ       |        900 |         610.01 |         449.16 |       369.03 |       1.4754 |         0.3440 |          11.58 |
+| FCFS   | GoCJ       |        900 |       2,524.70 |         475.12 |       374.78 |       0.3565 |         1.0768 |           0.50 |
+| RR     | GoCJ       |        900 |       2,524.70 |         475.12 |       374.78 |       0.3565 |         1.0768 |           0.50 |
+| PEFT   | GoCJ       |      1,000 |         661.39 |         476.28 |       398.26 |       1.5120 |         0.3730 |          12.47 |
+| FCFS   | GoCJ       |      1,000 |       3,180.74 |         505.64 |       408.30 |       0.3144 |         1.2991 |           0.00 |
+| RR     | GoCJ       |      1,000 |       3,180.74 |         505.64 |       408.30 |       0.3144 |         1.2991 |           0.00 |
++================================================================================================================================+
+
+
+====================================================================
+  Semua batch eksperimen telah selesai dieksekusi dan diekspor!     
+====================================================================

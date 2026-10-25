@@ -1,0 +1,4 @@
+Algorithm,TotalTasks,Makespan(s),AvgTurnaround(s),AvgWaitingTime(s),Throughput(task/s),CpuUtilization(%),LoadBalanceSD,Energy(J),Energy(kWh)
+PEFT (Predict Earliest Finish Time) [NASA-iPSC],1000,587101.1000,312.3189,0.0002,0.0017,1.3295,100.6968,675055067.5683,187.515297
+FCFS (First Come First Served) [NASA-iPSC],1000,587101.1000,332.0919,7.0919,0.0017,1.3835,14.4603,677848560.5721,188.291267
+Round Robin [NASA-iPSC],1000,587101.1000,332.0919,7.0919,0.0017,1.3835,14.4603,677848560.5721,188.291267

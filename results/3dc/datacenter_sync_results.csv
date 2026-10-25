@@ -1,0 +1,19 @@
+Algorithm,Datacenter,HostCount,VmCount,TasksCompleted,WorkloadPct,DcMakespan(s),AvgExecTime(s),Energy(J),Energy(kWh),IsSynchronized
+PEFT (Predict Earliest Finish Time) [Synthetic],DC-1: Jakarta (Entry-Level),8,10,290,29.00,103.8610,2.6942,3331933.11,0.925537,true
+PEFT (Predict Earliest Finish Time) [Synthetic],DC-2: Surabaya (Standard),8,10,393,39.30,747.5613,18.4849,3919484.92,1.088746,true
+PEFT (Predict Earliest Finish Time) [Synthetic],DC-3: Bandung (Premium),8,10,317,31.70,4185.5940,128.0544,6927105.92,1.924196,true
+FCFS (First Come First Served) [Synthetic],DC-1: Jakarta (Entry-Level),8,10,100,10.00,96.4430,2.7731,3933576.40,1.092660,true
+FCFS (First Come First Served) [Synthetic],DC-2: Surabaya (Standard),8,10,300,30.00,419.7113,13.1411,4533131.56,1.259203,true
+FCFS (First Come First Served) [Synthetic],DC-3: Bandung (Premium),8,10,600,60.00,4946.7205,72.2433,7831347.27,2.175374,true
+Round Robin [Synthetic],DC-1: Jakarta (Entry-Level),8,10,100,10.00,102.9050,2.7214,3637940.74,1.010539,true
+Round Robin [Synthetic],DC-2: Surabaya (Standard),8,10,300,30.00,471.8047,13.3794,4200455.34,1.166793,true
+Round Robin [Synthetic],DC-3: Bandung (Premium),8,10,600,60.00,4574.8190,72.1600,7415066.05,2.059741,true
+PEFT (Predict Earliest Finish Time) [NASA-iPSC],DC-1: Jakarta (Entry-Level),8,10,0,0.00,0.0000,0.0000,466628041.71,129.618900,true
+PEFT (Predict Earliest Finish Time) [NASA-iPSC],DC-2: Surabaya (Standard),8,10,0,0.00,0.0000,0.0000,528391089.00,146.775302,true
+PEFT (Predict Earliest Finish Time) [NASA-iPSC],DC-3: Bandung (Premium),8,10,1000,100.00,587101.1000,312.2187,626081680.56,173.911578,true
+FCFS (First Come First Served) [NASA-iPSC],DC-1: Jakarta (Entry-Level),8,10,110,11.00,576532.1000,123.2444,466721413.22,129.644837,true
+FCFS (First Come First Served) [NASA-iPSC],DC-2: Surabaya (Standard),8,10,160,16.00,582252.8767,89.2266,528649651.35,146.847125,true
+FCFS (First Come First Served) [NASA-iPSC],DC-3: Bandung (Premium),8,10,730,73.00,587101.1000,403.7423,628236349.89,174.510097,true
+Round Robin [NASA-iPSC],DC-1: Jakarta (Entry-Level),8,10,110,11.00,576532.1000,123.2444,466721413.22,129.644837,true
+Round Robin [NASA-iPSC],DC-2: Surabaya (Standard),8,10,160,16.00,582252.8767,89.2266,528649651.35,146.847125,true
+Round Robin [NASA-iPSC],DC-3: Bandung (Premium),8,10,730,73.00,587101.1000,403.7423,628236349.89,174.510097,true

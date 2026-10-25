@@ -15,8 +15,12 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
+// Skenario infrastruktur: -Pskenario=3dc (default) atau -Pskenario=2dc
+def skenario = project.findProperty('skenario') ?: '3dc'
+
 tasks.withType(JavaExec) {
     jvmArgs += '-Dfile.encoding=UTF-8'
+    systemProperty 'skenario', skenario
 }
 
 repositories {
@@ -27,7 +31,7 @@ dependencies {
     // CloudSim Plus 8.0.0
     implementation 'org.cloudsimplus:cloudsimplus:8.0.0'
 
-    // SLF4J for logging (required by CloudSim Plus)
+    // SLF4J binding (dibutuhkan CloudSim Plus)
     implementation 'ch.qos.logback:logback-classic:1.4.14'
 }
 
@@ -35,44 +39,21 @@ application {
     mainClass = 'com.kelompok8.MainSimulation'
 }
 
-// Task to run with specific scheduler
-tasks.register('runFCFS', JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.kelompok8.MainSimulation'
-    args = ['FCFS']
+def registerRun(String name, String mainClassName, List<String> runArgs, String desc) {
+    tasks.register(name, JavaExec) {
+        group = 'simulasi'
+        description = desc
+        classpath = sourceSets.main.runtimeClasspath
+        mainClass = mainClassName
+        args = runArgs
+    }
 }
 
-tasks.register('runRoundRobin', JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.kelompok8.MainSimulation'
-    args = ['RR']
-}
-
-tasks.register('runPEFT', JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.kelompok8.MainSimulation'
-    args = ['PEFT']
-}
-
-tasks.register('runAll', JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.kelompok8.MainSimulation'
-    args = ['ALL']
-}
-
-tasks.register('testAllocation', JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.kelompok8.TestVmHostAllocation'
-}
-
-tasks.register('runBatch', JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.kelompok8.BatchExperimentSuite'
-}
-
-tasks.register('generateCharts', JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.kelompok8.GenerateEvaluationCharts'
-}
-
-
+registerRun('runAll',         'com.kelompok8.MainSimulation',           ['ALL'],  'PEFT, FCFS, RR pada Sintetis & NASA iPSC (1.000 task)')
+registerRun('runPEFT',        'com.kelompok8.MainSimulation',           ['PEFT'], 'Hanya PEFT')
+registerRun('runFCFS',        'com.kelompok8.MainSimulation',           ['FCFS'], 'Hanya FCFS')
+registerRun('runRoundRobin',  'com.kelompok8.MainSimulation',           ['RR'],   'Hanya Round Robin')
+registerRun('runBatch',       'com.kelompok8.BatchExperimentSuite',     [],       'Batch 100-1.000, 1.000-10.000, GoCJ (3x run)')
+registerRun('generateCharts', 'com.kelompok8.GenerateEvaluationCharts', [],       'Grafik dari CSV batch ke docs/images/{skenario}')
+registerRun('testAllocation', 'com.kelompok8.TestVmHostAllocation',     [],       'Verifikasi penempatan VM ke host')
+registerRun('renderArsitektur', 'com.kelompok8.RenderArsitektur',          [],       'Diagram arsitektur ke docs/images/{skenario}')

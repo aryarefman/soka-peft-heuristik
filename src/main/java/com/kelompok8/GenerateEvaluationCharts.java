@@ -10,105 +10,86 @@ import java.util.*;
 import java.util.List;
 
 /**
- * Generator Grafik Evaluasi Komparatif Kinerja Penjadwalan.
+ * Generator grafik evaluasi komparatif PEFT vs FCFS vs Round Robin.
  *
- * Menghasilkan grafik beresolusi tinggi (Full HD / 1200x800) dengan tipografi modern
- * untuk visualisasi hasil eksperimen sesuai arahan Bu Henning:
- * 1. Makespan vs Jumlah Task (Sintetis 100 - 1.000)
- * 2. Makespan vs Jumlah Task (Sintetis Skala Besar 1.000 - 10.000)
- * 3. Makespan vs Jumlah Task (GoCJ Trace 100 - 1.000)
- * 4. Konsumsi Energi SPECpower (kWh) vs Jumlah Task
- * 5. Average Waiting Time (Waktu Antre) vs Jumlah Task
- * 6. Load Balance Imbalance (Std Dev Beban VM) vs Jumlah Task
+ * Membaca CSV hasil BatchExperimentSuite di results/{skenario}/ dan menyimpan
+ * grafik PNG (1200x750) ke docs/images/{skenario}/:
+ * 1. Makespan Sintetis 100 - 1.000 dan 1.000 - 10.000
+ * 2. Makespan, Turnaround, dan Waiting Time NASA iPSC 100 - 1.000
+ * 3. Makespan GoCJ 100 - 1.000
+ * 4. Konsumsi Energi SPECpower dan Load Balance Sintetis 1.000 - 10.000
+ *
+ * Argumen: [3dc|2dc]
  */
 public class GenerateEvaluationCharts {
 
     private static final int WIDTH = 1200;
     private static final int HEIGHT = 750;
-    private static final String IMAGES_DIR = "docs/images";
+    private static final String X_LABEL = "Jumlah Task (Cloudlets)";
+    private static final Locale ID = Locale.forLanguageTag("id-ID");
+
+    private static String subtitle;
+    private static Font fontRegular = new Font("Segoe UI", Font.PLAIN, 12);
+    private static Font fontBold = new Font("Segoe UI", Font.BOLD, 12);
 
     public static void main(String[] args) throws Exception {
-        Files.createDirectories(Path.of(IMAGES_DIR));
-        System.out.println("Membangkitkan Grafik Evaluasi Metrik...");
+        Skenario skenario = Skenario.dariArgs(args);
+        String res = skenario.resultsDir();
+        String img = skenario.imagesDir();
+        Files.createDirectories(Path.of(img));
+        loadPoppins();
+        subtitle = "SOKA 2026 - Kelompok 8 | CloudSim Plus 8.0 | Skenario " + skenario.id + ": "
+                + skenario.ringkasan() + " | rata-rata 3x run";
+        System.out.println("Membangkitkan grafik evaluasi skenario " + skenario.id + "...");
 
-        // 1. Chart Makespan Sintetis (100 - 1.000)
-        generateLineChart(
-                "results/batch_100_1000_results.csv",
-                "Synthetic",
-                "Makespan (detik)",
-                "Jumlah Task (Cloudlets)",
-                "Perbandingan Makespan vs Skala Task (Dataset Sintetis 100 - 1.000)",
-                IMAGES_DIR + "/grafik_makespan_sintetis_100_1000.png",
-                "AvgMakespan(s)");
+        String small = res + "/batch_100_1000_results.csv";
+        String large = res + "/synthetic_1000_10000_results.csv";
+        String gocj = res + "/gocj_100_1000_results.csv";
 
-        // 2. Chart Makespan Sintetis Skala Besar (1.000 - 10.000)
-        generateLineChart(
-                "results/synthetic_1000_10000_results.csv",
-                "Synthetic",
-                "Makespan (detik)",
-                "Jumlah Task (Cloudlets)",
-                "Perbandingan Makespan vs Skala Besar (Dataset Sintetis 1.000 - 10.000)",
-                IMAGES_DIR + "/grafik_makespan_sintetis_1000_10000.png",
-                "AvgMakespan(s)");
-
-        // 3. Chart Makespan NASA iPSC (100 - 1.000)
-        generateLineChart(
-                "results/batch_100_1000_results.csv",
-                "NASA-iPSC",
-                "Makespan (detik)",
-                "Jumlah Task (Cloudlets)",
-                "Perbandingan Makespan vs Skala Task (Dataset NASA iPSC 100 - 1.000)",
-                IMAGES_DIR + "/grafik_makespan_nasa_100_1000.png",
-                "AvgMakespan(s)");
-
-        // 3b. Chart Makespan GoCJ (100 - 1.000) [Optional / Tambahan jika ada]
-        if (new File("results/gocj_100_1000_results.csv").exists()) {
-            generateLineChart(
-                    "results/gocj_100_1000_results.csv",
-                    "GoCJ",
-                    "Makespan (detik)",
-                    "Jumlah Task (Cloudlets)",
-                    "Perbandingan Makespan vs Skala Task (Dataset GoCJ 100 - 1.000)",
-                    IMAGES_DIR + "/grafik_makespan_gocj_100_1000.png",
-                    "AvgMakespan(s)");
+        generateLineChart(small, "Synthetic", "Makespan (detik)",
+                "Makespan vs Jumlah Task - Dataset Sintetis (100 - 1.000)",
+                img + "/grafik_makespan_sintetis_100_1000.png", "AvgMakespan(s)");
+        generateLineChart(large, "Synthetic", "Makespan (detik)",
+                "Makespan vs Jumlah Task - Dataset Sintetis (1.000 - 10.000)",
+                img + "/grafik_makespan_sintetis_1000_10000.png", "AvgMakespan(s)");
+        generateLineChart(small, "NASA-iPSC", "Makespan (detik)",
+                "Makespan vs Jumlah Task - Trace NASA iPSC/860 (100 - 1.000)",
+                img + "/grafik_makespan_nasa_100_1000.png", "AvgMakespan(s)");
+        generateLineChart(small, "NASA-iPSC", "Rata-rata Turnaround Time (detik)",
+                "Turnaround Time vs Jumlah Task - Trace NASA iPSC/860 (100 - 1.000)",
+                img + "/grafik_turnaround_nasa_100_1000.png", "AvgTurnaround(s)");
+        generateLineChart(small, "NASA-iPSC", "Rata-rata Waiting Time (detik)",
+                "Waiting Time vs Jumlah Task - Trace NASA iPSC/860 (100 - 1.000)",
+                img + "/grafik_waiting_time_nasa_100_1000.png", "AvgWaiting(s)");
+        if (Files.exists(Path.of(gocj))) {
+            generateLineChart(gocj, "GoCJ", "Makespan (detik)",
+                    "Makespan vs Jumlah Task - Dataset GoCJ (100 - 1.000)",
+                    img + "/grafik_makespan_gocj_100_1000.png", "AvgMakespan(s)");
         }
+        generateLineChart(large, "Synthetic", "Total Konsumsi Energi (kWh)",
+                "Konsumsi Energi SPECpower - Dataset Sintetis (1.000 - 10.000)",
+                img + "/grafik_energi_specpower_1000_10000.png", "AvgEnergy(kWh)");
+        generateLineChart(large, "Synthetic", "Std Dev jumlah task per VM",
+                "Pemerataan Beban Antar-VM - Dataset Sintetis (1.000 - 10.000)",
+                img + "/grafik_load_balance_1000_10000.png", "AvgLoadBalanceStdDev");
 
-        // 4. Chart Energi SPECpower (1.000 - 10.000)
-        generateLineChart(
-                "results/synthetic_1000_10000_results.csv",
-                "Synthetic",
-                "Total Konsumsi Energi (kWh)",
-                "Jumlah Task (Cloudlets)",
-                "Perbandingan Konsumsi Energi SPECpower (Dataset Sintetis 1.000 - 10.000)",
-                IMAGES_DIR + "/grafik_energi_specpower_1000_10000.png",
-                "AvgEnergy(kWh)");
+        System.out.println("Seluruh grafik tersimpan di: " + img);
+    }
 
-        // 5. Chart Waiting Time (NASA iPSC 100 - 1.000)
-        generateLineChart(
-                "results/batch_100_1000_results.csv",
-                "NASA-iPSC",
-                "Rata-rata Waktu Tunggu / Waiting Time (detik)",
-                "Jumlah Task (Cloudlets)",
-                "Evaluasi Eliminasi Waktu Antre (Dataset NASA iPSC 100 - 1.000)",
-                IMAGES_DIR + "/grafik_waiting_time_nasa_100_1000.png",
-                "AvgWaiting(s)");
-
-        // 6. Chart Load Balance StdDev (1.000 - 10.000)
-        generateLineChart(
-                "results/synthetic_1000_10000_results.csv",
-                "Synthetic",
-                "Derajat Ketimpangan Beban / Load Balance (Std Dev)",
-                "Jumlah Task (Cloudlets)",
-                "Pemerataan Distribusi Beban Antar-VM (Dataset Sintetis 1.000 - 10.000)",
-                IMAGES_DIR + "/grafik_load_balance_1000_10000.png",
-                "AvgLoadBalanceStdDev");
-
-        System.out.println("Seluruh grafik berhasil disimpan ke: " + IMAGES_DIR);
+    /** Memakai font Poppins dari folder fonts/ bila tersedia, selain itu Segoe UI. */
+    private static void loadPoppins() {
+        try {
+            fontRegular = Font.createFont(Font.TRUETYPE_FONT, new File("fonts/Poppins-Regular.ttf"));
+            fontBold = Font.createFont(Font.TRUETYPE_FONT, new File("fonts/Poppins-SemiBold.ttf"));
+        } catch (Exception ignored) {
+            // fallback ke Segoe UI
+        }
     }
 
     public static void generateLineChart(
-            String csvPath, String targetDataset, String yLabel, String xLabel,
+            String csvPath, String targetDataset, String yLabel,
             String title, String outputPath, String valueColumn) throws IOException {
+        String xLabel = X_LABEL;
 
         List<DataPoint> peftPoints = new ArrayList<>();
         List<DataPoint> fcfsPoints = new ArrayList<>();
@@ -180,7 +161,7 @@ public class GenerateEvaluationCharts {
 
         // Draw Grid Lines
         int numYDivs = 6;
-        g.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        g.setFont(fontRegular.deriveFont(12f));
         FontMetrics fm = g.getFontMetrics();
 
         for (int i = 0; i <= numYDivs; i++) {
@@ -191,8 +172,8 @@ public class GenerateEvaluationCharts {
             g.drawLine(padLeft + 1, yPos, padLeft + plotW - 1, yPos);
 
             g.setColor(new Color(110, 120, 135));
-            String lbl = String.format("%,.1f", yVal);
-            if (maxY > 100) lbl = String.format("%,.0f", yVal);
+            String lbl = String.format(ID, "%,.1f", yVal);
+            if (maxY > 100) lbl = String.format(ID, "%,.0f", yVal);
             g.drawString(lbl, padLeft - fm.stringWidth(lbl) - 12, yPos + 4);
         }
 
@@ -206,23 +187,22 @@ public class GenerateEvaluationCharts {
             g.drawLine(xPos, padTop + 1, xPos, padTop + plotH - 1);
 
             g.setColor(new Color(110, 120, 135));
-            String lbl = String.format("%,d", xVal);
+            String lbl = String.format(ID, "%,d", xVal);
             g.drawString(lbl, xPos - fm.stringWidth(lbl) / 2, padTop + plotH + 22);
         }
 
         // Title and Subtitle
         g.setColor(new Color(24, 43, 73));
-        g.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        g.setFont(fontBold.deriveFont(22f));
         g.drawString(title, padLeft, 50);
 
         g.setColor(new Color(100, 116, 139));
-        g.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        g.drawString("Mata Kuliah SOKA 2026 — Kelompok 8 (Simulator CloudSim Plus 8.0, 3 Datacenter, 3x Run Rata-rata)",
-                padLeft, 76);
+        g.setFont(fontRegular.deriveFont(14f));
+        g.drawString(subtitle, padLeft, 76);
 
         // Y Label
         g.setColor(new Color(51, 65, 85));
-        g.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        g.setFont(fontBold.deriveFont(13f));
         AffineTransform orig = g.getTransform();
         g.rotate(-Math.PI / 2);
         g.drawString(yLabel, -(padTop + plotH / 2 + fm.stringWidth(yLabel) / 2), 35);
@@ -236,12 +216,15 @@ public class GenerateEvaluationCharts {
         Color colFcfs = new Color(239, 68, 68);   // Red
         Color colRr   = new Color(59, 130, 246);  // Blue
 
-        drawSeries(g, fcfsPoints, colFcfs, maxY, padLeft, padTop, plotW, plotH, false);
-        drawSeries(g, rrPoints, colRr, maxY, padLeft, padTop, plotW, plotH, false);
-        drawSeries(g, peftPoints, colPeft, maxY, padLeft, padTop, plotW, plotH, true); // Primary
+        // FCFS digambar putus-putus di atas RR agar tetap terlihat saat nilainya berimpit
+        drawSeries(g, rrPoints, colRr, maxY, padLeft, padTop, plotW, plotH, false, false);
+        drawSeries(g, fcfsPoints, colFcfs, maxY, padLeft, padTop, plotW, plotH, false, true);
+        drawSeries(g, peftPoints, colPeft, maxY, padLeft, padTop, plotW, plotH, true, false);
 
-        // Legend at bottom
-        drawLegend(g, padLeft, padTop + plotH + 70, colPeft, colFcfs, colRr);
+        boolean fcfsEqualsRr = fcfsPoints.size() == rrPoints.size() && java.util.stream.IntStream
+                .range(0, fcfsPoints.size())
+                .allMatch(i -> Math.abs(fcfsPoints.get(i).y - rrPoints.get(i).y) < 1e-6);
+        drawLegend(g, padLeft, padTop + plotH + 64, colPeft, colFcfs, colRr, fcfsEqualsRr);
 
         g.dispose();
         ImageIO.write(img, "png", new File(outputPath));
@@ -250,12 +233,14 @@ public class GenerateEvaluationCharts {
 
     private static void drawSeries(
             Graphics2D g, List<DataPoint> points, Color color, double maxY,
-            int padLeft, int padTop, int plotW, int plotH, boolean isThick) {
+            int padLeft, int padTop, int plotW, int plotH, boolean isThick, boolean dashed) {
 
         if (points.size() < 2) return;
         int n = points.size();
 
-        g.setStroke(new BasicStroke(isThick ? 3.5f : 2.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setStroke(dashed
+                ? new BasicStroke(2.2f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 10f, new float[] {9f, 7f}, 0f)
+                : new BasicStroke(isThick ? 3.5f : 2.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
         g.setColor(color);
 
         Path2D.Double path = new Path2D.Double();
@@ -281,29 +266,36 @@ public class GenerateEvaluationCharts {
         }
     }
 
-    private static void drawLegend(Graphics2D g, int x, int y, Color peft, Color fcfs, Color rr) {
-        g.setFont(new Font("Segoe UI", Font.BOLD, 13));
+    private static void drawLegend(Graphics2D g, int x, int y, Color peft, Color fcfs, Color rr, boolean fcfsEqualsRr) {
+        g.setFont(fontBold.deriveFont(13f));
         int curX = x;
 
         // PEFT
         g.setColor(peft);
         g.fillRoundRect(curX, y, 16, 16, 4, 4);
         g.setColor(new Color(30, 41, 59));
-        g.drawString("PEFT (Diusulkan - Optimal)", curX + 24, y + 13);
+        g.drawString("PEFT (Diusulkan)", curX + 24, y + 13);
         curX += 230;
 
         // FCFS
         g.setColor(fcfs);
         g.fillRoundRect(curX, y, 16, 16, 4, 4);
         g.setColor(new Color(30, 41, 59));
-        g.drawString("FCFS (Baseline 1)", curX + 24, y + 13);
-        curX += 180;
+        g.drawString("FCFS (Baseline 1, putus-putus)", curX + 24, y + 13);
+        curX += 290;
 
         // RR
         g.setColor(rr);
         g.fillRoundRect(curX, y, 16, 16, 4, 4);
         g.setColor(new Color(30, 41, 59));
         g.drawString("Round Robin (Baseline 2)", curX + 24, y + 13);
+
+        if (fcfsEqualsRr) {
+            g.setFont(fontRegular.deriveFont(12.5f));
+            g.setColor(new Color(100, 116, 139));
+            g.drawString("Catatan: nilai FCFS dan Round Robin identik pada dataset ini, sehingga kedua garis berimpit.",
+                    x, y + 34);
+        }
     }
 
     private static int getColIdx(String[] headers, String name) {

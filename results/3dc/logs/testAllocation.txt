@@ -1,0 +1,83 @@
+
+  Membangun 3 Datacenter Heterogen (skenario 3dc)...
+  [Kebijakan Alokasi VM-ke-Host] : PENYERATAAN_ROUND_ROBIN
+  ------------------------------------------------------------
+
+  [DC-1: Jakarta (Entry-Level)]
+    [Host Tipe-A #1] 1000 MIPS/core x 8 PE, 8 GB RAM
+    [Host Tipe-A #2] 1000 MIPS/core x 8 PE, 8 GB RAM
+    [Host Tipe-A #3] 1000 MIPS/core x 8 PE, 8 GB RAM
+    [Host Tipe-A #4] 1000 MIPS/core x 8 PE, 8 GB RAM
+    [Host Tipe-B #5] 1500 MIPS/core x 8 PE, 16 GB RAM
+    [Host Tipe-B #6] 1500 MIPS/core x 8 PE, 16 GB RAM
+    [Host Tipe-B #7] 1500 MIPS/core x 8 PE, 16 GB RAM
+    [Host Tipe-B #8] 1500 MIPS/core x 8 PE, 16 GB RAM
+    [VM Small] 1000 MIPS x 1 PE, 1024 MB RAM x 10 unit
+
+  [DC-2: Surabaya (Standard)]
+    [Host Tipe-B #1] 1500 MIPS/core x 8 PE, 16 GB RAM
+    [Host Tipe-B #2] 1500 MIPS/core x 8 PE, 16 GB RAM
+    [Host Tipe-B #3] 1500 MIPS/core x 8 PE, 16 GB RAM
+    [Host Tipe-B #4] 1500 MIPS/core x 8 PE, 16 GB RAM
+    [Host Tipe-C #5] 2000 MIPS/core x 8 PE, 24 GB RAM
+    [Host Tipe-C #6] 2000 MIPS/core x 8 PE, 24 GB RAM
+    [Host Tipe-C #7] 2000 MIPS/core x 8 PE, 24 GB RAM
+    [Host Tipe-C #8] 2000 MIPS/core x 8 PE, 24 GB RAM
+    [VM Medium] 1500 MIPS x 2 PE, 2048 MB RAM x 10 unit
+
+  [DC-3: Bandung (Premium)]
+    [Host Tipe-C #1] 2000 MIPS/core x 8 PE, 24 GB RAM
+    [Host Tipe-C #2] 2000 MIPS/core x 8 PE, 24 GB RAM
+    [Host Tipe-C #3] 2000 MIPS/core x 8 PE, 24 GB RAM
+    [Host Tipe-C #4] 2000 MIPS/core x 8 PE, 24 GB RAM
+    [Host Tipe-D #5] 3000 MIPS/core x 8 PE, 32 GB RAM
+    [Host Tipe-D #6] 3000 MIPS/core x 8 PE, 32 GB RAM
+    [Host Tipe-D #7] 3000 MIPS/core x 8 PE, 32 GB RAM
+    [Host Tipe-D #8] 3000 MIPS/core x 8 PE, 32 GB RAM
+    [VM Large] 2000 MIPS x 4 PE, 4096 MB RAM x 10 unit
+
+  +==============================================================================+
+  |                    RINGKASAN ARSITEKTUR MULTI-DATACENTER                     |
+  +==============================================================================+
+    DC-1: Jakarta (Entry-Level)    :  8 Host | 10 VM |  80,000 MIPS |   96.0 GB RAM
+    DC-2: Surabaya (Standard)      :  8 Host | 10 VM | 112,000 MIPS |  160.0 GB RAM
+    DC-3: Bandung (Premium)        :  8 Host | 10 VM | 160,000 MIPS |  224.0 GB RAM
+  +------------------------------------------------------------------------------+
+    TOTAL INFRASTRUKTUR            : 24 Host | 30 VM | 352,000 MIPS |  480.0 GB RAM
+    [SINKRONISASI] Seluruh VM dari 3 DC dikelola 1 broker global
+  +==============================================================================+
+
+
+  BUKTI VERIFIKASI ALOKASI VM KE HOST FISIK
+  +------------------------------+----------+----------------+------------------+----------------------------------------+
+  | Datacenter                   | Host     | Kapasitas      | RAM Terpakai     | VM Ditempatkan                         |
+  +------------------------------+----------+----------------+------------------+----------------------------------------+
+  | DC-1: Jakarta (Entry-Level)  | #1       | 8 PE x 1000    |   2048/  8192 MB | 2 VM [0, 8]                            |
+  | DC-1: Jakarta (Entry-Level)  | #2       | 8 PE x 1000    |   2048/  8192 MB | 2 VM [1, 9]                            |
+  | DC-1: Jakarta (Entry-Level)  | #3       | 8 PE x 1000    |   1024/  8192 MB | 1 VM [2]                               |
+  | DC-1: Jakarta (Entry-Level)  | #4       | 8 PE x 1000    |   1024/  8192 MB | 1 VM [3]                               |
+  | DC-1: Jakarta (Entry-Level)  | #5       | 8 PE x 1500    |   1024/ 16384 MB | 1 VM [4]                               |
+  | DC-1: Jakarta (Entry-Level)  | #6       | 8 PE x 1500    |   1024/ 16384 MB | 1 VM [5]                               |
+  | DC-1: Jakarta (Entry-Level)  | #7       | 8 PE x 1500    |   1024/ 16384 MB | 1 VM [6]                               |
+  | DC-1: Jakarta (Entry-Level)  | #8       | 8 PE x 1500    |   1024/ 16384 MB | 1 VM [7]                               |
+  +------------------------------+----------+----------------+------------------+----------------------------------------+
+  | DC-2: Surabaya (Standard)    | #1       | 8 PE x 1500    |   4096/ 16384 MB | 2 VM [10, 18]                          |
+  | DC-2: Surabaya (Standard)    | #2       | 8 PE x 1500    |   4096/ 16384 MB | 2 VM [11, 19]                          |
+  | DC-2: Surabaya (Standard)    | #3       | 8 PE x 1500    |   2048/ 16384 MB | 1 VM [12]                              |
+  | DC-2: Surabaya (Standard)    | #4       | 8 PE x 1500    |   2048/ 16384 MB | 1 VM [13]                              |
+  | DC-2: Surabaya (Standard)    | #5       | 8 PE x 2000    |   2048/ 24576 MB | 1 VM [14]                              |
+  | DC-2: Surabaya (Standard)    | #6       | 8 PE x 2000    |   2048/ 24576 MB | 1 VM [15]                              |
+  | DC-2: Surabaya (Standard)    | #7       | 8 PE x 2000    |   2048/ 24576 MB | 1 VM [16]                              |
+  | DC-2: Surabaya (Standard)    | #8       | 8 PE x 2000    |   2048/ 24576 MB | 1 VM [17]                              |
+  +------------------------------+----------+----------------+------------------+----------------------------------------+
+  | DC-3: Bandung (Premium)      | #1       | 8 PE x 2000    |   8192/ 24576 MB | 2 VM [20, 28]                          |
+  | DC-3: Bandung (Premium)      | #2       | 8 PE x 2000    |   8192/ 24576 MB | 2 VM [21, 29]                          |
+  | DC-3: Bandung (Premium)      | #3       | 8 PE x 2000    |   4096/ 24576 MB | 1 VM [22]                              |
+  | DC-3: Bandung (Premium)      | #4       | 8 PE x 2000    |   4096/ 24576 MB | 1 VM [23]                              |
+  | DC-3: Bandung (Premium)      | #5       | 8 PE x 3000    |   4096/ 32768 MB | 1 VM [24]                              |
+  | DC-3: Bandung (Premium)      | #6       | 8 PE x 3000    |   4096/ 32768 MB | 1 VM [25]                              |
+  | DC-3: Bandung (Premium)      | #7       | 8 PE x 3000    |   4096/ 32768 MB | 1 VM [26]                              |
+  | DC-3: Bandung (Premium)      | #8       | 8 PE x 3000    |   4096/ 32768 MB | 1 VM [27]                              |
+  +------------------------------+----------+----------------+------------------+----------------------------------------+
+  Status: 24 dari 24 host aktif, 0 host menganggur. Pola penempatan: 18 host x 1 VM, 6 host x 2 VM
+

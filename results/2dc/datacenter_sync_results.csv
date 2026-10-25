@@ -1,0 +1,13 @@
+Algorithm,Datacenter,HostCount,VmCount,TasksCompleted,WorkloadPct,DcMakespan(s),AvgExecTime(s),Energy(J),Energy(kWh),IsSynchronized
+PEFT (Predict Earliest Finish Time) [Synthetic],DC-1: Jakarta (Standard),5,20,650,65.00,572.8480,16.8103,1136825.92,0.315785,true
+PEFT (Predict Earliest Finish Time) [Synthetic],DC-2: Bandung (Premium),5,20,350,35.00,2172.8625,117.0398,2680429.17,0.744564,true
+FCFS (First Come First Served) [Synthetic],DC-1: Jakarta (Standard),5,20,360,36.00,359.7230,16.7738,1557526.95,0.432646,true
+FCFS (First Come First Served) [Synthetic],DC-2: Bandung (Premium),5,20,640,64.00,3094.2785,67.8451,3305983.40,0.918329,true
+Round Robin [Synthetic],DC-1: Jakarta (Standard),5,20,360,36.00,431.5840,16.8363,1254877.00,0.348577,true
+Round Robin [Synthetic],DC-2: Bandung (Premium),5,20,640,64.00,2476.2815,67.8268,2909316.62,0.808144,true
+PEFT (Predict Earliest Finish Time) [NASA-iPSC],DC-1: Jakarta (Standard),5,20,0,0.00,0.0000,0.0000,288325404.23,80.090390,true
+PEFT (Predict Earliest Finish Time) [NASA-iPSC],DC-2: Bandung (Premium),5,20,1000,100.00,587101.1000,312.2187,383617273.86,106.560354,true
+FCFS (First Come First Served) [NASA-iPSC],DC-1: Jakarta (Standard),5,20,211,21.10,583518.1000,120.2437,288477499.98,80.132639,true
+FCFS (First Come First Served) [NASA-iPSC],DC-2: Bandung (Premium),5,20,789,78.90,587101.1000,379.6307,385104371.32,106.973436,true
+Round Robin [NASA-iPSC],DC-1: Jakarta (Standard),5,20,211,21.10,583518.1000,120.2437,288477499.98,80.132639,true
+Round Robin [NASA-iPSC],DC-2: Bandung (Premium),5,20,789,78.90,587101.1000,379.6307,385104371.32,106.973436,true

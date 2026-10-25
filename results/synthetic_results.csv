@@ -1,4 +1,0 @@
-Algorithm,TotalTasks,Makespan(s),AvgTurnaround(s),AvgWaitingTime(s),Throughput(task/s),CpuUtilization(%),LoadBalanceSD,Energy(J),Energy(kWh)
-PEFT (Predict Earliest Finish Time) [Synthetic],1000,4185.5940,679.7695,631.0303,0.2389,38.7354,5.3187,16434125.2713,4.565035
-FCFS (First Come First Served) [Synthetic],1000,4946.7205,703.5832,655.9174,0.2022,31.9567,20.5480,18717355.0809,5.199265
-Round Robin [Synthetic],1000,4574.8190,722.8543,675.1723,0.2186,34.5757,20.5480,17701762.1114,4.917156

@@ -22,25 +22,31 @@ import java.util.*;
  *    dan dihitung nilai rata-rata (mean) serta standar deviasinya.
  * 4. Verifikasi determinisme: membuktikan bahwa pada dataset identik,
  *    algoritma deterministik menghasilkan total objective yang konsisten antar-run.
- * 5. Penyimpanan bukti otentik dataset: seluruh dataset yang dibangkitkan
+ * 5. Penyimpanan bukti otentik dataset: dataset sintetis yang dibangkitkan
  *    otomatis disimpan ke berkas CSV di direktori 'dataset/'.
- * 6. Ekspor hasil komprehensif ke format CSV/Sheet di direktori 'results/'.
+ * 6. Ekspor hasil ke CSV di direktori 'results/{skenario}/'.
+ *
+ * Argumen: [ALL|SCALE_100_1000|SCALE_1000_10000|GOCJ] [3dc|2dc]
  */
 public class BatchExperimentSuite {
 
-    private static final String RESULTS_DIR = "results";
     private static final String DATASET_DIR = "dataset";
-    private static final String NASA_SWF = "dataset/NASA-iPSC-1993-3.1-cln.swf";
+
+    private static Skenario skenario;
+    private static String resultsDir;
 
     public static void main(String[] args) throws Exception {
-        Files.createDirectories(Path.of(RESULTS_DIR));
+        skenario = Skenario.dariArgs(args);
+        resultsDir = skenario.resultsDir();
+        Files.createDirectories(Path.of(resultsDir));
         Files.createDirectories(Path.of(DATASET_DIR));
 
-        String mode = args.length > 0 ? args[0].toUpperCase() : "ALL";
+        String mode = args.length > 0 && !args[0].toLowerCase().endsWith("dc") ? args[0].toUpperCase() : "ALL";
 
         System.out.println("====================================================================");
-        System.out.println("    SOKA - BATCH EXPERIMENT SUITE (KELOMPOK 8)                     ");
-        System.out.println("    Automated Multi-Run (3x) & Multi-Scale Benchmark Suite          ");
+        System.out.println("    SOKA - BATCH EXPERIMENT SUITE (KELOMPOK 8)");
+        System.out.println("    Multi-Run (3x) & Multi-Scale Benchmark Suite");
+        System.out.println("    Skenario: " + skenario.id + " - " + skenario.ringkasan());
         System.out.println("====================================================================\n");
 
         if (mode.equals("ALL") || mode.equals("SCALE_100_1000")) {
@@ -88,8 +94,8 @@ public class BatchExperimentSuite {
             }
 
             // 2. NASA iPSC (SWF) jika tersedia
-            if (Files.exists(Path.of(NASA_SWF))) {
-                List<Cloudlet> nasaCloudlets = SwfParser.parse(NASA_SWF, count);
+            if (Files.exists(Path.of(SwfParser.NASA_SWF))) {
+                List<Cloudlet> nasaCloudlets = SwfParser.parse(SwfParser.NASA_SWF, count);
                 for (String algo : algorithms) {
                     BatchRunSummary summary = executeMultiRun(algo, "NASA-iPSC", count, nasaCloudlets, 3);
                     summaries.add(summary);
@@ -97,7 +103,7 @@ public class BatchExperimentSuite {
             }
         }
 
-        exportBatchSummariesToCsv(summaries, RESULTS_DIR + "/batch_100_1000_results.csv");
+        exportBatchSummariesToCsv(summaries, resultsDir + "/batch_100_1000_results.csv");
         printComparisonSummaryTable(summaries, "RINGKASAN SKALA 100 - 1.000 TASKS (RATA-RATA 3x RUN)");
     }
 
@@ -128,7 +134,7 @@ public class BatchExperimentSuite {
             }
         }
 
-        exportBatchSummariesToCsv(summaries, RESULTS_DIR + "/synthetic_1000_10000_results.csv");
+        exportBatchSummariesToCsv(summaries, resultsDir + "/synthetic_1000_10000_results.csv");
         printComparisonSummaryTable(summaries, "RINGKASAN SKALA BESAR 1.000 - 10.000 TASKS (RATA-RATA 3x RUN)");
     }
 
@@ -146,7 +152,8 @@ public class BatchExperimentSuite {
         List<BatchRunSummary> summaries = new ArrayList<>();
 
         for (int count : taskCounts) {
-            List<Cloudlet> gocjCloudlets = SwfParser.getOrCreateGoCjDataset(count, 42L);
+            List<Cloudlet> gocjCloudlets = SwfParser.loadGoCjDataset(count);
+            SwfParser.printDatasetCharacteristics(gocjCloudlets, "GoCJ " + count + " Task");
 
             for (String algo : algorithms) {
                 BatchRunSummary summary = executeMultiRun(algo, "GoCJ", count, gocjCloudlets, 3);
@@ -154,7 +161,7 @@ public class BatchExperimentSuite {
             }
         }
 
-        exportBatchSummariesToCsv(summaries, RESULTS_DIR + "/gocj_100_1000_results.csv");
+        exportBatchSummariesToCsv(summaries, resultsDir + "/gocj_100_1000_results.csv");
         printComparisonSummaryTable(summaries, "RINGKASAN GoCJ 100 - 1.000 TASKS (RATA-RATA 3x RUN)");
     }
 
@@ -168,7 +175,8 @@ public class BatchExperimentSuite {
 
         for (int run = 1; run <= numRuns; run++) {
             CloudSimPlus simulation = new CloudSimPlus();
-            var multiDc = DatacenterBuilder.buildMultiple(simulation, DatacenterBuilder.AllocationMode.PENYERATAAN_ROUND_ROBIN);
+            var multiDc = DatacenterBuilder.buildMultiple(
+                    simulation, skenario, DatacenterBuilder.AllocationMode.PENYERATAAN_ROUND_ROBIN, false);
 
             DatacenterBroker broker = switch (algorithm.toUpperCase()) {
                 case "PEFT" -> new PeftBroker(simulation);

@@ -2,472 +2,570 @@
   <img src="Assets/Lambang ITS PNG v1.png" alt="Logo Institut Teknologi Sepuluh Nopember" width="150">
 </p>
 
-<h1 align="center">LAPORAN TUGAS</h1>
-<h2 align="center">Strategi Optimasi Komputasi Awan (SOKA) — 2026</h2>
-<h3 align="center"><em>Optimasi Penjadwalan Task Menggunakan Algoritma PEFT (Predict Earliest Finish Time) pada Simulator CloudSim Plus</em></h3>
-<h4 align="center">Departemen Teknologi Informasi — Institut Teknologi Sepuluh Nopember (ITS)</h4>
+<h1 align="center">Optimasi Penjadwalan Task dengan PEFT pada CloudSim Plus</h1>
+<h3 align="center">Strategi Optimasi Komputasi Awan (SOKA) 2026 · Kelompok 8</h3>
+<p align="center">Departemen Teknologi Informasi · Institut Teknologi Sepuluh Nopember (ITS)</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Simulator-CloudSim_Plus_8.0.0-007ACC?style=flat-square&logo=java&logoColor=white" alt="CloudSim Plus">
-  <img src="https://img.shields.io/badge/Algorithm-PEFT_Heuristic-4CAF50?style=flat-square" alt="PEFT">
-  <img src="https://img.shields.io/badge/Baselines-FCFS_&_Round_Robin-FFA000?style=flat-square" alt="Baselines">
-  <img src="https://img.shields.io/badge/Workload-NASA_iPSC_SWF_&_Synthetic-9C27B0?style=flat-square" alt="Workload">
-  <img src="https://img.shields.io/badge/Language-Java_21-ED8B00?style=flat-square&logo=openjdk&logoColor=white" alt="Java 21">
-  <img src="https://img.shields.io/badge/Build-Gradle_8.x-02303A?style=flat-square&logo=gradle&logoColor=white" alt="Gradle">
+  <img src="https://img.shields.io/badge/Algoritma-PEFT_vs_FCFS_vs_RR-4CAF50?style=flat-square" alt="Algoritma">
+  <img src="https://img.shields.io/badge/Skenario-3_DC_%7C_2_DC-9C27B0?style=flat-square" alt="Skenario">
+  <img src="https://img.shields.io/badge/Workload-Sintetis_%7C_NASA_iPSC_%7C_GoCJ-FFA000?style=flat-square" alt="Workload">
+  <img src="https://img.shields.io/badge/Java-21-ED8B00?style=flat-square&logo=openjdk&logoColor=white" alt="Java 21">
 </p>
 
 ---
 
 ## Anggota Kelompok 8
 
-| No. | Nama Mahasiswa | NRP | Peran / Fokus |
+| No. | Nama | NRP | Fokus |
 | :---: | :--- | :---: | :--- |
-| 1 | Arya Bisma Putra Refman | 5027241036 | Arsitektur Datacenter & Simulasi Runner |
-| 2 | Muhammad Ziddan Habibi | 5027241122 | Formulasi & Algoritma PEFT |
-| 3 | Prabaswara Febrian Winandika | 5027241069 | Algoritma Baseline (FCFS & Round Robin) |
-| 4 | Muhammad Fachry Shalahuddin Rusamsi | 5027241031 | Preprocessing Dataset (SWF & Sintetis) |
-| 5 | Gemilang Ananda | 5027241072 | Metrik Evaluasi & Model Energi SPECpower |
+| 1 | Arya Bisma Putra Refman | 5027241036 | Arsitektur datacenter & simulation runner |
+| 2 | Muhammad Ziddan Habibi | 5027241122 | Formulasi & algoritma PEFT |
+| 3 | Prabaswara Febrian Winandika | 5027241069 | Algoritma baseline (FCFS & Round Robin) |
+| 4 | Muhammad Fachry Shalahuddin Rusamsi | 5027241031 | Preprocessing dataset (SWF, GoCJ, sintetis) |
+| 5 | Gemilang Ananda | 5027241072 | Metrik evaluasi & model energi SPECpower |
 
 ---
 
 ## Daftar Isi
 
-- [1. Pendahuluan dan Ringkasan Proyek](#1-pendahuluan-dan-ringkasan-proyek)
-  - [1.1 Latar Belakang dan Permasalahan](#11-latar-belakang-dan-permasalahan)
-  - [1.2 Pendekatan Solusi PEFT](#12-pendekatan-solusi-peft)
-- [2. Arsitektur Datacenter Cloud](#2-arsitektur-datacenter-cloud)
-  - [2.1 Konfigurasi Host Heterogen (24 Unit pada 3 Datacenter)](#21-konfigurasi-host-heterogen-24-unit-pada-3-datacenter)
-  - [2.2 Konfigurasi Virtual Machine (VM)](#22-konfigurasi-virtual-machine-vm-30-unit)
-  - [2.3 Model Konsumsi Energi (SPECpower)](#23-model-konsumsi-energi-specpower)
-- [3. Implementasi Algoritma Penjadwalan](#3-implementasi-algoritma-penjadwalan)
-  - [3.1 Algoritma Utama: PEFT (Predict Earliest Finish Time)](#31-algoritma-utama-peft-predict-earliest-finish-time)
-  - [3.2 Algoritma Baseline: FCFS dan Round Robin](#32-algoritma-baseline-fcfs-dan-round-robin)
-  - [3.3 Batasan Kapasitas (Constraints)](#33-batasan-kapasitas-constraints)
-- [4. Dataset Uji Coba](#4-dataset-uji-coba)
-  - [4.1 Dataset Sintetis (1.000 Task)](#41-dataset-sintetis-1000-task)
-  - [4.2 Dataset Real Trace NASA iPSC SWF (1.000 Task)](#42-dataset-real-trace-nasa-ipsc-swf-1000-task)
-- [5. Hasil Pengujian dan Analisis Perbandingan Metrik](#5-hasil-pengujian-dan-analisis-perbandingan-metrik)
-  - [5.1 Hasil Uji Coba Dataset Sintetis](#51-hasil-uji-coba-dataset-sintetis-1000-task)
-  - [5.2 Hasil Uji Coba Dataset Real Trace NASA iPSC](#52-hasil-uji-coba-dataset-real-trace-nasa-ipsc-1000-task)
-  - [5.3 Kesimpulan Analisis Hasil](#53-kesimpulan-analisis-hasil)
-- [6. Dokumentasi Visual dan Bukti Simulasi](#6-dokumentasi-visual-dan-bukti-simulasi)
-  - [6.1 Tangkapan Layar Eksekusi Terminal](#61-tangkapan-layar-eksekusi-terminal)
-  - [6.2 Visualisasi Grafik Evaluasi Metrik](#62-visualisasi-grafik-evaluasi-metrik)
-- [7. Panduan Menjalankan Simulasi](#7-panduan-menjalankan-simulasi)
-- [8. Struktur Direktori Repository](#8-struktur-direktori-repository)
-- [9. Referensi Pendukung](#9-referensi-pendukung)
+1. [Ringkasan](#1-ringkasan)
+2. [Dua Skenario Infrastruktur](#2-dua-skenario-infrastruktur)
+3. [Algoritma Penjadwalan](#3-algoritma-penjadwalan)
+4. [Dataset](#4-dataset)
+5. [Hasil Skenario 3 DC](#5-hasil-skenario-3-dc)
+6. [Hasil Skenario 2 DC](#6-hasil-skenario-2-dc)
+7. [Analisis dan Kesimpulan](#7-analisis-dan-kesimpulan)
+8. [Menjalankan Simulasi](#8-menjalankan-simulasi)
+9. [Struktur Repository](#9-struktur-repository)
+10. [Referensi](#10-referensi)
 
 ---
 
-## 1. Pendahuluan dan Ringkasan Proyek
+## 1. Ringkasan
 
-### 1.1 Latar Belakang dan Permasalahan
-Dalam infrastruktur komputasi awan heterogen, alokasi tugas komputasi (*cloudlets*) ke mesin virtual (*Virtual Machines*) secara efisien merupakan tantangan kritis. Karakteristik beban kerja yang dinamis serta disparitas kapasitas komputasi antar-VM sering memicu ketidakseimbangan beban (*load imbalance*), utilisasi prosesor yang rendah, serta pembengkakan konsumsi energi operasional datacenter.
+Proyek ini mengimplementasikan algoritma heuristik **PEFT (Predict Earliest Finish Time)** untuk menjadwalkan *bag-of-tasks* independen pada VM heterogen multi-core di **CloudSim Plus 8.0.0**, lalu membandingkannya dengan **FCFS** dan **Round Robin**.
 
-Penjadwalan konvensional tanpa pertimbangan estimasi waktu selesai dapat menimbulkan permasalahan berikut:
-1. Ketimpangan utilisasi: VM berkapasitas rendah rentan mengalami antrean panjang, sementara VM berkapasitas tinggi mengalami masa menganggur (*idle*).
-2. Tingginya makespan: Waktu penyelesaian keseluruhan rangkaian tugas menjadi suboptimal.
-3. Inefisiensi energi: Host fisik beroperasi aktif lebih lama untuk menyelesaikan kuantitas beban kerja yang sama.
+Atas permintaan dosen, simulasi dapat dijalankan pada **dua skenario infrastruktur** dari kode yang sama:
 
-### 1.2 Pendekatan Solusi PEFT
-Proyek ini mengimplementasikan algoritma heuristik **Predict Earliest Finish Time (PEFT)** pada lingkungan simulator **CloudSim Plus 8.0.0** untuk penjadwalan *Bag-of-Tasks* independen pada VM heterogen multi-core.
+| Skenario | Datacenter | Host | VM | Penempatan VM |
+| :--- | :---: | :---: | :---: | :--- |
+| `3dc` (default) | 3 (Jakarta, Surabaya, Bandung) | 24 (8 per DC, 8 PE) | 30 (10 per DC) | 18 host × 1 VM, 6 host × 2 VM |
+| `2dc` | 2 (Jakarta, Bandung) | 10 (5 per DC, 16 PE) | 40 (20 per DC) | 10 host × 4 VM |
 
-Prinsip kerja PEFT:
-- Menghitung estimasi *Earliest Start Time* (EST) berdasarkan ketersediaan core prosesor pada setiap VM kandidat yang memenuhi batasan kapasitas.
-- Menghitung *Estimated Execution Time* (EET) berdasarkan panjang instruksi task (MI) dan kapasitas komputasi VM (MIPS).
-- Memetakan setiap task ke VM yang menghasilkan nilai *Earliest Finish Time* terkecil ($\min \text{EFT} = \text{EST} + \text{EET}$).
+Evaluasi memakai tiga workload: dataset **sintetis** terkontrol, **trace asli NASA Ames iPSC/860** (Parallel Workloads Archive), dan **GoCJ** (Google Cloud Jobs). Semua angka di README ini dihasilkan dari CSV di [`results/`](results), dan log eksekusinya disimpan di `results/{skenario}/logs/`.
 
-Kinerja PEFT diuji secara komparatif terhadap dua metode baseline: **First Come First Served (FCFS)** dan **Round Robin (RR)** menggunakan 1.000 task pada dua variasi beban kerja: dataset sintetis terdistribusi dan trace nyata NASA iPSC.
+**Temuan utama (1.000 task):**
+- **Sintetis**: makespan PEFT lebih pendek **15,39%** dari FCFS pada `3dc` dan **29,78%** pada `2dc`, dengan energi **11,25%** dan **19,88%** lebih hemat.
+- **NASA iPSC/860**: makespan ketiga algoritma sama karena dibatasi waktu kedatangan job terakhir. PEFT menghapus waktu tunggu (**0 s** vs 20,08 s pada `3dc`) dan memangkas turnaround time **8,88%**.
+- **GoCJ**: makespan PEFT **80,87%** (`3dc`) dan **79,21%** (`2dc`) lebih pendek dari FCFS.
+- Setiap konfigurasi dijalankan 3× dan seluruhnya deterministik (simpangan baku antar-run = 0).
 
 ---
 
-## 2. Arsitektur Datacenter Cloud
+## 2. Dua Skenario Infrastruktur
 
-Sesuai dokumen rancangan [Tugas 3](Tugas_3_Kelompok_8%20(2).pdf), simulasi dibangun pada simulator **CloudSim Plus 8.0.0** dengan topologi hierarki arsitektur sebagai berikut:
+Konfigurasi kedua skenario didefinisikan di [`Skenario.java`](src/main/java/com/kelompok8/Skenario.java) dan dibangun oleh [`DatacenterBuilder.java`](src/main/java/com/kelompok8/DatacenterBuilder.java). Diagram di bawah digambar otomatis dari konfigurasi tersebut (`./gradlew renderArsitektur`).
 
-```mermaid
-flowchart TD
-    subgraph MultiDC ["Infrastruktur Multi-Datacenter (3 Datacenter Heterogen)"]
-        direction TB
-        subgraph DC1 ["DC-1: Entry-Level"]
-            H_DC1["8 Host: 4 Tipe A (1.000 MIPS) + 4 Tipe B (1.500 MIPS)<br/>Kapasitas: 80.000 MIPS, 96 GB RAM"]
-            VM_S["10 VM Small (1 PE, 1.000 MIPS, 1 GB RAM)"]
-            H_DC1 -->|Best-Fit| VM_S
-        end
-        subgraph DC2 ["DC-2: Standard"]
-            H_DC2["8 Host: 4 Tipe B (1.500 MIPS) + 4 Tipe C (2.000 MIPS)<br/>Kapasitas: 112.000 MIPS, 160 GB RAM"]
-            VM_M["10 VM Medium (2 PE, 1.500 MIPS, 2 GB RAM)"]
-            H_DC2 -->|Best-Fit| VM_M
-        end
-        subgraph DC3 ["DC-3: Premium"]
-            H_DC3["8 Host: 4 Tipe C (2.000 MIPS) + 4 Tipe D (3.000 MIPS)<br/>Kapasitas: 160.000 MIPS, 224 GB RAM"]
-            VM_L["10 VM Large (4 PE, 2.000 MIPS, 4 GB RAM)"]
-            H_DC3 -->|Best-Fit| VM_L
-        end
-    end
+| Skenario `3dc` | Skenario `2dc` |
+| :---: | :---: |
+| <img src="docs/images/3dc/arsitektur_cloud.png" alt="Arsitektur 3 DC" width="400"> | <img src="docs/images/2dc/arsitektur_cloud.png" alt="Arsitektur 2 DC" width="400"> |
 
-    subgraph BrokerWorkload ["Beban Kerja & Penjadwalan Terpusat"]
-        Tasks["1.000 Task (Cloudlets)<br/>• Model: Bag-of-Tasks (Independen, Non-preemptive)<br/>• Dataset: Sintetis (1.000 Task) & NASA iPSC SWF (1.000 Task)"]
-        GlobalBroker["Global Datacenter Broker<br/>(PEFT / FCFS / Round Robin)"]
-        Tasks --> GlobalBroker
-    end
+Seluruh VM dari semua datacenter disubmit ke **satu broker global**, sehingga broker dapat menempatkan task lintas datacenter. VM ditempatkan ke host dengan kebijakan **round-robin** (`VmAllocationPolicyRoundRobin`) agar tidak ada host yang menganggur, dan task dieksekusi **non-preemptive** (`CloudletSchedulerSpaceShared`).
 
-    GlobalBroker ==>|"Mapping & Submission Global"| MultiDC
-    MultiDC ==>|"Post-Simulation Barrier & State Verification"| Sync["DatacenterSynchronizer<br/>(100% Data Integrity & SPECpower Consolidation)"]
+### 2.1 Skenario `3dc`: 3 Datacenter, 24 Host, 30 VM
+
+| Datacenter | Host | PE/Host | MIPS/core | RAM Host | VM | Spesifikasi VM |
+| :--- | :--- | :---: | :---: | :---: | :---: | :--- |
+| DC-1: Jakarta (Entry-Level) | 4 × Tipe A, 4 × Tipe B | 8 | 1.000 / 1.500 | 8 / 16 GB | 10 Small | 1 PE, 1.000 MIPS, 1 GB |
+| DC-2: Surabaya (Standard) | 4 × Tipe B, 4 × Tipe C | 8 | 1.500 / 2.000 | 16 / 24 GB | 10 Medium | 2 PE, 1.500 MIPS, 2 GB |
+| DC-3: Bandung (Premium) | 4 × Tipe C, 4 × Tipe D | 8 | 2.000 / 3.000 | 24 / 32 GB | 10 Large | 4 PE, 2.000 MIPS, 4 GB |
+| **Total** | **24 host (352.000 MIPS)** | | | | **30 VM (120.000 MIPS)** | |
+
+### 2.2 Skenario `2dc`: 2 Datacenter, 10 Host, 40 VM
+
+| Datacenter | Host | PE/Host | MIPS/core | RAM Host | VM | Spesifikasi VM |
+| :--- | :--- | :---: | :---: | :---: | :---: | :--- |
+| DC-1: Jakarta (Standard) | 3 × Tipe A, 2 × Tipe B | 16 | 1.000 / 1.500 | 32 GB | 20 Medium | 2 PE, 1.000 MIPS, 2 GB |
+| DC-2: Bandung (Premium) | 3 × Tipe C, 2 × Tipe D | 16 | 2.000 / 3.000 | 64 GB | 20 Large | 4 PE, 2.000 MIPS, 4 GB |
+| **Total** | **10 host (288.000 MIPS)** | | | | **40 VM (200.000 MIPS)** | |
+
+Bukti penempatan VM ke host pada skenario `2dc` (output asli `./gradlew testAllocation -Pskenario=2dc`, salinan lengkap di [`results/2dc/logs/testAllocation.txt`](results/2dc/logs/testAllocation.txt)):
+
+```text
+  BUKTI VERIFIKASI ALOKASI VM KE HOST FISIK
+  +------------------------------+----------+----------------+------------------+----------------------------------------+
+  | Datacenter                   | Host     | Kapasitas      | RAM Terpakai     | VM Ditempatkan                         |
+  +------------------------------+----------+----------------+------------------+----------------------------------------+
+  | DC-1: Jakarta (Standard)     | #1       | 16 PE x 1000   |   8192/ 32768 MB | 4 VM [0, 5, 10, 15]                    |
+  | DC-1: Jakarta (Standard)     | #2       | 16 PE x 1000   |   8192/ 32768 MB | 4 VM [1, 6, 11, 16]                    |
+  | DC-1: Jakarta (Standard)     | #3       | 16 PE x 1000   |   8192/ 32768 MB | 4 VM [2, 7, 12, 17]                    |
+  | DC-1: Jakarta (Standard)     | #4       | 16 PE x 1500   |   8192/ 32768 MB | 4 VM [3, 8, 13, 18]                    |
+  | DC-1: Jakarta (Standard)     | #5       | 16 PE x 1500   |   8192/ 32768 MB | 4 VM [4, 9, 14, 19]                    |
+  +------------------------------+----------+----------------+------------------+----------------------------------------+
+  | DC-2: Bandung (Premium)      | #1       | 16 PE x 2000   |  16384/ 65536 MB | 4 VM [20, 25, 30, 35]                  |
+  | DC-2: Bandung (Premium)      | #2       | 16 PE x 2000   |  16384/ 65536 MB | 4 VM [21, 26, 31, 36]                  |
+  | DC-2: Bandung (Premium)      | #3       | 16 PE x 2000   |  16384/ 65536 MB | 4 VM [22, 27, 32, 37]                  |
+  | DC-2: Bandung (Premium)      | #4       | 16 PE x 3000   |  16384/ 65536 MB | 4 VM [23, 28, 33, 38]                  |
+  | DC-2: Bandung (Premium)      | #5       | 16 PE x 3000   |  16384/ 65536 MB | 4 VM [24, 29, 34, 39]                  |
+  +------------------------------+----------+----------------+------------------+----------------------------------------+
+  Status: 10 dari 10 host aktif, 0 host menganggur. Pola penempatan: 10 host x 4 VM
 ```
 
-### 2.1 Konfigurasi Host Heterogen (24 Unit pada 3 Datacenter)
-Setiap datacenter dilengkapi 8 host fisik (masing-masing 8 core/PE, penyimpanan 1 TB, antarmuka jaringan 10 Gbps, model daya linier SPECpower):
+### 2.3 Model Energi SPECpower
 
-| Datacenter | Tipe Host | Core (PE) | MIPS/Core | RAM | Bandwidth | Idle Power | Max Power | Jumlah | Total MIPS |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **DC-1 (Entry-Level)** | Tipe A | 8 | 1.000 | 8 GB | 10 Gbps | 93.7 W | 135.0 W | 4 | 32.000 |
-| | Tipe B | 8 | 1.500 | 16 GB | 10 Gbps | 105.0 W | 175.0 W | 4 | 48.000 |
-| **DC-2 (Standard)** | Tipe B | 8 | 1.500 | 16 GB | 10 Gbps | 105.0 W | 175.0 W | 4 | 48.000 |
-| | Tipe C | 8 | 2.000 | 24 GB | 10 Gbps | 120.0 W | 225.0 W | 4 | 64.000 |
-| **DC-3 (Premium)** | Tipe C | 8 | 2.000 | 24 GB | 10 Gbps | 120.0 W | 225.0 W | 4 | 64.000 |
-| | Tipe D | 8 | 3.000 | 32 GB | 10 Gbps | 140.0 W | 300.0 W | 4 | 96.000 |
-| **Total Global** | **4 Tipe** | **192 Core** | - | **480 GB** | - | - | - | **24 Unit** | **352.000 MIPS** |
+Setiap host memakai model daya linier dengan nilai idle/maks dari benchmark SPECpower (Beloglazov & Buyya, 2012). Nilainya sama di kedua skenario:
 
-### 2.2 Konfigurasi Virtual Machine (VM) (30 Unit)
-VM dibagi menjadi tiga kelas ukuran yang dialokasikan menggunakan kebijakan `VmAllocationPolicyBestFit` dan dieksekusi secara non-preemptive (`CloudletSchedulerSpaceShared`):
+| Tipe | Referensi Server | P<sub>idle</sub> | P<sub>max</sub> |
+| :---: | :--- | :---: | :---: |
+| A | HP ProLiant ML110 G5 | 93,7 W | 135,0 W |
+| B | IBM System x3250 M2 | 105,0 W | 175,0 W |
+| C | IBM System x3550 M3 | 120,0 W | 225,0 W |
+| D | Server enterprise kelas atas | 140,0 W | 300,0 W |
 
-| Datacenter Asal | Kelas VM | PE (vCPU) | RAM | MIPS per PE | Bandwidth | Storage | Jumlah Unit | Deskripsi Beban |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| DC-1 (Entry-Level) | Small | 1 | 1.024 MB (1 GB) | 1.000 MIPS | 250 Mbps | 10 GB | 10 unit | Task ringan (1 PE) |
-| DC-2 (Standard) | Medium | 2 | 2.048 MB (2 GB) | 1.500 MIPS | 250 Mbps | 10 GB | 10 unit | Task sedang (1-2 PE) |
-| DC-3 (Premium) | Large | 4 | 4.096 MB (4 GB) | 2.000 MIPS | 250 Mbps | 10 GB | 10 unit | Task berat (1-4 PE) |
-
-### 2.3 Model Konsumsi Energi (SPECpower)
-Konsumsi energi dihitung secara kumulatif dari seluruh 24 host fisik menggunakan model daya linier berbasis benchmark nyata **SPECpower** (Beloglazov & Buyya, 2012):
-$$E_{\text{host}} = P_{\text{max}} \times t_{\text{busy}} + P_{\text{idle}} \times (\text{Makespan} - t_{\text{busy}})$$
-$$\text{Total Energi (kWh)} = \frac{\sum_{h=1}^{24} E_{\text{host}, h} \text{ (Joule)}}{3.600.000}$$
-
----
-## 3. Implementasi Algoritma Penjadwalan
-
-### 3.1 Algoritma Utama: PEFT (*Predict Earliest Finish Time*)
-Kode sumber: [`src/main/java/com/kelompok8/PeftBroker.java`](src/main/java/com/kelompok8/PeftBroker.java)
-
-Tahapan kalkulasi PEFT untuk lingkungan *Bag-of-Tasks* multi-core:
-1. **Prioritas Task**: Task diurutkan berdasarkan waktu kedatangan ($a_i$), dengan resolusi benturan waktu menggunakan prinsip *Longest Processing Time* (LPT).
-2. **Penyaringan Kapasitas**: Mengevaluasi kandidat VM yang memenuhi ketersediaan core prosesor ($P_{vm} \ge P_{task}$).
-3. **Kalkulasi EST (*Earliest Start Time*)**: Menentukan waktu tercepat saat sedikitnya sejumlah $P_{task}$ core pada VM tersebut berada dalam status bebas.
-   $$\text{EST}(i, j) = \max(a_i, \text{Waktu Bebas Core ke-}P_{task})$$
-4. **Kalkulasi EET (*Estimated Execution Time*)**:
-   $$\text{EET}(i, j) = \frac{\text{Panjang Instruksi (MI)}}{\text{MIPS Core VM}}$$
-5. **Kalkulasi EFT (*Earliest Finish Time*)**:
-   $$\text{EFT}(i, j) = \text{EST}(i, j) + \text{EET}(i, j)$$
-6. **Pemilihan VM**: Memilih VM yang menghasilkan nilai $\text{EFT}$ terkecil ($\min \text{EFT}$).
-
-### 3.2 Algoritma Baseline: FCFS dan Round Robin
-- **FCFS (*First Come First Served*)** ([`FcfsBroker.java`](src/main/java/com/kelompok8/FcfsBroker.java)): Task dialokasikan berurutan berdasarkan waktu kedatangan ke VM pertama yang memiliki kapasitas core mencukupi.
-- **Round Robin** ([`RoundRobinBroker.java`](src/main/java/com/kelompok8/RoundRobinBroker.java)): Task didistribusikan secara siklik bergiliran ke seluruh VM yang memenuhi syarat kapasitas core.
-
-### 3.3 Batasan Kapasitas (*Constraints*)
-Mengikuti batasan operasional pada spesifikasi tugas:
-- **Kesesuaian Alokasi**: Task dengan kebutuhan $k$ core hanya dialokasikan ke VM dengan $P_{vm} \ge k$ (Task 4 PE hanya dieksekusi di VM Large; Task 2 PE di VM Medium atau Large; Task 1 PE di seluruh kelas VM).
-- **Non-Preemptive**: Task yang telah mulai dieksekusi berjalan hingga tuntas tanpa interupsi atau migrasi.
-- **Eksklusivitas**: Setiap task berjalan secara utuh pada satu VM terpilih.
+$$E_{\text{host}} = P_{\max} \cdot t_{\text{busy}} + P_{\text{idle}} \cdot (\text{Makespan} - t_{\text{busy}}), \qquad E_{\text{total}}\ (\text{kWh}) = \frac{\sum_h E_{\text{host},h}\ (\text{J})}{3.600.000}$$
 
 ---
 
-## 4. Dataset Uji Coba
+## 3. Algoritma Penjadwalan
 
-Kode sumber parser: [`src/main/java/com/kelompok8/SwfParser.java`](src/main/java/com/kelompok8/SwfParser.java)
+### 3.1 PEFT (Predict Earliest Finish Time)
+Kode: [`PeftBroker.java`](src/main/java/com/kelompok8/PeftBroker.java)
 
-### 4.1 Dataset Sintetis (1.000 Task)
-Dibangkitkan secara terkontrol sesuai karakteristik parameter berikut:
-- **30% Task Kecil (300 unit)**: Panjang 500 – 5.000 MI, kebutuhan 1 PE, waktu kedatangan 0 – 100 detik.
-- **40% Task Sedang (400 unit)**: Panjang 5.000 – 50.000 MI, kebutuhan 2 PE, waktu kedatangan 0 – 200 detik.
-- **30% Task Besar (300 unit)**: Panjang 50.000 – 500.000 MI, kebutuhan 4 PE, waktu kedatangan 0 – 300 detik.
+1. **Urutan task**: menurut waktu kedatangan $a_i$; task yang tiba bersamaan diurutkan dari yang terpanjang (*Longest Processing Time*).
+2. **Filter kapasitas**: hanya VM dengan $P_{vm} \ge P_{task}$ yang menjadi kandidat.
+3. **Earliest Start Time**: $\text{EST}(i,j) = \max(a_i,\ \text{waktu bebas core ke-}P_{task}\text{ pada VM } j)$
+4. **Estimated Execution Time**: $\text{EET}(i,j) = L_i / \text{MIPS}_j$
+5. **Earliest Finish Time**: $\text{EFT}(i,j) = \text{EST}(i,j) + \text{EET}(i,j)$
+6. **Pemilihan VM**: VM dengan $\text{EFT}$ terkecil; bila seri, dipilih VM ber-MIPS lebih tinggi. Jadwal core VM tersebut lalu diperbarui.
 
-### 4.2 Dataset Real Trace NASA iPSC SWF (1.000 Task)
-Berkas dataset: [`dataset/NASA-iPSC-1993-3.1-cln.swf`](dataset/NASA-iPSC-1993-3.1-cln.swf)
-- Bersumber dari superkomputer Intel iPSC/860 NASA Ames Research Center melalui *Parallel Workloads Archive*.
-- Memiliki karakteristik beban produksi nyata: rentang waktu kedatangan hingga 48 jam (175.941 detik) dan distribusi panjang instruksi bervariasi luas (1.000 – 15.308.000 MI).
+### 3.2 Baseline
+- **FCFS** ([`FcfsBroker.java`](src/main/java/com/kelompok8/FcfsBroker.java)): task diurutkan menurut waktu kedatangan, lalu dibagikan bergiliran ke VM yang memenuhi kebutuhan PE.
+- **Round Robin** ([`RoundRobinBroker.java`](src/main/java/com/kelompok8/RoundRobinBroker.java)): task dibagikan bergiliran ke VM yang memenuhi kebutuhan PE sesuai urutan masuk, tanpa pengurutan.
 
----
+Keduanya memakai penunjuk giliran terpisah per kebutuhan PE dan tidak memperhitungkan panjang task maupun kecepatan VM. Akibatnya, bila urutan masuk sudah sama dengan urutan kedatangan (trace NASA) atau semua task tiba bersamaan (GoCJ), **FCFS dan Round Robin menghasilkan penjadwalan yang identik**. Pada dataset sintetis urutan masuknya acak, sehingga hasil keduanya berbeda.
 
-## 5. Hasil Pengujian dan Analisis Perbandingan Metrik
-
-Seluruh skenario pengujian dieksekusi dengan 1.000 task berhasil diselesaikan tanpa kegagalan alokasi.
-
-### 5.1 Hasil Uji Coba Dataset Sintetis (1.000 Task)
-
-| Metrik Evaluasi | PEFT (Diusulkan) | FCFS (Baseline 1) | Round Robin (Baseline 2) | Keunggulan PEFT vs FCFS | Keterangan |
-| :--- | :---: | :---: | :---: | :---: | :--- |
-| **Total Task Selesai** | **1.000** | 1.000 | 1.000 | 0,00% | Tingkat keberhasilan 100% |
-| **Makespan (detik)** | **4.185,85 s** | 4.947,25 s | 4.574,99 s | -15,39% | Reduksi makespan 761,40 detik |
-| **Turnaround Time (s)** | **679,79 s** | 699,92 s | 714,21 s | -2,88% | Penurunan waktu tanggap rata-rata |
-| **Waiting Time (s)** | **631,04 s** | 652,26 s | 666,52 s | -3,25% | Penurunan waktu antrean rata-rata |
-| **Throughput (task/s)** | **0,2389** | 0,2021 | 0,2186 | +18,21% | Peningkatan laju penyelesaian tugas |
-| **Avg CPU Utilization** | **38,74%** | 31,95% | 34,57% | +21,25% | Peningkatan utilisasi prosesor host |
-| **Load Balance (Std Dev)** | **5,32** | 20,55 | 20,55 | -74,11% | Pemerataan alokasi beban antar-VM |
-| **Konsumsi Energi (J)** | **16.434.125,3 J** | 18.717.355,1 J | 17.701.762,1 J | -12,20% | Penghematan 2.283.230 Joule (3 DC) |
-| **Konsumsi Energi (kWh)**| **4,5650 kWh** | 5,1993 kWh | 4,9172 kWh | -12,20% | Penurunan konsumsi energi total (24 Host) |
-
-### 5.2 Hasil Uji Coba Dataset Real Trace NASA iPSC (1.000 Task)
-
-| Metrik Evaluasi | PEFT (Diusulkan) | FCFS (Baseline 1) | Round Robin (Baseline 2) | Keunggulan PEFT vs FCFS | Keterangan |
-| :--- | :---: | :---: | :---: | :---: | :--- |
-| **Total Task Selesai** | **1.000** | 1.000 | 1.000 | 0,00% | Tingkat keberhasilan 100% |
-| **Makespan (detik)** | **180.250,21 s** | 180.250,21 s | 180.250,21 s | 0,00% | Dibatasi waktu kedatangan task terakhir |
-| **Turnaround Time (s)** | **198,95 s** | 262,44 s | 262,44 s | -24,19% | Penurunan waktu tanggap 63,49 s/task |
-| **Waiting Time (s)** | **0,00 s** | 20,54 s | 20,54 s | -100,00% | Waktu antre tereliminasi penuh |
-| **Throughput (task/s)** | **0,0055** | 0,0055 | 0,0055 | 0,00% | Mengikuti laju kedatangan trace |
-| **Konsumsi Energi (J)** | **504.928.356,7 J**| 507.447.518,3 J| 507.447.518,3 J| -0,50% | Penghematan 2.519.162 Joule (3 DC) |
-| **Konsumsi Energi (kWh)**| **140,2579 kWh** | 140,9576 kWh | 140,9576 kWh | -0,50% | Penurunan konsumsi energi total (24 Host) |
-
-
-### 5.3 Rekapitulasi Sinkronisasi dan Distribusi Beban 3 Datacenter
-Berdasarkan berkas evaluasi sinkronisasi [datacenter_sync_results.csv](results/datacenter_sync_results.csv), beban terdistribusi lintas 3 Datacenter dengan verifikasi barrier 100% tuntas:
-
-| Skenario & Algoritma | Datacenter | Host | VM | Task Selesai | Proporsi Beban (%) | Makespan DC (s) | Energi SPECpower (J) | Status Sinkron |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Sintetis - PEFT** | DC-1 (Entry-Level) | 8 | 10 | 290 | 29,00% | 103,86 s | 3.330.831 J | OK (Synchronized) |
-| | DC-2 (Standard) | 8 | 10 | 393 | 39,30% | 747,56 s | 3.894.180 J | OK (Synchronized) |
-| | DC-3 (Premium) | 8 | 10 | 317 | 31,70% | 4.185,59 s | 6.705.092 J | OK (Synchronized) |
-| | **Total Global** | **24** | **30** | **1.000** | **100,00%** | **4.185,59 s** | **16.434.125 J** | **100% Terverifikasi** |
-| **NASA - PEFT** | DC-1 (Entry-Level) | 8 | 10 | 0 | 0,00% | 0,00 s | 143.262.954 J | OK (Synchronized) |
-| | DC-2 (Standard) | 8 | 10 | 0 | 0,00% | 0,00 s | 162.225.288 J | OK (Synchronized) |
-| | DC-3 (Premium) | 8 | 10 | 1.000 | 100,00% | 180.250,21 s | 193.275.907 J | OK (Synchronized) |
-| | **Total Global** | **24** | **30** | **1.000** | **100,00%** | **180.250,21 s** | **504.928.357 J** | **100% Terverifikasi** |
-
-### 5.4 Uji Coba Skala Bertahap 100 - 1.000 Tasks (Kelipatan 100, Rata-rata 3x Run)
-Sesuai arahan Bu Henning, pengujian dieksekusi bertahap untuk melihat pola performa dari beban ringan hingga 1.000 task pada dataset Sintetis dan NASA iPSC:
-
-| Tasks | Sintetis - PEFT Makespan (s) | Sintetis - FCFS Makespan (s) | Reduksi Makespan (%) | NASA - PEFT Waiting Time (s) | NASA - FCFS Waiting Time (s) | Eliminasi Waiting Time |
-| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **100** | **500,59 s** | 625,30 s | **-19,94%** | **0,00 s** | 5,56 s | **-100,00%** |
-| **200** | **989,58 s** | 1.171,30 s | **-15,51%** | **0,00 s** | 36,13 s | **-100,00%** |
-| **300** | **1.373,11 s** | 1.599,51 s | **-14,15%** | **0,00 s** | 44,38 s | **-100,00%** |
-| **400** | **1.774,84 s** | 2.086,41 s | **-14,93%** | **0,00 s** | 35,69 s | **-100,00%** |
-| **500** | **2.174,16 s** | 2.770,09 s | **-21,51%** | **0,00 s** | 32,22 s | **-100,00%** |
-| **600** | **2.575,77 s** | 2.783,55 s | **-7,46%** | **0,00 s** | 26,88 s | **-100,00%** |
-| **700** | **3.052,38 s** | 3.422,00 s | **-10,80%** | **0,00 s** | 28,30 s | **-100,00%** |
-| **800** | **3.450,93 s** | 3.880,63 s | **-11,07%** | **0,00 s** | 25,68 s | **-100,00%** |
-| **900** | **3.731,99 s** | 4.314,53 s | **-13,50%** | **0,00 s** | 22,82 s | **-100,00%** |
-| **1.000** | **4.185,59 s** | 4.946,72 s | **-15,39%** | **0,00 s** | 20,54 s | **-100,00%** |
-
-### 5.5 Uji Coba Skala Beban Berat 1.000 - 10.000 Tasks (Kelipatan 1.000, Rata-rata 3x Run)
-Berdasarkan berkas [synthetic_1000_10000_results.csv](results/synthetic_1000_10000_results.csv), pengujian skala besar hingga 10.000 task membuktikan skalabilitas superior algoritma PEFT:
-
-| Tasks | PEFT Makespan (s) | FCFS Makespan (s) | Round Robin (s) | Penghematan Waktu | PEFT Energi (kWh) | FCFS Energi (kWh) | Load Bal SD (PEFT vs FCFS) |
-| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **1.000** | **4.185,59 s** | 4.946,72 s | 4.574,82 s | -761,13 s (-15,39%) | **4,78 kWh** | 5,38 kWh | **5,32** vs 20,55 (-74%) |
-| **2.000** | **8.123,47 s** | 9.189,56 s | 9.361,24 s | -1.066,09 s (-11,60%) | **9,29 kWh** | 10,14 kWh | **10,46** vs 41,10 (-75%) |
-| **3.000** | **12.569,04 s** | 13.880,34 s | 13.650,60 s | -1.311,30 s (-9,45%) | **14,40 kWh** | 15,47 kWh | **15,24** vs 61,64 (-75%) |
-| **4.000** | **16.451,11 s** | 17.185,67 s | 18.855,24 s | -734,56 s (-4,27%) | **18,86 kWh** | 19,48 kWh | **19,35** vs 82,19 (-76%) |
-| **5.000** | **20.934,14 s** | 22.564,05 s | 22.654,61 s | -1.629,91 s (-7,22%) | **24,01 kWh** | 25,39 kWh | **24,48** vs 102,74 (-76%) |
-| **6.000** | **24.743,46 s** | 27.236,00 s | 26.534,14 s | -2.492,54 s (-9,15%) | **28,39 kWh** | 30,43 kWh | **29,43** vs 123,29 (-76%) |
-| **7.000** | **29.049,40 s** | 31.250,81 s | 32.056,35 s | -2.201,41 s (-7,04%) | **33,34 kWh** | 35,15 kWh | **34,01** vs 143,84 (-76%) |
-| **8.000** | **33.076,30 s** | 35.462,63 s | 35.588,34 s | -2.386,33 s (-6,73%) | **37,97 kWh** | 39,99 kWh | **39,31** vs 164,38 (-76%) |
-| **9.000** | **37.406,68 s** | 40.930,30 s | 41.772,18 s | -3.523,62 s (-8,61%) | **42,94 kWh** | 45,88 kWh | **43,55** vs 184,93 (-76%) |
-| **10.000** | **41.456,99 s** | 44.897,72 s | 44.443,23 s | -3.440,73 s (-7,66%) | **47,60 kWh** | 50,40 kWh | **48,55** vs 205,48 (-76%) |
-
-### 5.6 Uji Coba Dataset Google Cloud Jobs (GoCJ Trace 100 - 1.000 Tasks)
-Berdasarkan berkas [gocj_100_1000_results.csv](results/gocj_100_1000_results.csv), pada pola distribusi log-normal Google Cloud Jobs dengan dominasi 60% task pendek:
-- **Makespan 1.000 Tasks**: PEFT = **1.027,93 s** vs FCFS = **1.217,88 s** (Penghematan 189,95 detik atau **-15,59%**).
-- **Konsumsi Daya**: PEFT menghemat energi sebesar **10,84%** (1,22 kWh vs 1,37 kWh).
-- **Throughput**: PEFT meningkat menjadi **0,9728 task/s** vs FCFS 0,8211 task/s (+18,47%).
-
-### 5.7 Analisis Perbedaan Perilaku Antar-Dataset
-Menjawab pertanyaan evaluasi dosen (*"Apakah ada perilaku berbeda dari dataset-dataset ini dan jelaskan alasannya?"*):
-1. **Mengapa Makespan PEFT jauh lebih cepat pada Sintetis dan GoCJ, tetapi relatif sama pada NASA iPSC?**
-   - **Sintetis & GoCJ:** Interval kedatangan task sangat padat (arrival delay 0–300 detik), sehingga seluruh VM mengalami beban antrean tinggi secara serentak. Di sinilah kemampuan PEFT dalam memprediksi *Earliest Finish Time* dan memetakan task besar ke VM ber-MIPS tinggi paling efektif dalam memangkas total waktu makespan.
-   - **NASA iPSC:** Interval kedatangan task membentang luas hingga 48 jam (180.000 detik). Makespan sistem secara fundamental dibatasi oleh waktu kedatangan task terakhir (max(a_i + t_i)). Meskipun makespan sama, PEFT unggul mutlak dalam mengeliminasi antrean (**Waiting Time = 0,00 detik**) dan mempercepat waktu respons (**Turnaround Time turun 24,19%**).
-2. **Determinisme dan Konsistensi Multi-Run:**
-   - Seluruh pengujian 3x run menghasilkan standar deviasi antar-run sebesar **0,00**. Hal ini membuktikan bahwa formulasi matematis PEFT, FCFS, dan Round Robin bersifat deterministik dan reproduktif 100%.
-
-### 5.8 Kesimpulan Analisis Hasil
-1. **Makespan dan Efisiensi Waktu**: Pada dataset sintetis dengan beban kedatangan padat, PEFT mereduksi makespan sebesar 15,39% (761,40 detik lebih singkat) dibandingkan FCFS dan 8,51% dibandingkan Round Robin. Hal ini dicapai melalui pemetaan task berukuran besar ke VM dengan ketersediaan core terawal dan kapasitas MIPS tertinggi.
-2. **Kualitas Layanan (QoS)**: Pada trace NASA iPSC dengan interval kedatangan renggang, PEFT meniadakan waktu tunggu antrean (waiting time = 0,00 s) dan memangkas turnaround time rata-rata sebesar 24,19% (dari 262,44 s menjadi 198,95 s).
-3. **Efisiensi Konsumsi Energi**: Pengurangan durasi eksekusi host secara langsung menurunkan konsumsi energi aktif, menghasilkan penghematan daya sebesar 12,90% (909.544 Joule) pada dataset sintetis dan 1.186.359 Joule pada trace NASA iPSC.
-4. **Pemerataan Beban (Load Balancing)**: Deviasi standar distribusi tugas pada PEFT tercatat 5,32 (dibandingkan 20,55 pada FCFS dan Round Robin), membuktikan beban komputasi terdistribusi secara seimbang tanpa pembebanan berlebih pada subset VM tertentu.
+### 3.3 Batasan
+- Task berkebutuhan $k$ PE hanya ditempatkan pada VM dengan $P_{vm} \ge k$.
+- Non-preemptive: task yang sudah berjalan tidak diinterupsi atau dimigrasikan.
+- Setiap task berjalan utuh pada satu VM.
 
 ---
 
-## 6. Dokumentasi Visual dan Bukti Simulasi
+## 4. Dataset
 
-Bagian ini disediakan sebagai dokumentasi visual berupa tangkapan layar eksekusi terminal dan grafik komparasi hasil simulasi untuk melengkapi laporan tugas.
+Loader dataset ada di [`SwfParser.java`](src/main/java/com/kelompok8/SwfParser.java).
 
-### 6.1 Tangkapan Layar Eksekusi Terminal (PowerShell)
+### 4.1 Sintetis Terkontrol (100 – 10.000 task)
+Dibangkitkan dengan seed tetap (42) dan disimpan sebagai bukti di `dataset/synthetic_dataset_{N}.csv`. Simulasi utama dan batch membaca berkas CSV yang sama.
 
-Berikut adalah rekaman tangkapan layar eksekusi simulasi (`./gradlew runAll`) pada lingkungan Windows Terminal (PowerShell) yang dibagi berdasarkan tahapan skenario pengujian agar mudah dibaca:
+| Kelas | Porsi | Panjang | PE | Kedatangan |
+| :--- | :---: | :--- | :---: | :--- |
+| Kecil | 30% | 500 – 5.000 MI | 1 | uniform 0 – 100 s |
+| Sedang | 40% | 5.000 – 50.000 MI | 2 | uniform 0 – 200 s |
+| Besar | 30% | 50.000 – 500.000 MI | 4 | uniform 0 – 300 s |
 
-#### A. Skenario 1: Dataset Sintetis (1.000 Task)
-| Inisialisasi & Eksekusi Simulasi | Hasil Metrik & Tabel Perbandingan |
+### 4.2 Trace Asli NASA Ames iPSC/860 (100 – 1.000 job)
+- **Berkas**: [`dataset/NASA-iPSC-1993-3.1-cln.swf.gz`](dataset/NASA-iPSC-1993-3.1-cln.swf.gz), versi *cleaned* dari [Parallel Workloads Archive](https://www.cs.huji.ac.il/labs/parallel/workload/l_nasa_ipsc/) (Oktober – Desember 1993, 18.239 job, 128 node).
+- **SHA-256**: `5589ae9b2fb78e3bf92de097497cf33a91607de1ad54563e43533f7827597f29`
+- **Pemetaan ke cloudlet**: *submit time* → waktu kedatangan relatif, *run time* × 1.000 MIPS → panjang (MI), dan jumlah prosesor → 1 / 2 / 4 PE (permintaan > 2 prosesor dibatasi 4 PE, kapasitas VM terbesar). Job dengan *run time* ≤ 0 dilewati.
+- **Profil 1.000 job pertama** (dari log):
+
+```text
+  PROFIL DATASET: NASA-iPSC (1,000 task)
+  ------------------------------------------------------------------------------
+    Task 1 PE :    321 ( 32.1%) | 1,000 - 1,965,000 MI
+    Task 2 PE :     90 (  9.0%) | 5,000 - 5,226,000 MI
+    Task 4 PE :    589 ( 58.9%) | 3,000 - 19,761,000 MI
+    Panjang   : min 1,000 MI | maks 19,761,000 MI | rata-rata 624,381.0 MI
+    Kedatangan: min 0.00 s | maks 587,055.00 s | rata-rata 340,597.44 s
+  ------------------------------------------------------------------------------
+```
+
+Kedatangan 1.000 job ini tersebar selama sekitar **6,8 hari** (587.055 s), jauh lebih renggang daripada dataset sintetis.
+
+### 4.3 GoCJ: Google Cloud Jobs (100 – 1.000 job)
+- **Berkas**: `dataset/gocj/GoCJ_Dataset_{100..1000}.txt`, berkas resmi Hussain & Aleem (2018) dari Mendeley Data. Isinya diverifikasi identik dengan dua salinan independen di GitHub.
+- Setiap baris berisi panjang satu job dalam MI. Untuk 1.000 job: 15.000 – 900.000 MI, median 93.000 MI, rata-rata 129.662 MI.
+- GoCJ **tidak memuat** waktu kedatangan maupun kebutuhan prosesor. Karena itu diasumsikan semua job tiba pada **t = 0** (*batch*) dan masing-masing membutuhkan **1 PE**.
+
+---
+
+## 5. Hasil Skenario 3 DC
+
+Grafik dihasilkan oleh `./gradlew generateCharts` dari CSV di [`results/3dc/`](results/3dc). Setiap titik adalah rata-rata 3 run.
+
+### 5.1 Sintetis, 1.000 task
+Sumber: [`results/3dc/synthetic_results.csv`](results/3dc/synthetic_results.csv). Nilai terbaik per baris ditebalkan.
+
+| Metrik | PEFT | FCFS | Round Robin | PEFT vs FCFS | PEFT vs RR |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| Task selesai | 1.000 | 1.000 | 1.000 | 0,00% | 0,00% |
+| Makespan (s) | **4.185,59** | 4.946,72 | 4.574,82 | -15,39% | -8,51% |
+| Avg turnaround time (s) | **679,77** | 703,58 | 722,85 | -3,38% | -5,96% |
+| Avg waiting time (s) | **631,03** | 655,92 | 675,17 | -3,79% | -6,54% |
+| Throughput (task/s) | **0,2389** | 0,2022 | 0,2186 | 18,18% | 9,30% |
+| Avg utilisasi CPU VM (%) | **38,74** | 31,96 | 34,58 | 21,21% | 12,03% |
+| Load balance (SD task/VM) | **5,32** | 20,55 | 20,55 | -74,12% | -74,12% |
+| Energi SPECpower (kWh) | **4,776** | 5,382 | 5,081 | -11,25% | -6,00% |
+
+### 5.2 NASA iPSC/860, 1.000 job
+Sumber: [`results/3dc/nasa_ipsc_results.csv`](results/3dc/nasa_ipsc_results.csv)
+
+| Metrik | PEFT | FCFS | Round Robin | PEFT vs FCFS | PEFT vs RR |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| Task selesai | 1.000 | 1.000 | 1.000 | 0,00% | 0,00% |
+| Makespan (s) | 587.101,10 | 587.101,10 | 587.101,10 | 0,00% | 0,00% |
+| Avg turnaround time (s) | **312,32** | 342,74 | 342,74 | -8,88% | -8,88% |
+| Avg waiting time (s) | **0,00** | 20,08 | 20,08 | -100,00% | -100,00% |
+| Throughput (task/s) | 0,0017 | 0,0017 | 0,0017 | 0,00% | 0,00% |
+| Avg utilisasi CPU VM (%) | 1,77 | **1,83** | **1,83** | -3,21% | -3,21% |
+| Load balance (SD task/VM) | 115,07 | **28,12** | **28,12** | 309,17% | 309,17% |
+| Energi SPECpower (kWh) | **454,869** | 456,523 | 456,523 | -0,36% | -0,36% |
+
+### 5.3 Distribusi beban per datacenter
+Sumber: [`results/3dc/datacenter_sync_results.csv`](results/3dc/datacenter_sync_results.csv). Seluruh 1.000 task terverifikasi selesai, tanpa task hilang maupun duplikat.
+
+<details>
+<summary>Tabel sinkronisasi per datacenter</summary>
+
+| Dataset | Algoritma | Datacenter | Host | VM | Task | Porsi | Makespan DC (s) | Energi (kWh) |
+| :--- | :--- | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Synthetic | PEFT | DC-1: Jakarta (Entry-Level) | 8 | 10 | 290 | 29,0% | 103,86 | 0,926 |
+| Synthetic | PEFT | DC-2: Surabaya (Standard) | 8 | 10 | 393 | 39,3% | 747,56 | 1,089 |
+| Synthetic | PEFT | DC-3: Bandung (Premium) | 8 | 10 | 317 | 31,7% | 4.185,59 | 1,924 |
+| Synthetic | FCFS | DC-1: Jakarta (Entry-Level) | 8 | 10 | 100 | 10,0% | 96,44 | 1,093 |
+| Synthetic | FCFS | DC-2: Surabaya (Standard) | 8 | 10 | 300 | 30,0% | 419,71 | 1,259 |
+| Synthetic | FCFS | DC-3: Bandung (Premium) | 8 | 10 | 600 | 60,0% | 4.946,72 | 2,175 |
+| Synthetic | Round Robin | DC-1: Jakarta (Entry-Level) | 8 | 10 | 100 | 10,0% | 102,91 | 1,011 |
+| Synthetic | Round Robin | DC-2: Surabaya (Standard) | 8 | 10 | 300 | 30,0% | 471,80 | 1,167 |
+| Synthetic | Round Robin | DC-3: Bandung (Premium) | 8 | 10 | 600 | 60,0% | 4.574,82 | 2,060 |
+| NASA-iPSC | PEFT | DC-1: Jakarta (Entry-Level) | 8 | 10 | 0 | 0,0% | 0,00 | 129,619 |
+| NASA-iPSC | PEFT | DC-2: Surabaya (Standard) | 8 | 10 | 0 | 0,0% | 0,00 | 146,775 |
+| NASA-iPSC | PEFT | DC-3: Bandung (Premium) | 8 | 10 | 1000 | 100,0% | 587.101,10 | 173,912 |
+| NASA-iPSC | FCFS | DC-1: Jakarta (Entry-Level) | 8 | 10 | 110 | 11,0% | 576.532,10 | 129,645 |
+| NASA-iPSC | FCFS | DC-2: Surabaya (Standard) | 8 | 10 | 160 | 16,0% | 582.252,88 | 146,847 |
+| NASA-iPSC | FCFS | DC-3: Bandung (Premium) | 8 | 10 | 730 | 73,0% | 587.101,10 | 174,510 |
+| NASA-iPSC | Round Robin | DC-1: Jakarta (Entry-Level) | 8 | 10 | 110 | 11,0% | 576.532,10 | 129,645 |
+| NASA-iPSC | Round Robin | DC-2: Surabaya (Standard) | 8 | 10 | 160 | 16,0% | 582.252,88 | 146,847 |
+| NASA-iPSC | Round Robin | DC-3: Bandung (Premium) | 8 | 10 | 730 | 73,0% | 587.101,10 | 174,510 |
+
+</details>
+
+### 5.4 Skala 100 – 1.000 task (rata-rata 3 run)
+Sumber: [`results/3dc/batch_100_1000_results.csv`](results/3dc/batch_100_1000_results.csv)
+
+**Sintetis**
+
+| Task | Makespan (s) PEFT | Makespan (s) FCFS | Makespan (s) RR | Energi (kWh) PEFT | Energi (kWh) FCFS | Energi (kWh) RR | Makespan PEFT vs FCFS |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 100 | **621,41** | 712,80 | 679,44 | **0,643** | 0,714 | 0,690 | -12,82% |
+| 200 | **989,62** | 1.171,30 | 1.301,87 | **1,070** | 1,209 | 1,309 | -15,51% |
+| 300 | **1.373,08** | 1.599,51 | 1.587,51 | **1,538** | 1,716 | 1,702 | -14,16% |
+| 400 | **1.774,87** | 2.086,41 | 2.118,34 | **2,008** | 2,243 | 2,273 | -14,93% |
+| 500 | **2.174,16** | 2.770,09 | 2.577,80 | **2,458** | 2,908 | 2,771 | -21,51% |
+| 600 | **2.575,77** | 2.783,55 | 2.737,33 | **2,918** | 3,063 | 3,040 | -7,46% |
+| 700 | **3.052,38** | 3.422,00 | 3.458,69 | **3,469** | 3,758 | 3,790 | -10,80% |
+| 800 | **3.450,93** | 3.880,63 | 4.130,03 | **3,942** | 4,279 | 4,482 | -11,07% |
+| 900 | **3.731,87** | 4.314,53 | 4.443,47 | **4,249** | 4,689 | 4,816 | -13,50% |
+| 1.000 | **4.185,59** | 4.946,72 | 4.574,82 | **4,776** | 5,382 | 5,081 | -15,39% |
+
+**NASA iPSC/860**: makespan ketiga algoritma praktis sama, sehingga yang dibandingkan adalah turnaround dan waiting time.
+
+| Task | Turnaround (s) PEFT | Turnaround (s) FCFS | Turnaround (s) RR | Waiting (s) PEFT | Waiting (s) FCFS | Waiting (s) RR |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 100 | **254,48** | 270,65 | 270,65 | **0,00** | 11,00 | 11,00 |
+| 200 | **330,21** | 345,47 | 345,47 | **0,00** | 5,50 | 5,50 |
+| 300 | **336,99** | 348,18 | 348,18 | **0,00** | 3,67 | 3,67 |
+| 400 | **295,92** | 310,84 | 310,84 | **0,00** | 6,32 | 6,32 |
+| 500 | **309,12** | 335,55 | 335,55 | **0,00** | 15,93 | 15,93 |
+| 600 | **321,02** | 353,07 | 353,07 | **0,00** | 21,60 | 21,60 |
+| 700 | **335,35** | 370,21 | 370,21 | **0,00** | 24,31 | 24,31 |
+| 800 | **311,51** | 343,98 | 343,98 | **0,00** | 22,15 | 22,15 |
+| 900 | **324,38** | 358,05 | 358,05 | **0,00** | 22,31 | 22,31 |
+| 1.000 | **312,32** | 342,74 | 342,74 | **0,00** | 20,08 | 20,08 |
+
+### 5.5 Skala besar 1.000 – 10.000 task, sintetis (rata-rata 3 run)
+Sumber: [`results/3dc/synthetic_1000_10000_results.csv`](results/3dc/synthetic_1000_10000_results.csv)
+
+| Task | Makespan (s) PEFT | Makespan (s) FCFS | Makespan (s) RR | Energi (kWh) PEFT | Energi (kWh) FCFS | Energi (kWh) RR | Makespan PEFT vs FCFS |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1.000 | **4.185,59** | 4.946,72 | 4.574,82 | **4,78** | 5,38 | 5,08 | -15,39% |
+| 2.000 | **8.123,59** | 9.189,56 | 9.361,24 | **9,29** | 10,13 | 10,28 | -11,60% |
+| 3.000 | **12.567,35** | 13.880,51 | 13.650,70 | **14,39** | 15,47 | 15,30 | -9,46% |
+| 4.000 | **16.451,44** | 17.185,63 | 18.855,24 | **18,86** | 19,48 | 20,81 | -4,27% |
+| 5.000 | **20.933,74** | 22.563,91 | 22.655,22 | **24,01** | 25,39 | 25,46 | -7,22% |
+| 6.000 | **24.743,15** | 27.235,60 | 26.535,14 | **28,39** | 30,43 | 29,91 | -9,15% |
+| 7.000 | **29.048,83** | 31.250,87 | 32.056,76 | **33,34** | 35,15 | 35,76 | -7,05% |
+| 8.000 | **33.077,39** | 35.462,86 | 35.588,02 | **37,97** | 39,99 | 39,95 | -6,73% |
+| 9.000 | **37.408,97** | 40.929,40 | 41.772,18 | **42,94** | 45,88 | 46,44 | -8,60% |
+| 10.000 | **41.457,69** | 44.897,66 | 44.444,82 | **47,61** | 50,40 | 50,03 | -7,66% |
+
+### 5.6 GoCJ 100 – 1.000 job (rata-rata 3 run)
+Sumber: [`results/3dc/gocj_100_1000_results.csv`](results/3dc/gocj_100_1000_results.csv)
+
+| Task | Makespan (s) PEFT | Makespan (s) FCFS | Makespan (s) RR | Energi (kWh) PEFT | Energi (kWh) FCFS | Energi (kWh) RR | Makespan PEFT vs FCFS |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 100 | **450,21** | 826,81 | 826,81 | **0,407** | 0,720 | 0,720 | -45,55% |
+| 200 | **450,21** | 2.785,92 | 2.785,92 | **0,479** | 2,306 | 2,306 | -83,84% |
+| 300 | **450,21** | 2.077,63 | 2.077,63 | **0,539** | 1,849 | 1,849 | -78,33% |
+| 400 | **450,21** | 2.183,07 | 2.183,07 | **0,581** | 2,002 | 2,002 | -79,38% |
+| 500 | **548,74** | 3.041,11 | 3.041,11 | **0,717** | 2,732 | 2,732 | -81,96% |
+| 600 | **695,47** | 4.778,93 | 4.778,93 | **0,908** | 4,170 | 4,170 | -85,45% |
+| 700 | **741,13** | 4.777,02 | 4.777,02 | **0,966** | 4,229 | 4,229 | -84,49% |
+| 800 | **834,42** | 4.205,77 | 4.205,77 | **1,089** | 3,845 | 3,845 | -80,16% |
+| 900 | **1.009,04** | 4.857,14 | 4.857,14 | **1,319** | 4,479 | 4,479 | -79,23% |
+| 1.000 | **1.091,83** | 5.707,22 | 5.707,22 | **1,426** | 5,203 | 5,203 | -80,87% |
+
+### 5.7 Grafik
+| | |
 | :---: | :---: |
-| <img src="docs/images/terminal_sintetis_eksekusi.png" alt="Eksekusi Skenario Sintetis" width="460"><br><sub><em>Inisialisasi datacenter &amp; eksekusi PEFT</em></sub> | <img src="docs/images/terminal_sintetis_tabel.png" alt="Tabel Perbandingan Sintetis" width="460"><br><sub><em>Sampel task &amp; tabel komparasi metrik</em></sub> |
-
-#### B. Skenario 2: Real Trace NASA iPSC SWF (1.000 Task)
-| Inisialisasi & Eksekusi Simulasi | Hasil Metrik & Tabel Perbandingan |
-| :---: | :---: |
-| <img src="docs/images/terminal_nasa_eksekusi.png" alt="Eksekusi Skenario NASA iPSC" width="460"><br><sub><em>Inisialisasi trace SWF &amp; eksekusi PEFT</em></sub> | <img src="docs/images/terminal_nasa_tabel.png" alt="Tabel Perbandingan NASA iPSC" width="460"><br><sub><em>Sampel task &amp; tabel komparasi akhir</em></sub> |
-
-### 6.2 Visualisasi Grafik Evaluasi Metrik Komparatif
-
-| Makespan Skala Bertahap (100 - 1.000 Task) | Makespan Skala Besar (1.000 - 10.000 Task) |
-| :---: | :---: |
-| <img src="docs/images/grafik_makespan_sintetis_100_1000.png" alt="Grafik Makespan 100-1000" width="460"><br><sub><em>Makespan vs Task 100 - 1.000 (Sintetis)</em></sub> | <img src="docs/images/grafik_makespan_sintetis_1000_10000.png" alt="Grafik Makespan 1000-10000" width="460"><br><sub><em>Makespan vs Task 1.000 - 10.000 (Sintetis)</em></sub> |
-
-#### 🔬 Analisis Grafik 1 & 2: Dinamika Makespan Dataset Sintetis (100 s.d. 10.000 Task)
-1. **Mengapa Tren Kurva Selalu Meningkat Linier?**
-   - Kurva makespan menunjukkan pertumbuhan monotonik positif yang proporsional ($R^2 \approx 0,99$). Seiring bertambahnya task dari 100 hingga 10.000, akumulasi beban instruksi komputasi (*Million Instructions* / MI) bertambah secara linier, sementara kapasitas agregat infrastruktur cloud tetap konstan (3 Datacenter, 30 VM heterogen = 45.000 MIPS). Karena seluruh task datang dalam jendela waktu kedatangan padat (*arrival window* 0–300 detik), antrean komputasi di VM memanjang secara proporsional.
-2. **Mengapa PEFT Selalu Konsisten di Bawah (Paling Cepat / Unggul)?**
-   - **Pada 100 Task:** PEFT menyelesaikan seluruh pekerjaan dalam **621,41 s**, lebih cepat dibanding FCFS (**712,80 s**) dan Round Robin (**679,44 s**).
-   - **Pada 500 Task (*Sweet Spot* Saturasi):** Keunggulan PEFT melonjak hingga **-21,51%** (2.174,16 s vs 2.770,09 s), mereduksi waktu sebesar 595,93 detik.
-   - **Pada 10.000 Task (Skala Masif):** Gap keunggulan mutlak PEFT melebar drastis menjadi **3.440,73 detik (hampir 1 jam lebih cepat!)**, yaitu 41.456,99 s vs 44.897,72 s pada FCFS.
-   - **Mekanisme Ilmiah:** PEFT secara adaptif menghitung matriks *Earliest Finish Time* (EFT) dan memprioritaskan *Longest Processing Time* (LPT). Task berskala besar (proporsi 30%, 50.000–500.000 MI) diarahkan ke VM Large di DC-3 (2.000 MIPS x 4 core), sementara task mikro dialokasikan ke VM Small di DC-1. Sebaliknya, FCFS dan Round Robin mengalami fenomena ***Convoy Effect*** (antrean macet), di mana task berukuran raksasa dialokasikan secara buta ke VM lambat (1.000 MIPS), memblokir puluhan task di belakangnya.
-3. **Mengapa Kurva FCFS dan Round Robin Saling Berimpit / Bersilangan?**
-   - Round Robin mendistribusikan task secara berurutan modulo 30 tanpa evaluasi beban. Pada skala masif (>= 5.000 task), efek statistik acak Round Robin menghasilkan profil utilisasi yang nyaris serupa dengan FCFS, sehingga garis keduanya saling berdekatan dan berada jauh di atas efisiensi PEFT.
+| <img src="docs/images/3dc/grafik_makespan_sintetis_100_1000.png" width="440"> | <img src="docs/images/3dc/grafik_makespan_sintetis_1000_10000.png" width="440"> |
+| <img src="docs/images/3dc/grafik_turnaround_nasa_100_1000.png" width="440"> | <img src="docs/images/3dc/grafik_waiting_time_nasa_100_1000.png" width="440"> |
+| <img src="docs/images/3dc/grafik_makespan_gocj_100_1000.png" width="440"> | <img src="docs/images/3dc/grafik_makespan_nasa_100_1000.png" width="440"> |
+| <img src="docs/images/3dc/grafik_energi_specpower_1000_10000.png" width="440"> | <img src="docs/images/3dc/grafik_load_balance_1000_10000.png" width="440"> |
 
 ---
 
-| Makespan Real Trace NASA iPSC (100 - 1.000) | Eliminasi Waktu Antre NASA iPSC (100 - 1.000) |
-| :---: | :---: |
-| <img src="docs/images/grafik_makespan_nasa_100_1000.png" alt="Grafik Makespan NASA" width="460"><br><sub><em>Makespan NASA iPSC vs Task 100 - 1.000</em></sub> | <img src="docs/images/grafik_waiting_time_nasa_100_1000.png" alt="Grafik Waiting Time NASA" width="460"><br><sub><em>Eliminasi Waiting Time PEFT (0 detik)</em></sub> |
+## 6. Hasil Skenario 2 DC
 
-#### 🔬 Analisis Grafik 3 & 4: Perilaku Real Trace NASA Ames iPSC/860
-1. **Mengapa Makespan Ketiga Algoritma Berimpit / Sama Persis pada 1.000 Task (~180.250 detik)?**
-   - **Karakteristik *Arrival-Bounded Makespan*:** Berbeda dengan dataset sintetis yang padat di awal, log *supercomputer* NASA iPSC adalah rekaman kerja riil yang membentang selama 48 jam (~180.000 detik). Task terakhir (#1000) baru masuk disubmit ke sistem pada detik ke-180.200.
-   - Karena $Makespan = \max_i (\text{Waktu Selesai Task } i)$ dan waktu selesai pasti $\ge$ waktu submit, sistem secara fundamental tidak dapat menyelesaikan task sebelum task tersebut disubmit oleh pengguna. Sehingga makespan trace NASA **dibatasi oleh interval kedatangan (*arrival-bound*)**, bukan oleh keterbatasan daya komputasi (*compute-bound*).
-2. **Mengapa Grafik Waiting Time FCFS Berfluktuasi Naik-Turun (5,5 s $\rightarrow$ 44,3 s $\rightarrow$ 20,5 s)?**
-   - **Fenomena *Job Burst* (Semburan Tugas Riil):** Pada riwayat NASA, pengiriman tugas oleh peneliti terjadi secara berkelompok (*burst*).
-   - Pada rentang 200–350 task, terjadi gelombang submit bersamaan dari beberapa tim riset. FCFS menumpuk task tersebut pada antrean VM yang sedang sibuk, memicu lonjakan waktu tunggu (*waiting time peak*) hingga **44,38 detik**.
-   - Begitu semburan tugas mereda dan interval kedatangan kembali renggang, antrean terurai sehingga waktu tunggu rata-rata turun kembali ke kisaran 20–28 detik.
-3. **Mengapa Garis PEFT Mendatar Sempurna di 0,00 Detik (*Zero Waiting Time*)?**
-   - PEFT secara proaktif memantau kesiapan seluruh 30 VM. Saat terjadi gelombang kedatangan serentak (*burst*), PEFT segera mendistribusikan task ke core-core prosesor yang sedang menganggur (*idle core*) lintas 3 Datacenter, alih-alih menumpuknya pada VM yang sedang sibuk. Hasilnya, **waktu antre tereliminasi 100% (0,00 detik)** dan rata-rata waktu tanggap (*turnaround time*) terpangkas sebesar **-24,19%** (198,95 s vs 262,43 s).
+Sumber: CSV di [`results/2dc/`](results/2dc), dihasilkan dengan `-Pskenario=2dc`.
+
+### 6.1 Sintetis, 1.000 task
+
+| Metrik | PEFT | FCFS | Round Robin | PEFT vs FCFS | PEFT vs RR |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| Task selesai | 1.000 | 1.000 | 1.000 | 0,00% | 0,00% |
+| Makespan (s) | **2.172,86** | 3.094,28 | 2.476,28 | -29,78% | -12,25% |
+| Avg turnaround time (s) | **360,84** | 370,70 | 375,91 | -2,66% | -4,01% |
+| Avg waiting time (s) | **308,85** | 321,14 | 326,34 | -3,83% | -5,36% |
+| Throughput (task/s) | **0,4602** | 0,3232 | 0,4038 | 42,41% | 13,96% |
+| Avg utilisasi CPU VM (%) | **59,70** | 39,91 | 49,85 | 49,59% | 19,77% |
+| Load balance (SD task/VM) | 9,86 | **7,00** | **7,00** | 40,84% | 40,84% |
+| Energi SPECpower (kWh) | **1,225** | 1,529 | 1,335 | -19,88% | -8,24% |
+
+### 6.2 NASA iPSC/860, 1.000 job
+
+| Metrik | PEFT | FCFS | Round Robin | PEFT vs FCFS | PEFT vs RR |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| Task selesai | 1.000 | 1.000 | 1.000 | 0,00% | 0,00% |
+| Makespan (s) | 587.101,10 | 587.101,10 | 587.101,10 | 0,00% | 0,00% |
+| Avg turnaround time (s) | **312,32** | 332,09 | 332,09 | -5,95% | -5,95% |
+| Avg waiting time (s) | **0,00** | 7,09 | 7,09 | -100,00% | -100,00% |
+| Throughput (task/s) | 0,0017 | 0,0017 | 0,0017 | 0,00% | 0,00% |
+| Avg utilisasi CPU VM (%) | 1,33 | **1,38** | **1,38** | -3,90% | -3,90% |
+| Load balance (SD task/VM) | 100,70 | **14,46** | **14,46** | 596,37% | 596,37% |
+| Energi SPECpower (kWh) | **187,515** | 188,291 | 188,291 | -0,41% | -0,41% |
+
+### 6.3 Distribusi beban per datacenter
+
+<details>
+<summary>Tabel sinkronisasi per datacenter</summary>
+
+| Dataset | Algoritma | Datacenter | Host | VM | Task | Porsi | Makespan DC (s) | Energi (kWh) |
+| :--- | :--- | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Synthetic | PEFT | DC-1: Jakarta (Standard) | 5 | 20 | 650 | 65,0% | 572,85 | 0,316 |
+| Synthetic | PEFT | DC-2: Bandung (Premium) | 5 | 20 | 350 | 35,0% | 2.172,86 | 0,745 |
+| Synthetic | FCFS | DC-1: Jakarta (Standard) | 5 | 20 | 360 | 36,0% | 359,72 | 0,433 |
+| Synthetic | FCFS | DC-2: Bandung (Premium) | 5 | 20 | 640 | 64,0% | 3.094,28 | 0,918 |
+| Synthetic | Round Robin | DC-1: Jakarta (Standard) | 5 | 20 | 360 | 36,0% | 431,58 | 0,349 |
+| Synthetic | Round Robin | DC-2: Bandung (Premium) | 5 | 20 | 640 | 64,0% | 2.476,28 | 0,808 |
+| NASA-iPSC | PEFT | DC-1: Jakarta (Standard) | 5 | 20 | 0 | 0,0% | 0,00 | 80,090 |
+| NASA-iPSC | PEFT | DC-2: Bandung (Premium) | 5 | 20 | 1000 | 100,0% | 587.101,10 | 106,560 |
+| NASA-iPSC | FCFS | DC-1: Jakarta (Standard) | 5 | 20 | 211 | 21,1% | 583.518,10 | 80,133 |
+| NASA-iPSC | FCFS | DC-2: Bandung (Premium) | 5 | 20 | 789 | 78,9% | 587.101,10 | 106,973 |
+| NASA-iPSC | Round Robin | DC-1: Jakarta (Standard) | 5 | 20 | 211 | 21,1% | 583.518,10 | 80,133 |
+| NASA-iPSC | Round Robin | DC-2: Bandung (Premium) | 5 | 20 | 789 | 78,9% | 587.101,10 | 106,973 |
+
+</details>
+
+### 6.4 Skala 100 – 1.000 task (rata-rata 3 run)
+
+**Sintetis**
+
+| Task | Makespan (s) PEFT | Makespan (s) FCFS | Makespan (s) RR | Energi (kWh) PEFT | Energi (kWh) FCFS | Energi (kWh) RR | Makespan PEFT vs FCFS |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 100 | **480,90** | 511,68 | 541,51 | **0,208** | 0,221 | 0,232 | -6,02% |
+| 200 | **616,86** | 712,58 | 788,90 | **0,305** | 0,333 | 0,358 | -13,43% |
+| 300 | **801,55** | 937,03 | 1.051,08 | **0,426** | 0,467 | 0,503 | -14,46% |
+| 400 | **987,66** | 1.250,61 | 1.201,80 | **0,543** | 0,624 | 0,609 | -21,03% |
+| 500 | **1.183,63** | 1.656,16 | 1.394,64 | **0,658** | 0,801 | 0,719 | -28,53% |
+| 600 | **1.372,77** | 1.561,16 | 1.589,70 | **0,771** | 0,824 | 0,834 | -12,07% |
+| 700 | **1.623,50** | 1.827,76 | 1.939,27 | **0,915** | 0,974 | 1,011 | -11,18% |
+| 800 | **1.795,17** | 1.964,30 | 2.112,46 | **1,012** | 1,082 | 1,133 | -8,61% |
+| 900 | **1.967,69** | 2.532,84 | 2.371,04 | **1,110** | 1,292 | 1,244 | -22,31% |
+| 1.000 | **2.172,86** | 3.094,28 | 2.476,28 | **1,225** | 1,529 | 1,335 | -29,78% |
+
+**NASA iPSC/860**
+
+| Task | Turnaround (s) PEFT | Turnaround (s) FCFS | Turnaround (s) RR | Waiting (s) PEFT | Waiting (s) FCFS | Waiting (s) RR |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 100 | **254,48** | 260,27 | 260,27 | 0,00 | 0,00 | 0,00 |
+| 200 | **330,21** | 334,36 | 334,36 | 0,00 | 0,00 | 0,00 |
+| 300 | **336,99** | 340,78 | 340,78 | 0,00 | 0,00 | 0,00 |
+| 400 | **295,92** | 301,19 | 301,19 | **0,00** | 0,11 | 0,11 |
+| 500 | **309,12** | 327,61 | 327,61 | **0,00** | 10,96 | 10,96 |
+| 600 | **321,02** | 346,15 | 346,15 | **0,00** | 10,51 | 10,51 |
+| 700 | **335,35** | 357,38 | 357,38 | **0,00** | 9,29 | 9,29 |
+| 800 | **311,51** | 334,41 | 334,41 | **0,00** | 8,86 | 8,86 |
+| 900 | **324,38** | 346,24 | 346,24 | **0,00** | 7,88 | 7,88 |
+| 1.000 | **312,32** | 332,09 | 332,09 | **0,00** | 7,09 | 7,09 |
+
+### 6.5 Skala besar 1.000 – 10.000 task, sintetis (rata-rata 3 run)
+
+| Task | Makespan (s) PEFT | Makespan (s) FCFS | Makespan (s) RR | Energi (kWh) PEFT | Energi (kWh) FCFS | Energi (kWh) RR | Makespan PEFT vs FCFS |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1.000 | **2.172,86** | 3.094,28 | 2.476,28 | **1,23** | 1,53 | 1,34 | -29,78% |
+| 2.000 | **4.142,86** | 4.917,34 | 4.732,71 | **2,34** | 2,65 | 2,58 | -15,75% |
+| 3.000 | **6.382,55** | 7.538,12 | 7.291,61 | **3,60** | 4,08 | 4,00 | -15,33% |
+| 4.000 | **8.322,98** | 9.212,38 | 9.807,11 | **4,69** | 5,14 | 5,32 | -9,65% |
+| 5.000 | **10.556,84** | 11.858,51 | 11.813,30 | **5,95** | 6,59 | 6,57 | -10,98% |
+| 6.000 | **12.436,10** | 14.382,22 | 13.450,29 | **7,01** | 7,90 | 7,58 | -13,53% |
+| 7.000 | **14.590,49** | 16.412,61 | 16.364,26 | **8,23** | 9,14 | 9,13 | -11,10% |
+| 8.000 | **16.627,44** | 18.314,92 | 18.887,81 | **9,38** | 10,29 | 10,49 | -9,21% |
+| 9.000 | **18.793,19** | 20.908,85 | 21.099,67 | **10,60** | 11,69 | 11,75 | -10,12% |
+| 10.000 | **20.827,21** | 23.185,11 | 22.714,22 | **11,74** | 12,96 | 12,79 | -10,17% |
+
+### 6.6 GoCJ 100 – 1.000 job (rata-rata 3 run)
+
+| Task | Makespan (s) PEFT | Makespan (s) FCFS | Makespan (s) RR | Energi (kWh) PEFT | Energi (kWh) FCFS | Energi (kWh) RR | Makespan PEFT vs FCFS |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 100 | **450,21** | 900,28 | 900,28 | **0,162** | 0,316 | 0,316 | -49,99% |
+| 200 | **450,21** | 1.019,49 | 1.019,49 | **0,188** | 0,383 | 0,383 | -55,84% |
+| 300 | **450,21** | 1.101,98 | 1.101,98 | **0,216** | 0,441 | 0,441 | -59,15% |
+| 400 | **450,21** | 1.627,98 | 1.627,98 | **0,236** | 0,635 | 0,635 | -72,35% |
+| 500 | **450,21** | 1.478,46 | 1.478,46 | **0,254** | 0,621 | 0,621 | -69,55% |
+| 600 | **450,21** | 1.546,95 | 1.546,95 | **0,254** | 0,675 | 0,675 | -70,90% |
+| 700 | **450,21** | 2.348,07 | 2.348,07 | **0,254** | 0,943 | 0,943 | -80,83% |
+| 800 | **505,81** | 1.913,33 | 1.913,33 | **0,285** | 0,837 | 0,837 | -73,56% |
+| 900 | **610,01** | 2.524,70 | 2.524,70 | **0,344** | 1,077 | 1,077 | -75,84% |
+| 1.000 | **661,39** | 3.180,74 | 3.180,74 | **0,373** | 1,299 | 1,299 | -79,21% |
+
+### 6.7 Grafik
+| | |
+| :---: | :---: |
+| <img src="docs/images/2dc/grafik_makespan_sintetis_100_1000.png" width="440"> | <img src="docs/images/2dc/grafik_makespan_sintetis_1000_10000.png" width="440"> |
+| <img src="docs/images/2dc/grafik_turnaround_nasa_100_1000.png" width="440"> | <img src="docs/images/2dc/grafik_waiting_time_nasa_100_1000.png" width="440"> |
+| <img src="docs/images/2dc/grafik_makespan_gocj_100_1000.png" width="440"> | <img src="docs/images/2dc/grafik_makespan_nasa_100_1000.png" width="440"> |
+| <img src="docs/images/2dc/grafik_energi_specpower_1000_10000.png" width="440"> | <img src="docs/images/2dc/grafik_load_balance_1000_10000.png" width="440"> |
 
 ---
 
-| Konsumsi Energi SPECpower (1.000 - 10.000 Task) | Pemerataan Beban Antar-VM (Std Dev) |
-| :---: | :---: |
-| <img src="docs/images/grafik_energi_specpower_1000_10000.png" alt="Grafik Energi" width="460"><br><sub><em>Konsumsi Energi SPECpower (kWh)</em></sub> | <img src="docs/images/grafik_load_balance_1000_10000.png" alt="Grafik Load Balance" width="460"><br><sub><em>Load Balance Imbalance (Std Dev Beban)</em></sub> |
+## 7. Analisis dan Kesimpulan
 
-#### 🔬 Analisis Grafik 5 & 6: Konsumsi Energi SPECpower dan Pemerataan Beban (Load Balancing)
-1. **Mengapa Konsumsi Energi (kWh) Naik Linier Seiring Skala Task?**
-   - Model daya SPECpower mengkalkulasi konsumsi energi dinamis berdasarkan kurva beban prosesor non-linier pada 24 host fisik:
-     $$E = \sum_{h=1}^{24} \int_{0}^{Makespan} P_h(u(t)) \, dt$$
-     Semakin besar volume task (dari 1.000 ke 10.000), durasi operasional aktif dan utilisasi CPU server meningkat, mengakibatkan total akumulasi kilowatt-hour (kWh) naik dari ~4,78 kWh menjadi ~47,60 kWh (PEFT) dan ~5,38 kWh menjadi ~50,40 kWh (FCFS).
-2. **Mengapa PEFT Mampu Menghemat Energi Signifikan (Hingga 10,07 Megajoule / 2,80 kWh pada 10k Task)?**
-   - **Efisiensi Waktu Daya Menganggur (*Idle Power Reduction*):** Host fisik server mengonsumsi sekitar 40% daya maksimum bahkan saat utilisasi CPU 0% (*static idle power*). Karena PEFT menuntaskan seluruh 10.000 tugas **3.440 detik lebih cepat**, periode pemborosan daya *idle* pada host fisik terpangkas drastis, menghasilkan efisiensi energi global sebesar **-5,55% s.d. -12,20%**.
-3. **Mengapa Ketimpangan Beban (Load Balance StdDev) FCFS/RR Meledak Naik (20,55 $\rightarrow$ 205,48), sedangkan PEFT Sangat Stabil dan Rata (5,32 $\rightarrow$ 48,55)?**
-   - **Penyebab Ledakan StdDev FCFS/RR:** FCFS dan RR mengalokasikan task tanpa mempertimbangkan heterogenitas VM (VM Small 1.000 MIPS vs VM Large 8.000 MIPS). Akibatnya, VM berkecepatan rendah menerima kuantitas MI yang setara dengan VM berkecepatan tinggi. Pada skala 10.000 task, akumulasi selisih beban antar-VM meledak hingga standar deviasi mencapai **205,48**.
-   - **Stabilitas Heuristik PEFT:** PEFT membagi beban secara proporsional dengan kapabilitas komputasi (VM besar memproses MI lebih banyak, VM kecil memproses MI lebih sedikit), sehingga waktu selesai (*completion time*) seluruh VM berakhir hampir bersamaan. Ketimpangan beban berhasil diredam hingga **-76,37%**, membuktikan ketangguhan algoritma dalam menjaga stabilitas termal server dan keandalan hardware.
+### 7.1 Mengapa perilaku tiap dataset berbeda?
+- **Sintetis: kedatangan padat (0 – 300 s), jadi beban terbatas komputasi.** Antrean menumpuk di seluruh VM, dan di sinilah prediksi EFT berpengaruh. PEFT mengirim task besar ke VM yang paling cepat selesai, sedangkan FCFS/RR membagi rata tanpa melihat kecepatan VM. Keunggulan makespan PEFT 7 – 22% (`3dc`) dan 6 – 30% (`2dc`) pada 100 – 1.000 task, lalu mengecil ke kisaran 4 – 16% pada 2.000 – 10.000 task karena semua VM jenuh.
+- **NASA iPSC/860: kedatangan renggang (6,8 hari), jadi beban terbatas waktu kedatangan.** Makespan ditentukan oleh job terakhir yang tiba pada detik ke-587.055, sehingga ketiga algoritma berakhir hampir bersamaan. VM hampir selalu menganggur (utilisasi CPU < 2%), sehingga energi didominasi daya idle dan selisihnya hanya 0,36 – 0,41%. Keunggulan PEFT terlihat pada kualitas layanan: waiting time selalu 0 dan turnaround time 1,1 – 9,4% lebih pendek di seluruh skala 100 – 1.000 job, karena setiap job langsung dikirim ke VM 2.000 MIPS yang sedang bebas.
+- **GoCJ: semua job tiba bersamaan dengan variasi panjang besar (15.000 – 900.000 MI).** FCFS/RR menaruh job besar di VM lambat dan membuat antrean panjang, sementara PEFT memilih VM yang selesai paling awal. Pada 100 – 400 job (`3dc`) dan 100 – 700 job (`2dc`), makespan PEFT tertahan di **450,21 s**: itu adalah durasi job terbesar (900.000 MI ÷ 2.000 MIPS), batas bawah yang tidak bisa dilampaui algoritma apa pun pada VM ini.
+
+### 7.2 Perbandingan skenario `3dc` vs `2dc`
+- Pada sintetis 1.000 task, makespan PEFT turun dari **4.185,59 s** (`3dc`) menjadi **2.172,86 s** (`2dc`), dan energinya dari **4,776 kWh** menjadi **1,225 kWh**. Penyebabnya: kapasitas VM `2dc` lebih besar (200.000 vs 120.000 MIPS; 20 VM Large vs 10), sementara host fisiknya lebih sedikit (10 vs 24), sehingga daya idle yang terbuang jauh berkurang.
+- Pada NASA, hasil PEFT (makespan, turnaround, waiting) **identik** di kedua skenario karena PEFT selalu memakai VM Large 2.000 MIPS, yang spesifikasinya sama di kedua skenario. Yang berbeda hanya energinya (454,9 vs 187,5 kWh), karena jumlah host yang menyala berbeda.
+
+### 7.3 Catatan tentang load balance
+Metrik load balance di sini adalah simpangan baku **jumlah task per VM**. PEFT tidak berusaha meratakan jumlah task. PEFT sengaja menumpuk task di VM yang paling cepat menyelesaikannya, sehingga simpangan bakunya bisa lebih tinggi daripada FCFS/RR: NASA (115,07 vs 28,12 pada `3dc`), GoCJ, dan sintetis `2dc` (9,86 vs 7,00). Pada sintetis `3dc` justru sebaliknya (5,32 vs 20,55), karena FCFS/RR memusatkan semua task 4 PE di 10 VM Large. Jadi angka ini menggambarkan pola distribusi task, bukan efisiensi.
+
+### 7.4 Kesimpulan
+1. Dari 78 konfigurasi batch (2 skenario × sintetis, NASA, dan GoCJ pada tiap skala), PEFT menghasilkan makespan terpendek atau setara pada 76 konfigurasi. Dua sisanya adalah NASA 800 job, di mana PEFT lebih lama 0,11 s (0,00002%) karena makespan ditentukan oleh job terakhir. Selisih terbesar ada pada beban padat (sintetis dan GoCJ).
+2. Pada trace nyata yang renggang (NASA), keunggulan PEFT ada pada kualitas layanan (waiting time 0, turnaround lebih pendek), bukan pada makespan maupun energi.
+3. Penghematan energi PEFT berasal dari makespan yang lebih pendek: host lebih cepat kembali ke kondisi selesai, sehingga waktu idle berkurang.
+4. Seluruh hasil reproducible: 3 run per konfigurasi menghasilkan nilai identik (simpangan baku antar-run 0).
 
 ---
 
-| Evaluasi Tambahan: Makespan GoCJ (100 - 1.000) | Visualisasi Ringkasan Eksekusi |
-| :---: | :---: |
-| <img src="docs/images/grafik_makespan_gocj_100_1000.png" alt="Grafik GoCJ" width="460"><br><sub><em>Evaluasi Trace Tambahan (Google Cloud Jobs)</em></sub> | <img src="docs/images/grafik_makespan.png" alt="Grafik Makespan" width="460"><br><sub><em>Grafik komparasi makespan dan turnaround time</em></sub> |
+## 8. Menjalankan Simulasi
 
----
+Prasyarat: **JDK 21**. Dependensi CloudSim Plus diunduh otomatis oleh Gradle Wrapper.
 
-## 7. Panduan Menjalankan Simulasi
-
-Simulasi dikemas menggunakan Gradle Wrapper sehingga dependensi pustaka CloudSim Plus akan diunduh secara otomatis saat pertama kali dieksekusi. Prasyarat sistem yang dibutuhkan adalah **Java SE Development Kit (JDK) 21**.
-
-### 7.1 Kloning Repository
 ```bash
-git clone https://github.com/aryarefman/soka.git
-cd soka
+git clone https://github.com/aryarefman/soka-peft-heuristik.git
+cd soka-peft-heuristik
 ```
 
-### 7.2 Menjalankan Seluruh Skenario Simulasi
-Buka terminal pada direktori proyek, kemudian jalankan:
-```powershell
-.\gradlew.bat runAll
+Semua task menerima `-Pskenario=3dc` (default) atau `-Pskenario=2dc`. Di Windows gunakan `.\gradlew.bat`.
+
+| Perintah | Fungsi |
+| :--- | :--- |
+| `./gradlew runAll` | PEFT, FCFS, RR pada sintetis & NASA (1.000 task) → `results/3dc/` |
+| `./gradlew runAll -Pskenario=2dc` | Sama, untuk skenario 2 DC → `results/2dc/` |
+| `./gradlew runPEFT` / `runFCFS` / `runRoundRobin` | Satu algoritma saja |
+| `./gradlew testAllocation -Pskenario=2dc` | Tabel bukti penempatan VM ke host |
+| `./gradlew runBatch` | Batch 100 – 1.000, 1.000 – 10.000, dan GoCJ (3× run) |
+| `./gradlew generateCharts` | Grafik dari CSV batch → `docs/images/{skenario}/` |
+| `./gradlew renderArsitektur` | Diagram arsitektur dari `Skenario.java` |
+
+Urutan untuk mereproduksi seluruh isi README:
+
+```bash
+for s in 3dc 2dc; do
+  ./gradlew runAll testAllocation runBatch generateCharts renderArsitektur -Pskenario=$s
+done
 ```
-Perintah ini akan melakukan kompilasi, mengeksekusi simulasi untuk dataset Sintetis dan NASA iPSC pada seluruh algoritma (PEFT, FCFS, Round Robin), menampilkan tabel ringkasan metrik di konsol, serta menyimpan rekaman data ke direktori `results/`.
 
-### 7.3 Menjalankan Algoritma Tertentu
-Untuk menjalankan algoritma secara terpisah:
-```powershell
-# Menjalankan evaluasi PEFT
-.\gradlew.bat runPEFT
+Berkas keluaran per skenario (`results/{skenario}/`):
 
-# Menjalankan evaluasi FCFS
-.\gradlew.bat runFCFS
-
-# Menjalankan evaluasi Round Robin
-.\gradlew.bat runRoundRobin
-```
-
-### 7.4 Struktur Berkas Hasil (CSV)
-Seluruh metrik evaluasi tersimpan dalam format CSV pada direktori `results/`:
-- `results/synthetic_results.csv` : Hasil eksperimen dataset sintetis.
-- `results/nasa_ipsc_results.csv` : Hasil eksperimen dataset NASA iPSC.
-- `results/all_results.csv`       : Rekapitulasi gabungan seluruh pengujian.
+| Berkas | Isi |
+| :--- | :--- |
+| `synthetic_results.csv`, `nasa_ipsc_results.csv`, `all_results.csv` | Metrik 1.000 task dari `runAll` |
+| `datacenter_sync_results.csv` | Distribusi task & energi per datacenter |
+| `batch_100_1000_results.csv` | Sintetis & NASA 100 – 1.000 task |
+| `synthetic_1000_10000_results.csv` | Sintetis 1.000 – 10.000 task |
+| `gocj_100_1000_results.csv` | GoCJ 100 – 1.000 job |
+| `logs/*.txt` | Output terminal asli tiap perintah |
 
 ---
 
-## 8. Struktur Direktori Repository
+## 9. Struktur Repository
 
 ```
-soka/
-├── .gitignore                                 # Mengabaikan direktori build, cache, dan file lingkungan
-├── build.gradle                               # Konfigurasi Gradle dan dependensi CloudSim Plus 8.0.0
-├── settings.gradle
-├── gradlew.bat                                # Skrip Gradle Wrapper untuk Windows
-├── Tugas_3_Kelompok_8 (2).pdf                 # Dokumen usulan spesifikasi proyek Kelompok 8
-│
-├── Assets/
-│   └── Lambang ITS PNG v1.png                 # Lambang resmi Institut Teknologi Sepuluh Nopember (ITS)
-│
+soka-peft-heuristik/
+├── build.gradle                     # Dependensi CloudSim Plus 8.0.0 & task Gradle (runAll, runBatch, ...)
+├── Assets/                          # Logo ITS
 ├── dataset/
-│   ├── NASA-iPSC-1993-3.1-cln.swf             # Berkas workload trace SWF NASA iPSC (1.500 baris)
-│   └── NASA-iPSC-1993-3.1-cln.swf.gz
-│
+│   ├── NASA-iPSC-1993-3.1-cln.swf.gz  # Trace asli NASA iPSC/860 (Parallel Workloads Archive)
+│   ├── gocj/                        # GoCJ_Dataset_100..1000.txt (Hussain & Aleem, 2018)
+│   └── synthetic_dataset_*.csv      # Dataset sintetis seed 42 (100 – 10.000 task)
 ├── docs/
-│   └── images/                                # Dokumentasi tangkapan layar terminal dan grafik PNG
-│       ├── terminal_sintetis_eksekusi.png
-│       ├── terminal_sintetis_tabel.png
-│       ├── terminal_nasa_eksekusi.png
-│       ├── terminal_nasa_tabel.png
-│       ├── grafik_makespan.png
-│       └── grafik_energi.png
-│
-├── generate_swf.py                            # Skrip pendukung pembangkitan beban kerja
-│
-├── results/
-│   ├── synthetic_results.csv                  # Hasil simulasi skenario sintetis
-│   ├── nasa_ipsc_results.csv                  # Hasil simulasi skenario NASA iPSC
-│   └── all_results.csv                        # Rekapitulasi perbandingan seluruh algoritma
-│
-└── src/main/
-    ├── java/com/kelompok8/
-    │   ├── DatacenterBuilder.java             # Builder 8 Host heterogen dan 30 VM (Best-Fit)
-    │   ├── PeftBroker.java                    # Implementasi Heuristik PEFT (Earliest Finish Time)
-    │   ├── FcfsBroker.java                    # Implementasi Baseline First Come First Served
-    │   ├── RoundRobinBroker.java              # Implementasi Baseline Round Robin
-    │   ├── SwfParser.java                     # Parser workload SWF dan generator dataset sintetis
-    │   ├── MetricsCollector.java              # Perhitungan Makespan, Energi SPECpower, dan Utilisasi
-    │   └── MainSimulation.java                # Titik masuk utama simulasi komparatif
-    └── resources/
-        └── logback.xml                        # Konfigurasi level logging CloudSim Plus
+│   ├── images/3dc/, images/2dc/     # Grafik & diagram arsitektur per skenario
+│   ├── PANDUAN_SKENARIO_2DC.md      # Panduan demo skenario 2 DC
+│   ├── CATATAN_REVISI_BU_HENNING_DAN_MITIGASI.md
+│   ├── Tugas_3_Kelompok_8_Proposal.docx / .pdf
+│   └── Laporan_Hasil_Uji_Coba_Kelompok_8.docx / .pdf
+├── fonts/                           # Poppins (grafik & diagram)
+├── results/3dc/, results/2dc/       # CSV hasil + logs/ output terminal
+├── tools/TransformDocxToPoppins.java  # Utilitas mengganti font dokumen .docx ke Poppins
+└── src/main/java/com/kelompok8/
+    ├── Skenario.java                # Definisi skenario 3dc & 2dc
+    ├── DatacenterBuilder.java       # Membangun DC, host, VM dari Skenario
+    ├── PeftBroker.java              # Algoritma PEFT
+    ├── FcfsBroker.java              # Baseline FCFS
+    ├── RoundRobinBroker.java        # Baseline Round Robin
+    ├── SwfParser.java               # Loader NASA SWF, GoCJ, dan generator sintetis
+    ├── MetricsCollector.java        # Makespan, turnaround, waiting, utilisasi, energi SPECpower
+    ├── DatacenterSynchronizer.java  # Verifikasi & rekap per datacenter
+    ├── MainSimulation.java          # Eksperimen utama 1.000 task
+    ├── BatchExperimentSuite.java    # Eksperimen berskala, 3× run
+    ├── GenerateEvaluationCharts.java  # Grafik PNG
+    ├── RenderArsitektur.java        # Diagram arsitektur PNG
+    └── TestVmHostAllocation.java    # Bukti penempatan VM ke host
 ```
+
+> **Catatan dokumen Word/PDF di `docs/`:** proposal dan *Laporan Hasil Uji Coba* adalah versi yang dikumpulkan sebelumnya dan masih memuat angka dari dataset NASA lama (trace hasil generator, bukan trace asli). Angka terbaru yang valid adalah yang ada di README ini dan di `results/`.
 
 ---
 
-## 9. Referensi Pendukung
+## 10. Referensi
 
-1. Arabnejad H, Barbosa JG. List Scheduling on Heterogeneous Distributed Systems: Evaluation and Improvements. *IEEE Transactions on Parallel and Distributed Systems*. 2014;25(12):3173–3182.
+1. Arabnejad H, Barbosa JG. List Scheduling Algorithm for Heterogeneous Systems by an Optimistic Cost Table. *IEEE Transactions on Parallel and Distributed Systems*. 2014;25(3):682–694.
 2. Beloglazov A, Buyya R. Optimal online deterministic algorithms and adaptive heuristics for energy and performance efficient dynamic consolidation of virtual machines in cloud data centers. *Concurrency and Computation: Practice and Experience*. 2012;24(13):1397–1420.
-3. Arunarani AR, Manjula D, Sugumaran V. Task scheduling techniques in cloud computing: A literature survey. *Future Generation Computer Systems*. 2019;91:407–415.
-4. Silva Filho MC, et al. CloudSim Plus: A modern Java 8 framework for modeling and simulation of cloud computing infrastructures and services. *Concurrency and Computation: Practice and Experience*. 2017.
-5. Parallel Workloads Archive. NASA Ames iPSC/860 Workload Trace. Hebrew University of Jerusalem. https://www.cs.huji.ac.il/labs/parallel/workload/l_nasa_ipsc/.
+3. Silva Filho MC, Oliveira RL, Monteiro CC, Inácio PRM, Freire MM. CloudSim Plus: A cloud computing simulation framework pursuing software engineering principles for improved modularity, extensibility and correctness. *IFIP/IEEE International Symposium on Integrated Network Management (IM)*. 2017.
+4. Feitelson DG, Tsafrir D, Krakov D. Experience with using the Parallel Workloads Archive. *Journal of Parallel and Distributed Computing*. 2014;74(10):2967–2982. Trace: https://www.cs.huji.ac.il/labs/parallel/workload/l_nasa_ipsc/
+5. Hussain A, Aleem M. GoCJ: Google Cloud Jobs Dataset for Distributed and Cloud Computing Infrastructures. *Data*. 2018;3(4):38.
+6. Arunarani AR, Manjula D, Sugumaran V. Task scheduling techniques in cloud computing: A literature survey. *Future Generation Computer Systems*. 2019;91:407–415.
 
 ---
 <p align="center">
-  <b>Kelompok 8 — Strategi Optimasi Komputasi Awan (SOKA)</b><br>
-  Departemen Teknologi Informasi, Institut Teknologi Sepuluh Nopember (ITS)<br>
-  Surabaya, Indonesia — 2026
+  <b>Kelompok 8 · Strategi Optimasi Komputasi Awan (SOKA)</b><br>
+  Departemen Teknologi Informasi, Institut Teknologi Sepuluh Nopember · Surabaya, 2026
 </p>
-
-
----
-
-## 10. Buku Saku & Kepatuhan Revisi Dosen
-Seluruh jawaban, lokasi baris kode, dan bukti empiris terhadap catatan revisi Bu Henning telah dipetakan secara tuntas di: [`CATATAN_REVISI_BU_HENNING_DAN_MITIGASI.md`](CATATAN_REVISI_BU_HENNING_DAN_MITIGASI.md).

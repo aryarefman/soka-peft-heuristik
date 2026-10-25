@@ -156,11 +156,11 @@ public class MetricsCollector {
     /**
      * Mencetak laporan metrik untuk satu algoritma.
      */
-    public static void printReport(ExperimentResult result) {
+    public static void printReport(ExperimentResult result, int totalSubmitted) {
         System.out.println("\n" + "=".repeat(70));
         System.out.printf("  HASIL EKSPERIMEN - %s%n", result.algorithm);
         System.out.println("=".repeat(70));
-        System.out.printf("  %-35s : %d / 1000 tasks%n", "Total Tasks Selesai", result.totalTasks);
+        System.out.printf("  %-35s : %d / %d tasks%n", "Total Tasks Selesai", result.totalTasks, totalSubmitted);
         System.out.printf("  %-35s : %.4f detik%n", "Makespan", result.makespan);
         System.out.printf("  %-35s : %.4f detik%n", "Avg Turnaround Time", result.avgTurnaroundTime);
         System.out.printf("  %-35s : %.4f detik%n", "Avg Waiting Time", result.avgWaitingTime);
@@ -182,7 +182,7 @@ public class MetricsCollector {
         System.out.println("+" + "-".repeat(90) + "+");
 
         // Header
-        System.out.printf("| %-22s | %14s | %14s | %14s | %15s |%n",
+        System.out.printf("| %-22s | %14s | %14s | %14s | %14s |%n",
                 "Metrik Evaluasi", getShortName(results, 0), getShortName(results, 1), getShortName(results, 2), "PEFT vs FCFS");
         System.out.println("+" + "-".repeat(90) + "+");
 
@@ -231,8 +231,8 @@ public class MetricsCollector {
     private static String getShortName(List<ExperimentResult> results, int index) {
         if (index < results.size()) {
             String name = results.get(index).algorithm;
-            if (name.contains("PEFT")) return "PEFT (Diusulkan)";
-            if (name.contains("FCFS")) return "FCFS (Baseline)";
+            if (name.contains("PEFT")) return "PEFT (Usulan)";
+            if (name.contains("FCFS")) return "FCFS";
             if (name.contains("Round Robin") || name.contains("RR")) return "Round Robin";
             return name.length() > 14 ? name.substring(0, 14) : name;
         }
