@@ -1,0 +1,146 @@
+# VM = Pod Kubernetes. Setiap host menampung 2 VM (syarat minimal dosen).
+#
+# | VM   | Host            | PE | MIPS/PE | CPU request | CPU limit |
+# |------|-----------------|----|---------|-------------|-----------|
+# | vm-1 | host-1 Standard | 1  | 1.000   | 100m        | 200m      |
+# | vm-2 | host-1 Standard | 2  | 1.000   | 200m        | 400m      |
+# | vm-3 | host-2 Premium  | 2  | 2.000   | 400m        | 800m      |
+# | vm-4 | host-2 Premium  | 4  | 2.000   | 800m        | 1600m     |
+#
+# - nodeSelector mengunci VM ke host-nya.
+# - VM_MIPS = kecepatan tiap vCPU (PE); dijaga oleh worker.py.
+# - request = jatah CPU yang dijamin Kubernetes (PE x MIPS / 10.000 MI per core),
+#   limit = 2x request sebagai ruang agar tidak terkena throttling.
+# Kode worker diambil dari ConfigMap "worker-code" (dibuat oleh setup.sh dari worker/worker.py).
+apiVersion: v1
+kind: Pod
+metadata:
+  name: vm-1
+  labels: { app: soka-vm, vm: vm-1 }
+spec:
+  nodeSelector: { host: host-1 }
+  containers:
+    - name: vm
+      image: python:3.12-slim
+      command: ["python", "-u", "/app/worker.py"]
+      env:
+        - { name: VM_NAME, value: vm-1 }
+        - { name: VM_PES, value: "1" }
+        - { name: VM_MIPS, value: "1000" }
+        - name: NODE_NAME
+          valueFrom: { fieldRef: { fieldPath: spec.nodeName } }
+      resources:
+        requests: { cpu: 100m, memory: 64Mi }
+        limits: { cpu: 200m, memory: 256Mi }
+      ports: [{ containerPort: 8080 }]
+      readinessProbe: { httpGet: { path: /info, port: 8080 }, periodSeconds: 2 }
+      volumeMounts: [{ name: code, mountPath: /app }]
+  volumes: [{ name: code, configMap: { name: worker-code } }]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: vm-2
+  labels: { app: soka-vm, vm: vm-2 }
+spec:
+  nodeSelector: { host: host-1 }
+  containers:
+    - name: vm
+      image: python:3.12-slim
+      command: ["python", "-u", "/app/worker.py"]
+      env:
+        - { name: VM_NAME, value: vm-2 }
+        - { name: VM_PES, value: "2" }
+        - { name: VM_MIPS, value: "1000" }
+        - name: NODE_NAME
+          valueFrom: { fieldRef: { fieldPath: spec.nodeName } }
+      resources:
+        requests: { cpu: 200m, memory: 64Mi }
+        limits: { cpu: 400m, memory: 256Mi }
+      ports: [{ containerPort: 8080 }]
+      readinessProbe: { httpGet: { path: /info, port: 8080 }, periodSeconds: 2 }
+      volumeMounts: [{ name: code, mountPath: /app }]
+  volumes: [{ name: code, configMap: { name: worker-code } }]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: vm-3
+  labels: { app: soka-vm, vm: vm-3 }
+spec:
+  nodeSelector: { host: host-2 }
+  containers:
+    - name: vm
+      image: python:3.12-slim
+      command: ["python", "-u", "/app/worker.py"]
+      env:
+        - { name: VM_NAME, value: vm-3 }
+        - { name: VM_PES, value: "2" }
+        - { name: VM_MIPS, value: "2000" }
+        - name: NODE_NAME
+          valueFrom: { fieldRef: { fieldPath: spec.nodeName } }
+      resources:
+        requests: { cpu: 400m, memory: 64Mi }
+        limits: { cpu: 800m, memory: 256Mi }
+      ports: [{ containerPort: 8080 }]
+      readinessProbe: { httpGet: { path: /info, port: 8080 }, periodSeconds: 2 }
+      volumeMounts: [{ name: code, mountPath: /app }]
+  volumes: [{ name: code, configMap: { name: worker-code } }]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: vm-4
+  labels: { app: soka-vm, vm: vm-4 }
+spec:
+  nodeSelector: { host: host-2 }
+  containers:
+    - name: vm
+      image: python:3.12-slim
+      command: ["python", "-u", "/app/worker.py"]
+      env:
+        - { name: VM_NAME, value: vm-4 }
+        - { name: VM_PES, value: "4" }
+        - { name: VM_MIPS, value: "2000" }
+        - name: NODE_NAME
+          valueFrom: { fieldRef: { fieldPath: spec.nodeName } }
+      resources:
+        requests: { cpu: 800m, memory: 64Mi }
+        limits: { cpu: 1600m, memory: 512Mi }
+      ports: [{ containerPort: 8080 }]
+      readinessProbe: { httpGet: { path: /info, port: 8080 }, periodSeconds: 2 }
+      volumeMounts: [{ name: code, mountPath: /app }]
+  volumes: [{ name: code, configMap: { name: worker-code } }]
+---
+# Service NodePort: pintu masuk tiap VM dari laptop (localhost:3000x -> VM).
+apiVersion: v1
+kind: Service
+metadata: { name: vm-1 }
+spec:
+  type: NodePort
+  selector: { vm: vm-1 }
+  ports: [{ port: 8080, targetPort: 8080, nodePort: 30001 }]
+---
+apiVersion: v1
+kind: Service
+metadata: { name: vm-2 }
+spec:
+  type: NodePort
+  selector: { vm: vm-2 }
+  ports: [{ port: 8080, targetPort: 8080, nodePort: 30002 }]
+---
+apiVersion: v1
+kind: Service
+metadata: { name: vm-3 }
+spec:
+  type: NodePort
+  selector: { vm: vm-3 }
+  ports: [{ port: 8080, targetPort: 8080, nodePort: 30003 }]
+---
+apiVersion: v1
+kind: Service
+metadata: { name: vm-4 }
+spec:
+  type: NodePort
+  selector: { vm: vm-4 }
+  ports: [{ port: 8080, targetPort: 8080, nodePort: 30004 }]

@@ -1,0 +1,24 @@
+# DATACENTER = 1 cluster Kubernetes (kind) bernama "soka-dc".
+#   - 1 control-plane  : otak cluster (API server, scheduler Kubernetes)
+#   - 2 worker node    : HOST fisik tempat VM (pod) berjalan
+#       host-1 (Standard) -> dibatasi 1 CPU oleh setup.sh
+#       host-2 (Premium)  -> dibatasi 2 CPU oleh setup.sh
+# Port 30001-30004 diteruskan ke laptop agar broker bisa memanggil tiap VM.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: soka-dc
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      - { containerPort: 30001, hostPort: 30001 }
+      - { containerPort: 30002, hostPort: 30002 }
+      - { containerPort: 30003, hostPort: 30003 }
+      - { containerPort: 30004, hostPort: 30004 }
+  - role: worker
+    labels:
+      host: host-1
+      tier: standard
+  - role: worker
+    labels:
+      host: host-2
+      tier: premium
