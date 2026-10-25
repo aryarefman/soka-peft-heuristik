@@ -8,6 +8,9 @@ echo "== 1. Membuat datacenter (cluster Kubernetes) =="
 if ! kind get clusters | grep -qx soka-dc; then
   kind create cluster --config k8s/kind-cluster.yaml --wait 120s
 fi
+# Nyalakan lagi node yang mati (mis. setelah Docker Desktop ditutup), lalu tunggu siap
+docker start soka-dc-control-plane soka-dc-worker soka-dc-worker2 >/dev/null
+kubectl wait --for=condition=Ready node --all --timeout=120s >/dev/null
 
 echo "== 2. Membatasi kapasitas CPU tiap host =="
 docker update --cpus 1 soka-dc-worker  >/dev/null   # host-1 Standard
