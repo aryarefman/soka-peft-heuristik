@@ -514,6 +514,15 @@ Berkas keluaran per skenario (`results/{skenario}/`):
 | `gocj_100_1000_results.csv` | GoCJ 100 – 1.000 job |
 | `logs/*.txt` | Output terminal asli tiap perintah |
 
+Laporan Word di `docs/` juga dibuat dari CSV yang sama, sehingga angkanya selalu sama dengan README:
+
+```bash
+cd tools/laporan && npm install
+node build_laporan.js ../.. ../../docs/Laporan_Hasil_Uji_Coba_Kelompok_8.docx
+```
+
+Setelah itu buka dokumen di Word, perbarui daftar isi (F9), lalu ekspor ke PDF.
+
 ---
 
 ## 9. Struktur Repository
@@ -530,11 +539,13 @@ soka-peft-heuristik/
 │   ├── images/3dc/, images/2dc/     # Grafik & diagram arsitektur per skenario
 │   ├── PANDUAN_SKENARIO_2DC.md      # Panduan demo skenario 2 DC
 │   ├── CATATAN_REVISI_BU_HENNING_DAN_MITIGASI.md
-│   ├── Tugas_3_Kelompok_8_Proposal.docx / .pdf
-│   └── Laporan_Hasil_Uji_Coba_Kelompok_8.docx / .pdf
+│   ├── Tugas_3_Kelompok_8_Proposal.docx / .pdf        # Proposal desain (sinkron dengan kode)
+│   └── Laporan_Hasil_Uji_Coba_Kelompok_8.docx / .pdf  # Laporan hasil, angka dari results/
 ├── fonts/                           # Poppins (grafik & diagram)
 ├── results/3dc/, results/2dc/       # CSV hasil + logs/ output terminal
-├── tools/TransformDocxToPoppins.java  # Utilitas mengganti font dokumen .docx ke Poppins
+├── tools/
+│   ├── laporan/build_laporan.js     # Generator laporan Word dari results/
+│   └── TransformDocxToPoppins.java  # Utilitas mengganti font dokumen .docx ke Poppins
 └── src/main/java/com/kelompok8/
     ├── Skenario.java                # Definisi skenario 3dc & 2dc
     ├── DatacenterBuilder.java       # Membangun DC, host, VM dari Skenario
@@ -551,7 +562,6 @@ soka-peft-heuristik/
     └── TestVmHostAllocation.java    # Bukti penempatan VM ke host
 ```
 
-> **Catatan dokumen Word/PDF di `docs/`:** proposal dan *Laporan Hasil Uji Coba* adalah versi yang dikumpulkan sebelumnya dan masih memuat angka dari dataset NASA lama (trace hasil generator, bukan trace asli). Angka terbaru yang valid adalah yang ada di README ini dan di `results/`.
 
 ---
 

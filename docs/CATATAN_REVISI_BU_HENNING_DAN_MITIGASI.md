@@ -79,8 +79,6 @@ Komentar perbandingan ada di `DatacenterBuilder.buildMultiple()`, tepat di atas 
 - **NASA Ames iPSC/860**: trace asli versi *cleaned* dari Parallel Workloads Archive (`dataset/NASA-iPSC-1993-3.1-cln.swf.gz`, 18.239 job, SHA-256 `5589ae9b…7f29`).
 - **GoCJ**: berkas resmi Hussain & Aleem (2018), `dataset/gocj/GoCJ_Dataset_{100..1000}.txt`. GoCJ hanya memuat panjang job (MI), jadi diasumsikan semua job tiba pada t = 0 dan masing-masing butuh 1 PE.
 
-> **Catatan:** versi repository sebelumnya memakai berkas `NASA-iPSC-1993-3.1-cln.swf` yang ternyata dibangkitkan oleh skrip (`generate_swf.py`, header `(simulated)`), dan dataset `gocj_dataset_*.csv` buatan sendiri. Keduanya sudah diganti dengan data asli, dan semua eksperimen dijalankan ulang.
-
 ## 12. Spesifikasi regional
 
 - `3dc`: Jakarta (entry-level, host A/B), Surabaya (mid-grade, host B/C), Bandung (high-grade, host C/D).

@@ -1,0 +1,8 @@
+{
+  "name": "laporan-kelompok8",
+  "private": true,
+  "description": "Generator laporan Word dari results/ (Kelompok 8 SOKA)",
+  "dependencies": {
+    "docx": "9.6.1"
+  }
+}
