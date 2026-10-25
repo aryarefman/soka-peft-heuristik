@@ -1,6 +1,9 @@
 package com.kelompok8;
 
+import org.cloudsimplus.allocationpolicies.VmAllocationPolicy;
 import org.cloudsimplus.allocationpolicies.VmAllocationPolicyBestFit;
+import org.cloudsimplus.allocationpolicies.VmAllocationPolicyRoundRobin;
+import org.cloudsimplus.allocationpolicies.VmAllocationPolicySimple;
 import org.cloudsimplus.core.CloudSimPlus;
 import org.cloudsimplus.datacenters.Datacenter;
 import org.cloudsimplus.datacenters.DatacenterSimple;
@@ -19,58 +22,53 @@ import java.util.*;
 /**
  * Builder untuk arsitektur multi-datacenter sesuai desain proyek Kelompok 8.
  *
- * Arsitektur: 3 Datacenter Heterogen yang dikelola oleh satu broker terpusat.
- * Setiap datacenter memiliki spesialisasi tier yang berbeda:
+ * Arsitektur: 2 Datacenter heterogen yang dikelola oleh satu broker terpusat.
+ * Setiap datacenter berisi 5 host fisik, dan setiap host menampung tepat 4 VM.
  *
- * DC-1 (Entry-Level)  : 8 Host Tipe A & B,  10 VM Small  (1 PE,  1 GB RAM, 1000 MIPS)
- * DC-2 (Standard)     : 8 Host Tipe B & C,  10 VM Medium (2 PE,  2 GB RAM, 1500 MIPS)
- * DC-3 (Premium)      : 8 Host Tipe C & D,  10 VM Large  (4 PE,  4 GB RAM, 2000 MIPS)
+ * DC-1 Jakarta (Standard) : 5 Host Tipe B, tiap host = 2 VM Small + 2 VM Medium  (20 VM)
+ * DC-2 Bandung (Premium)  : 3 Host Tipe C + 2 Host Tipe D, tiap host = 4 VM Large (20 VM)
+ * Total                   : 2 Datacenter, 10 Host, 40 VM
  *
- * Konfigurasi Host (setiap host 8 PE/core):
- * | Tipe | MIPS/core | RAM (GB) | Bandwidth | Power Idle | Power Max |
- * |------|-----------|----------|-----------|------------|-----------|
- * | A    | 1,000     | 8        | 10 Gbps   |  93.7 W    | 135.0 W   |
- * | B    | 1,500     | 16       | 10 Gbps   | 105.0 W    | 175.0 W   |
- * | C    | 2,000     | 24       | 10 Gbps   | 120.0 W    | 225.0 W   |
- * | D    | 3,000     | 32       | 10 Gbps   | 140.0 W    | 300.0 W   |
+ * Konfigurasi Host:
+ * | Tipe | MIPS/core | Core | RAM (GB) | Bandwidth | Power Idle | Power Max |
+ * |------|-----------|------|----------|-----------|------------|-----------|
+ * | A    | 1,000     | 8    | 8        | 10 Gbps   |  93.7 W    | 135.0 W   |
+ * | B    | 1,500     | 8    | 16       | 10 Gbps   | 105.0 W    | 175.0 W   |
+ * | C    | 2,000     | 16   | 24       | 10 Gbps   | 120.0 W    | 225.0 W   |
+ * | D    | 3,000     | 16   | 32       | 10 Gbps   | 140.0 W    | 300.0 W   |
  *
- * Sinkronisasi: Semua VM dari 3 datacenter disubmit ke 1 broker tunggal,
+ * Konfigurasi VM:
+ * | Kelas  | PE | MIPS/PE | RAM     |
+ * |--------|----|---------|---------|
+ * | Small  | 1  | 1,000   | 1024 MB |
+ * | Medium | 2  | 1,500   | 2048 MB |
+ * | Large  | 4  | 2,000   | 4096 MB |
+ *
+ * Sinkronisasi: Semua VM dari kedua datacenter disubmit ke 1 broker tunggal,
  * sehingga broker dapat menjadwalkan task secara global lintas datacenter.
- * Metrik dihimpun bersama dari seluruh host dan VM ketiga datacenter.
+ * Metrik dihimpun bersama dari seluruh host dan VM.
  *
- * Kebijakan Alokasi VM: Best-Fit (berdasarkan kapasitas MIPS dan RAM)
+ * Kebijakan Alokasi VM: Penyerataan (Round-Robin), setiap host menampung 4 VM
  * Penjadwalan Task: Non-preemptive (Space-Shared pada VM)
  */
 public class DatacenterBuilder {
 
-    // =========================================================================
-    // PANDUAN UBAH KONFIGURASI (cari penanda berikut dengan Ctrl+F):
-    //   [UBAH-HOST] : jumlah / spesifikasi host per datacenter
-    //   [UBAH-VM]   : jumlah / spesifikasi VM per datacenter
-    //   [UBAH-DC]   : jumlah datacenter (tambah/hapus DC)
-    //   [LABEL]     : teks tampilan saja (tidak memengaruhi simulasi), sesuaikan agar output konsisten
-    // Semua perhitungan lain (broker, metrik, sinkronisasi) otomatis mengikuti konfigurasi di file ini.
-    // Jumlah host per DC  = NUM_HOSTS_PER_TYPE x 2 (setiap DC berisi 2 tipe host)
-    // Jumlah VM per DC    = kolom vmCount pada DC_CONFIGS
-    // Jumlah datacenter   = jumlah baris DC_CONFIGS (harus sama dengan jumlah elemen DC_NAMES)
-    // =========================================================================
-
-    private static final int PES_PER_HOST = 8;          // [UBAH-HOST] jumlah core per host (harus >= vmPes terbesar)
     private static final long HOST_STORAGE = 1_000_000; // 1 TB in MB
     private static final long HOST_BW = 10_000;         // 10 Gbps in Mbps
-    private static final int NUM_HOSTS_PER_TYPE = 4;    // [UBAH-HOST] 4 host per tipe -> 4 x 2 tipe = 8 host per DC
-                                                        //   contoh: 2 -> 4 host/DC (total 12), 5 -> 10 host/DC (total 30)
 
-    // [UBAH-HOST] Tipe host: {MIPS/core, RAM_GB}. Tambah baris baru jika butuh tipe E
-    //   (wajib tambah juga baris di POWER_SPECS dan huruf di typeNames pada createHostsForDc()).
+    /** Jumlah VM yang ditempatkan pada setiap host. */
+    public static final int VMS_PER_HOST = 4;
+
+    // Host Types: {MIPS/core, RAM_GB, jumlah core}
     public static final int[][] HOST_TYPES = {
-            {1000, 8},     // Type A: 1000 MIPS/core, 8 GB RAM
-            {1500, 16},    // Type B: 1500 MIPS/core, 16 GB RAM
-            {2000, 24},    // Type C: 2000 MIPS/core, 24 GB RAM
-            {3000, 32},    // Type D: 3000 MIPS/core, 32 GB RAM
+            {1000,  8,  8},    // Type A: 1000 MIPS/core, 8 GB RAM, 8 core
+            {1500, 16,  8},    // Type B: 1500 MIPS/core, 16 GB RAM, 8 core
+            {2000, 24, 16},    // Type C: 2000 MIPS/core, 24 GB RAM, 16 core
+            {3000, 32, 16},    // Type D: 3000 MIPS/core, 32 GB RAM, 16 core
     };
 
-    // [UBAH-HOST] Jumlah baris POWER_SPECS harus sama dengan HOST_TYPES (indeks sejajar).
+    private static final String[] HOST_TYPE_NAMES = {"A", "B", "C", "D"};
+
     // SPECpower benchmark power specs: {idle_power_watts, max_power_watts}
     // References: Beloglazov & Buyya (2012) - HP ProLiant and IBM System benchmarks
     public static final double[][] POWER_SPECS = {
@@ -80,43 +78,36 @@ public class DatacenterBuilder {
             {140.0, 300.0},  // Type D: High-end enterprise server
     };
 
-    /**
-     * Definisi konfigurasi tiap datacenter:
-     * { dcId, hostTypeA_idx, hostTypeB_idx, vmPes, vmRamMB, vmMips, vmCount }
-     *
-     * DC-1: Host Tipe A(0) + B(1), VM Small  (1 PE, 1024 MB, 1000 MIPS, 10 unit)
-     * DC-2: Host Tipe B(1) + C(2), VM Medium (2 PE, 2048 MB, 1500 MIPS, 10 unit)
-     * DC-3: Host Tipe C(2) + D(3), VM Large  (4 PE, 4096 MB, 2000 MIPS, 10 unit)
-     */
-    // [UBAH-VM] Ubah kolom terakhir (vmCount) untuk mengganti jumlah VM per DC.
-    //   contoh 30 VM -> 15 VM: ganti 10 menjadi 5 di ketiga baris.
-    //   Syarat agar VM berhasil dibuat di host:
-    //     vmPes  <= PES_PER_HOST,  vmMips <= MIPS/core host di DC tsb (lihat HOST_TYPES),
-    //     total RAM & PE seluruh VM muat di host-host DC tsb.
-    //   Wajib ada minimal 1 VM dengan vmPes >= 4, karena task dataset bisa butuh 4 PE
-    //     (lihat MAX_PES_PER_CLOUDLET di SwfParser).
-    // [UBAH-DC] Tambah/hapus BARIS untuk menambah/mengurangi datacenter,
-    //   lalu tambah/hapus nama di DC_NAMES (jumlah harus sama!).
-    //   contoh DC ke-4: {1, 3,  4, 4096, 2000, 10},  (host tipe B + D, 10 VM Large)
-    private static final int[][] DC_CONFIGS = {
-            // { hostTypeIdx1, hostTypeIdx2, vmPes, vmRamMB, vmMips, vmCount }
-            {0, 1,  1, 1024, 1000, 10},   // DC-1: Entry-Level   [UBAH-VM] vmCount = 10
-            {1, 2,  2, 2048, 1500, 10},   // DC-2: Standard      [UBAH-VM] vmCount = 10
-            {2, 3,  4, 4096, 2000, 10},   // DC-3: Premium       [UBAH-VM] vmCount = 10
+    private static final String[] DC_NAMES = {
+            "DC-1: Jakarta (Standard)",
+            "DC-2: Bandung (Premium)"
     };
 
-    // [UBAH-DC] Satu nama per baris DC_CONFIGS (urutan sejajar).
-    private static final String[] DC_NAMES = {
-            "DC-1: Jakarta (Entry-Level / Low-Grade)",
-            "DC-2: Surabaya (Standard / Mid-Grade)",
-            "DC-3: Bandung (Premium / High-Grade)"
+    /** Tipe host (indeks HOST_TYPES) untuk masing-masing dari 5 host di setiap datacenter. */
+    private static final int[][] DC_HOSTS = {
+            {1, 1, 1, 1, 1},   // DC-1: 5 Host Tipe B
+            {2, 2, 2, 3, 3},   // DC-2: 3 Host Tipe C + 2 Host Tipe D
+    };
+
+    /**
+     * Komposisi 4 VM pada setiap host: { vmPes, vmRamMB, vmMips, jumlah per host }.
+     * Jumlah per host pada satu datacenter selalu berjumlah VMS_PER_HOST.
+     */
+    private static final int[][][] DC_VMS_PER_HOST = {
+            {   // DC-1: tiap host = 2 Small + 2 Medium
+                    {1, 1024, 1000, 2},
+                    {2, 2048, 1500, 2},
+            },
+            {   // DC-2: tiap host = 4 Large
+                    {4, 4096, 2000, 4},
+            },
     };
 
     /**
      * Mode Kebijakan Alokasi VM ke Host Fisik:
      * 1. PENYERATAAN (ROUND_ROBIN / BALANCED):
-     *    Mendistribusikan VM secara merata bergiliran ke seluruh 8 Host fisik di setiap Datacenter.
-     *    Hasil: 6 Host menampung 1 VM dan 2 Host menampung 2 VM (Total 10 VM).
+     *    Mendistribusikan VM secara merata bergiliran ke seluruh 5 host fisik di setiap Datacenter.
+     *    Hasil: setiap host menampung tepat 4 VM (20 VM per Datacenter).
      *    TIDAK ADA HOST YANG NGANGGUR (100% Host aktif dimanfaatkan).
      *
      * 2. BEST_FIT (CONSOLIDATION):
@@ -134,7 +125,7 @@ public class DatacenterBuilder {
     public static AllocationMode DEFAULT_ALLOCATION_MODE = AllocationMode.PENYERATAAN_ROUND_ROBIN;
 
     // -------------------------------------------------------------------------
-    // API UTAMA: Bangun 3 Datacenter Sekaligus
+    // API UTAMA: Bangun 2 Datacenter Sekaligus
     // -------------------------------------------------------------------------
 
     public static MultiDatacenterResult buildMultiple(CloudSimPlus simulation) {
@@ -147,27 +138,18 @@ public class DatacenterBuilder {
         List<Host> allHosts = new ArrayList<>();
         Map<Vm, Datacenter> vmToDcMap = new IdentityHashMap<>();
 
-        System.out.println("\n  Membangun 3 Datacenter Heterogen Multi-Region...");   // [LABEL] angka "3" jika jumlah DC diubah
-        System.out.printf("  [Kebijakan Alokasi VM-ke-Host] : %s (Penyerataan: Bebas Host Nganggur)%n", mode);
+        System.out.printf("%n  Membangun %d Datacenter Heterogen Multi-Region...%n", DC_NAMES.length);
+        System.out.printf("  [Kebijakan Alokasi VM-ke-Host] : %s (Penyerataan: %d VM per Host)%n", mode, VMS_PER_HOST);
         System.out.println("  " + "-".repeat(60));
 
-        // [UBAH-DC] Loop ini otomatis mengikuti jumlah baris DC_CONFIGS; tidak perlu diubah.
-        for (int dcIdx = 0; dcIdx < DC_CONFIGS.length; dcIdx++) {
+        for (int dcIdx = 0; dcIdx < DC_NAMES.length; dcIdx++) {
             System.out.printf("%n  [%s]%n", DC_NAMES[dcIdx]);
 
-            int[] cfg       = DC_CONFIGS[dcIdx];
-            int typeA       = cfg[0];
-            int typeB       = cfg[1];
-            int vmPes       = cfg[2];
-            int vmRamMB     = cfg[3];
-            int vmMips      = cfg[4];
-            int vmCount     = cfg[5];
+            List<Host> hostList = createHostsForDc(DC_HOSTS[dcIdx]);
+            List<Vm> vmList = createVmsForDc(DC_VMS_PER_HOST[dcIdx], hostList.size(), DC_NAMES[dcIdx]);
 
-            // Buat host untuk DC ini (4 host Tipe-A + 4 host Tipe-B)
-            List<Host> hostList = createHostsForDc(typeA, typeB, DC_NAMES[dcIdx]);
-
-            // Buat VM untuk DC ini
-            List<Vm> vmList = createVmsForDc(vmPes, vmRamMB, vmMips, vmCount, DC_NAMES[dcIdx]);
+            // Pastikan setiap host mampu menampung 4 VM-nya (core, MIPS, RAM).
+            validateHostCapacity(hostList, DC_VMS_PER_HOST[dcIdx], DC_NAMES[dcIdx]);
 
             // Tentukan kebijakan alokasi VM ke Host fisik
             // Penjelasan Ilmiah Kebijakan Alokasi Host:
@@ -178,14 +160,14 @@ public class DatacenterBuilder {
             //    Mengevaluasi seluruh host kandidat dan memilih host dengan sisa resource paling minimal setelah VM dialokasikan.
             //    Karakteristik: Memadatkan VM ke sejumlah kecil host (server consolidation) sehingga host lain dapat idle.
             // 3. PENYERATAAN (VmAllocationPolicyRoundRobin / Balanced Allocation):
-            //    Mendistribusikan VM secara siklik bergiliran ke seluruh 8 host fisik di setiap Datacenter.
-            //    Karakteristik: Memastikan JANGAN SAMPAI ADA HOST YANG NGANGGUR! Pada DC dengan 8 Host dan 10 VM,
-            //    tepat 6 Host menampung 1 VM dan 2 Host menampung 2 VM. Seluruh host berpartisipasi aktif,
+            //    Mendistribusikan VM secara siklik bergiliran ke seluruh 5 host fisik di setiap Datacenter.
+            //    Karakteristik: Memastikan JANGAN SAMPAI ADA HOST YANG NGANGGUR! Dengan 5 host dan 20 VM per Datacenter,
+            //    setiap host menampung tepat 4 VM. Seluruh host berpartisipasi aktif,
             //    beban panas dan komputasi tersebar merata, dan pembagian VM ke host tetap 100% konsisten pada tiap run.
-            org.cloudsimplus.allocationpolicies.VmAllocationPolicy allocationPolicy = switch (mode) {
-                case PENYERATAAN_ROUND_ROBIN -> new org.cloudsimplus.allocationpolicies.VmAllocationPolicyRoundRobin();
-                case BEST_FIT -> new org.cloudsimplus.allocationpolicies.VmAllocationPolicyBestFit();
-                case FIRST_FIT -> new org.cloudsimplus.allocationpolicies.VmAllocationPolicySimple();
+            VmAllocationPolicy allocationPolicy = switch (mode) {
+                case PENYERATAAN_ROUND_ROBIN -> new VmAllocationPolicyRoundRobin();
+                case BEST_FIT -> new VmAllocationPolicyBestFit();
+                case FIRST_FIT -> new VmAllocationPolicySimple();
             };
 
             Datacenter datacenter = new DatacenterSimple(simulation, hostList, allocationPolicy);
@@ -193,7 +175,7 @@ public class DatacenterBuilder {
 
             for (Vm vm : vmList) {
                 vmToDcMap.put(vm, datacenter);
-                vm.setDescription(DC_NAMES[dcIdx] + " [PE:" + vmPes + ", MIPS:" + vmMips + "]");
+                vm.setDescription(DC_NAMES[dcIdx] + " [PE:" + vm.getPesNumber() + ", MIPS:" + (long) vm.getMips() + "]");
             }
 
             dcResults.add(new DatacenterResult(datacenter, vmList));
@@ -205,59 +187,73 @@ public class DatacenterBuilder {
         return new MultiDatacenterResult(dcResults, allVms, allHosts, vmToDcMap);
     }
 
-    /**
-     * Membangun datacenter tunggal (backward-compatible, digunakan jika diperlukan).
-     */
-    public static DatacenterResult build(CloudSimPlus simulation) {
-        List<Host> hostList = createHostsForDc(0, 1, "Datacenter-Tunggal");
-        hostList.addAll(createHostsForDc(2, 3, "Datacenter-Tunggal"));
-        List<Vm> vmList = new ArrayList<>();
-        vmList.addAll(createVmsForDc(1, 1024, 1000, 10, "Single"));
-        vmList.addAll(createVmsForDc(2, 2048, 1500, 10, "Single"));
-        vmList.addAll(createVmsForDc(4, 4096, 2000, 10, "Single"));
-        Datacenter datacenter = new DatacenterSimple(simulation, hostList, new VmAllocationPolicyBestFit());
-        return new DatacenterResult(datacenter, vmList);
-    }
-
     // -------------------------------------------------------------------------
     // HELPER: Pembuatan Host
     // -------------------------------------------------------------------------
 
     /**
-     * Membuat 8 host untuk sebuah datacenter: 4 host Tipe-typeA dan 4 host Tipe-typeB.
+     * Membuat host untuk sebuah datacenter, satu host untuk setiap entri tipe pada hostTypes.
      */
-    private static List<Host> createHostsForDc(int typeA, int typeB, String dcName) {
+    private static List<Host> createHostsForDc(int[] hostTypes) {
         List<Host> hostList = new ArrayList<>();
-        String[] typeNames = {"A", "B", "C", "D"};   // [UBAH-HOST] tambah "E" jika HOST_TYPES ditambah baris
-        int[] types = {typeA, typeB};                // 2 tipe host per DC
 
-        for (int typeIdx : types) {
+        for (int i = 0; i < hostTypes.length; i++) {
+            int typeIdx     = hostTypes[i];
             int mipsPerCore = HOST_TYPES[typeIdx][0];
             int ramGB       = HOST_TYPES[typeIdx][1];
+            int numPes      = HOST_TYPES[typeIdx][2];
 
-            // [UBAH-HOST] Jumlah host per tipe dikontrol NUM_HOSTS_PER_TYPE (di atas class).
-            for (int unit = 0; unit < NUM_HOSTS_PER_TYPE; unit++) {
-                List<Pe> peList = new ArrayList<>();
-                for (int pe = 0; pe < PES_PER_HOST; pe++) {
-                    peList.add(new PeSimple(mipsPerCore));
-                }
-
-                long ramMB = (long) ramGB * 1024;
-                Host host = new HostSimple(ramMB, HOST_BW, HOST_STORAGE, peList)
-                        .setVmScheduler(new VmSchedulerTimeShared());
-
-                host.setPowerModel(new PowerModelHostSimple(
-                        POWER_SPECS[typeIdx][1],   // max power (Watts)
-                        POWER_SPECS[typeIdx][0]    // idle power (Watts)
-                ));
-                host.enableUtilizationStats();
-                hostList.add(host);
-
-                System.out.printf("    [Host Tipe-%s #%d] %d MIPS/core x %d PEs, %d GB RAM%n",
-                        typeNames[typeIdx], unit + 1, mipsPerCore, PES_PER_HOST, ramGB);
+            List<Pe> peList = new ArrayList<>();
+            for (int pe = 0; pe < numPes; pe++) {
+                peList.add(new PeSimple(mipsPerCore));
             }
+
+            long ramMB = (long) ramGB * 1024;
+            Host host = new HostSimple(ramMB, HOST_BW, HOST_STORAGE, peList)
+                    .setVmScheduler(new VmSchedulerTimeShared());
+
+            host.setPowerModel(new PowerModelHostSimple(
+                    POWER_SPECS[typeIdx][1],   // max power (Watts)
+                    POWER_SPECS[typeIdx][0]    // idle power (Watts)
+            ));
+            host.enableUtilizationStats();
+            hostList.add(host);
+
+            System.out.printf("    [Host #%d Tipe-%s] %d MIPS/core x %d PEs, %d GB RAM%n",
+                    i + 1, HOST_TYPE_NAMES[typeIdx], mipsPerCore, numPes, ramGB);
         }
         return hostList;
+    }
+
+    /**
+     * Memastikan setiap host sanggup menampung komposisi 4 VM-nya. Satu core fisik hanya
+     * dipakai satu VM, sehingga jika tidak muat CloudSim akan terus mencoba membuat VM
+     * dan simulasi macet. Program dihentikan dengan pesan yang jelas.
+     */
+    private static void validateHostCapacity(List<Host> hostList, int[][] vmsPerHost, String dcName) {
+        int vmCount = Arrays.stream(vmsPerHost).mapToInt(v -> v[3]).sum();
+        long pesNeeded = Arrays.stream(vmsPerHost).mapToLong(v -> (long) v[0] * v[3]).sum();
+        long ramNeeded = Arrays.stream(vmsPerHost).mapToLong(v -> (long) v[1] * v[3]).sum();
+        int maxVmMips  = Arrays.stream(vmsPerHost).mapToInt(v -> v[2]).max().orElse(0);
+
+        if (vmCount != VMS_PER_HOST) {
+            throw new IllegalStateException(String.format(
+                    "%s: komposisi VM per host berjumlah %d, seharusnya %d.", dcName, vmCount, VMS_PER_HOST));
+        }
+        for (int i = 0; i < hostList.size(); i++) {
+            Host host = hostList.get(i);
+            boolean fits = host.getPesNumber() >= pesNeeded
+                    && host.getRam().getCapacity() >= ramNeeded
+                    && host.getPeList().get(0).getCapacity() >= maxVmMips;
+            if (!fits) {
+                throw new IllegalStateException(String.format(
+                        "%s Host #%d (%d core, %d MB RAM, %d MIPS/core) tidak muat untuk %d VM " +
+                        "(butuh %d core, %d MB RAM, %d MIPS/core).",
+                        dcName, i + 1, host.getPesNumber(), host.getRam().getCapacity(),
+                        (long) host.getPeList().get(0).getCapacity(),
+                        VMS_PER_HOST, pesNeeded, ramNeeded, maxVmMips));
+            }
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -265,25 +261,33 @@ public class DatacenterBuilder {
     // -------------------------------------------------------------------------
 
     /**
-     * Membuat VM dengan spesifikasi yang diberikan.
+     * Membuat seluruh VM sebuah datacenter (komposisi per host x jumlah host).
+     * VM dibuat berurutan per kelas, sehingga penyerataan round-robin menempatkan
+     * komposisi yang sama pada setiap host (mis. 2 Small + 2 Medium per host).
      * Menggunakan CloudletSchedulerSpaceShared (non-preemptive).
      */
-    private static List<Vm> createVmsForDc(int pes, int ramMB, int mips, int count, String dcName) {
+    private static List<Vm> createVmsForDc(int[][] vmsPerHost, int hostCount, String dcName) {
         List<Vm> vmList = new ArrayList<>();
-        String vmType = pes == 1 ? "Small" : (pes == 2 ? "Medium" : "Large");
 
-        // [UBAH-VM] count berasal dari kolom vmCount di DC_CONFIGS; ubah di sana, bukan di sini.
-        for (int i = 0; i < count; i++) {
-            Vm vm = new VmSimple(mips, pes)
-                    .setRam(ramMB)
-                    .setBw(250)       // 250 Mbps per VM
-                    .setSize(10_000)  // 10 GB storage
-                    .setCloudletScheduler(new CloudletSchedulerSpaceShared());
-            vmList.add(vm);
+        for (int[] spec : vmsPerHost) {
+            int pes   = spec[0];
+            int ramMB = spec[1];
+            int mips  = spec[2];
+            int count = spec[3] * hostCount;
+            String vmType = pes == 1 ? "Small" : (pes == 2 ? "Medium" : "Large");
+
+            for (int i = 0; i < count; i++) {
+                Vm vm = new VmSimple(mips, pes)
+                        .setRam(ramMB)
+                        .setBw(250)       // 250 Mbps per VM
+                        .setSize(10_000)  // 10 GB storage
+                        .setCloudletScheduler(new CloudletSchedulerSpaceShared());
+                vmList.add(vm);
+            }
+
+            System.out.printf("    [VM %s] %d MIPS x %d PE, %d MB RAM x %d unit (%d per host)%n",
+                    vmType, mips, pes, ramMB, count, spec[3]);
         }
-
-        System.out.printf("    [VM %s] %d MIPS x %d PE, %d MB RAM x %d unit%n",
-                vmType, mips, pes, ramMB, count);
         return vmList;
     }
 
@@ -305,7 +309,7 @@ public class DatacenterBuilder {
                     .mapToLong(h -> h.getPeList().stream().mapToLong(Pe::getCapacity).sum())
                     .sum();
             long totalRam  = hosts.stream().mapToLong(h -> h.getRam().getCapacity()).sum();
-            System.out.printf("    %-20s : %2d Host | %2d VM | %,7d MIPS | %5.1f GB RAM%n",
+            System.out.printf("    %-24s : %2d Host | %2d VM | %,7d MIPS | %5.1f GB RAM%n",
                     DC_NAMES[i], hosts.size(), dcr.vmList().size(), totalMips, totalRam / 1024.0);
         }
 
@@ -315,15 +319,15 @@ public class DatacenterBuilder {
         long grandTotalRam = allHosts.stream().mapToLong(h -> h.getRam().getCapacity()).sum();
 
         System.out.println("  +------------------------------------------------------------+");
-        System.out.printf("    %-20s : %2d Host | %2d VM | %,7d MIPS | %5.1f GB RAM%n",
+        System.out.printf("    %-24s : %2d Host | %2d VM | %,7d MIPS | %5.1f GB RAM%n",
                 "TOTAL INFRASTRUKTUR", allHosts.size(), allVms.size(), grandTotalMips, grandTotalRam / 1024.0);
-        System.out.println("    [SINKRONISASI]       : Seluruh VM dari 3 DC dikelola 1 Broker");   // [LABEL] angka "3"
+        System.out.printf("    [SINKRONISASI]           : Seluruh VM dari %d DC dikelola 1 Broker%n", dcResults.size());
         System.out.println("  +============================================================+\n");
     }
 
     /**
      * Mencetak bukti verifikasi alokasi VM ke setiap host fisik untuk membuktikan:
-     * 1. Setiap host menampung VM (TIDAK ADA HOST YANG NGANGGUR).
+     * 1. Setiap host menampung tepat 4 VM (TIDAK ADA HOST YANG NGANGGUR).
      * 2. Kebijakan penyerataan (balanced) terbukti berjalan deterministik dan konsisten.
      * 3. Rincian beban core dan RAM per host tercatat transparan.
      */
@@ -331,25 +335,29 @@ public class DatacenterBuilder {
         System.out.println("\n  +==================================================================================================+");
         System.out.println("  |       BUKTI VERIFIKASI ALOKASI VM KE HOST FISIK (PENYERATAAN - TIDAK ADA HOST NGANGGUR)         |");
         System.out.println("  +==================================================================================================+");
-        System.out.printf("  | %-38s | %-10s | %-16s | %-14s | %-8s |%n",
+        System.out.printf("  | %-26s | %-10s | %-16s | %-14s | %-26s |%n",
                 "Datacenter", "Host Unit", "Kapasitas Host", "RAM Terpakai", "VM Ditempatkan");
-        System.out.println("  +----------------------------------------+------------+------------------+----------------+----------------+");
+        System.out.println("  +----------------------------+------------+------------------+----------------+----------------------------+");
+        boolean allHostsHaveFourVms = true;
         for (DatacenterResult dcr : multiDc.dcResults()) {
             Datacenter dc = dcr.datacenter();
             int hostIdx = 1;
             for (Host h : dc.getHostList()) {
                 List<Vm> vms = h.getVmCreatedList();
+                if (vms.size() != VMS_PER_HOST) allHostsHaveFourVms = false;
                 long ramUsedMB = vms.stream().mapToLong(v -> v.getRam().getCapacity()).sum();
                 long ramTotalMB = h.getRam().getCapacity();
                 String vmSummary = vms.isEmpty() ? "[NGANGGUR 0 VM]" : (vms.size() + " VM (IDs:" + vms.stream().map(v -> String.valueOf(v.getId())).toList() + ")");
                 long mipsPerCore = (long) h.getPeList().get(0).getCapacity();
                 String hostCap = h.getPesNumber() + " PE x " + mipsPerCore + "M";
-                System.out.printf("  | %-38s | Host #%-4d | %-16s | %5d/%5d MB | %-14s |%n",
+                System.out.printf("  | %-26s | Host #%-4d | %-16s | %5d/%5d MB | %-26s |%n",
                         dc.getName(), hostIdx++, hostCap, ramUsedMB, ramTotalMB, vmSummary);
             }
-            System.out.println("  +----------------------------------------+------------+------------------+----------------+----------------+");
+            System.out.println("  +----------------------------+------------+------------------+----------------+----------------------------+");
         }
-        System.out.println("  | Status Verifikasi: 100% Host Aktif Berimbang (6 Host x 1 VM, 2 Host x 2 VM per DC)              |");   // [LABEL] pola 6x1 & 2x2 hanya benar untuk 8 host + 10 VM per DC
+        System.out.printf("  | Status Verifikasi: %-78s |%n", allHostsHaveFourVms
+                ? "100% Host Aktif Berimbang (setiap host menampung " + VMS_PER_HOST + " VM)"
+                : "[WARN] Ada host yang tidak menampung " + VMS_PER_HOST + " VM");
         System.out.println("  +==================================================================================================+\n");
     }
 
@@ -360,11 +368,11 @@ public class DatacenterBuilder {
     public static record DatacenterResult(Datacenter datacenter, List<Vm> vmList) {}
 
     /**
-     * Hasil build untuk 3 datacenter sekaligus.
+     * Hasil build untuk seluruh datacenter sekaligus.
      * Menyediakan akses ke:
      *   - dcResults : daftar DatacenterResult per DC (untuk info per-DC)
-     *   - allVms    : gabungan semua VM dari 3 DC (disubmit ke satu broker)
-     *   - allHosts  : gabungan semua host dari 3 DC (untuk metrik energi)
+     *   - allVms    : gabungan semua VM dari seluruh DC (disubmit ke satu broker)
+     *   - allHosts  : gabungan semua host dari seluruh DC (untuk metrik energi)
      */
     public static record MultiDatacenterResult(
             List<DatacenterResult> dcResults,

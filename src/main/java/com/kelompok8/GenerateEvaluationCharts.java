@@ -217,7 +217,7 @@ public class GenerateEvaluationCharts {
 
         g.setColor(new Color(100, 116, 139));
         g.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        g.drawString("Mata Kuliah SOKA 2026 — Kelompok 8 (Simulator CloudSim Plus 8.0, 3 Datacenter, 3x Run Rata-rata)",
+        g.drawString("Mata Kuliah SOKA 2026 — Kelompok 8 (Simulator CloudSim Plus 8.0, 2 Datacenter, 3x Run Rata-rata)",
                 padLeft, 76);
 
         // Y Label

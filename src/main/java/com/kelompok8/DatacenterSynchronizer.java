@@ -13,13 +13,13 @@ import java.util.*;
 /**
  * Modul Sinkronisasi Multi-Datacenter (Post-Simulation Synchronization & Verification).
  *
- * Mengelola dan memvalidasi sinkronisasi state antar 3 Datacenter:
+ * Mengelola dan memvalidasi sinkronisasi state antar Datacenter:
  * 1. Barrier & Time Synchronization:
  *    - Memastikan seluruh datacenter mencapai titik henti (barrier) yang konsisten.
  *    - Sinkronisasi global makespan terhadap waktu penyelesaian datacenter terpanjang.
  *
  * 2. Workload & Data Integrity Synchronization:
- *    - Verifikasi integritas: Total task selesai di DC-1 + DC-2 + DC-3 == Total task yang disubmit.
+ *    - Verifikasi integritas: Total task selesai di DC-1 + DC-2 == Total task yang disubmit.
  *    - Memastikan tidak ada task yang hilang, dropped, atau terduplikasi antar-DC.
  *
  * 3. Resource State Synchronization:
@@ -37,6 +37,7 @@ public class DatacenterSynchronizer {
         public int hostCount;
         public int vmCount;
         public int tasksCompleted;
+        public int emptyVmCount;
         public double workloadPercentage;
         public long totalMiExecuted;
         public double dcMakespan;
@@ -57,11 +58,13 @@ public class DatacenterSynchronizer {
         public double globalMakespan;
         public List<DatacenterSyncStats> dcStats = new ArrayList<>();
         public boolean isFullySynchronized;
+        public int totalVms;
+        public int totalEmptyVms;
         public String syncMessage;
     }
 
     /**
-     * Melakukan proses sinkronisasi dan verifikasi komprehensif terhadap 3 Datacenter.
+     * Melakukan proses sinkronisasi dan verifikasi komprehensif terhadap seluruh Datacenter.
      */
     public static MultiDatacenterSyncReport synchronizeAndVerify(
             String algorithm,
@@ -116,6 +119,12 @@ public class DatacenterSynchronizer {
             stats.hostCount = hosts.size();
             stats.vmCount = vms.size();
             stats.tasksCompleted = dcTasks.size();
+            // VM kosong = VM yang tidak menerima satu task pun
+            Set<Vm> vmsWithTasks = Collections.newSetFromMap(new IdentityHashMap<>());
+            dcTasks.forEach(cl -> vmsWithTasks.add(cl.getVm()));
+            stats.emptyVmCount = (int) vms.stream().filter(v -> !vmsWithTasks.contains(v)).count();
+            report.totalVms += vms.size();
+            report.totalEmptyVms += stats.emptyVmCount;
             stats.workloadPercentage = totalTasksSubmitted > 0 ?
                     ((double) dcTasks.size() / totalTasksSubmitted) * 100.0 : 0.0;
             stats.totalMiExecuted = dcTasks.stream().mapToLong(Cloudlet::getLength).sum();
@@ -156,7 +165,7 @@ public class DatacenterSynchronizer {
 
         if (report.isFullySynchronized) {
             report.syncMessage = String.format(
-                    "SINKRONISASI BERHASIL: 100%% Task (%d/%d) terdistribusi dan selesai pada 3 Datacenter " +   // [LABEL] angka "3" jika jumlah DC diubah
+                    "SINKRONISASI BERHASIL: 100%% Task (%d/%d) terdistribusi dan selesai pada seluruh Datacenter " +
                     "tanpa redudansi maupun packet loss. Waktu simulasi barrier: %.2f detik.",
                     aggregatedTasks, totalTasksSubmitted, simulationClock);
         } else {
@@ -208,7 +217,7 @@ public class DatacenterSynchronizer {
      */
     public static void printSyncConsoleReport(MultiDatacenterSyncReport report) {
         System.out.println("\n+===================================================================================+");
-        System.out.println("|         LAPORAN SINKRONISASI & VERIFIKASI MULTI-DATACENTER (3 DATACENTER)         |");
+        System.out.println("|                LAPORAN SINKRONISASI & VERIFIKASI MULTI-DATACENTER                 |");
         System.out.println("+===================================================================================+");
         System.out.printf("| Algoritma      : %-64s |%n", report.algorithm);
         System.out.printf("| Total Target   : %-64s |%n", report.totalTasksExpected + " Task");
@@ -246,9 +255,11 @@ public class DatacenterSynchronizer {
         System.out.println("+===================================================================================+");
 
         System.out.println("  [HASIL VERIFIKASI SINKRONISASI]:");
-        System.out.println("   [OK] Protokol Barrier Sinkronisasi : SEMUA 3 Datacenter selesai sebelum simulation clock.");   // [LABEL]
+        System.out.println("   [OK] Protokol Barrier Sinkronisasi : SEMUA Datacenter selesai sebelum simulation clock.");
         System.out.printf("   [OK] Integritas Alokasi Task       : %d/%d Task selesai (Loss = 0, Duplikat = 0).%n",
                 report.totalTasksCompleted, report.totalTasksExpected);
+        System.out.printf("   [%s] VM Kosong (tanpa task)       : %d dari %d VM.%n",
+                report.totalEmptyVms == 0 ? "OK" : "WARN", report.totalEmptyVms, report.totalVms);
         System.out.printf("   [OK] Total Komputasi Terealisasi   : %,d MI selesai dikomputasi lintas DC.%n", grandTotalMi);
         System.out.println("   [OK] Status Akhir VM & Host        : IDLE (Seluruh resource siap untuk batch berikutnya).");
         System.out.printf("  >> %s%n", report.syncMessage);
@@ -273,6 +284,6 @@ public class DatacenterSynchronizer {
                 }
             }
         }
-        System.out.printf("  [CSV] Rekapitulasi sinkronisasi 3 Datacenter disimpan ke: %s%n", filename);
+        System.out.printf("  [CSV] Rekapitulasi sinkronisasi multi-datacenter disimpan ke: %s%n", filename);
     }
 }

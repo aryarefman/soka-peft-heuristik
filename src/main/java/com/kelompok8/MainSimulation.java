@@ -17,10 +17,10 @@ import java.util.*;
  * Departemen Teknologi Informasi, Institut Teknologi Sepuluh Nopember (ITS)
  *
  * Arsitektur:
- * - 3 Datacenter Heterogen (Entry-Level, Standard, Premium)
- * - Total 24 Host heterogen (8 host / DC) dengan model daya SPECpower
- * - Total 30 VM heterogen (10 Small, 10 Medium, 10 Large)
- * - Sinkronisasi: Semua VM dari 3 DC dikelola dan disinkronisasikan di akhir simulasi.
+ * - 2 Datacenter Heterogen (Jakarta Standard, Bandung Premium)
+ * - Total 10 Host heterogen (5 host / DC) dengan model daya SPECpower
+ * - Total 40 VM heterogen (4 VM / host: 10 Small, 10 Medium, 20 Large)
+ * - Sinkronisasi: Semua VM dari 2 DC dikelola dan disinkronisasikan di akhir simulasi.
  *
  * Algoritma:
  * - PEFT (Predict Earliest Finish Time) - Diusulkan
@@ -47,7 +47,7 @@ public class MainSimulation {
         // SKENARIO 1: DATASET SINTETIS (1000 Task)
         // =========================================================================
         System.out.println("\n" + "=".repeat(75));
-        System.out.println("  SKENARIO 1: DATASET SINTETIS (1000 TASKS - 3 KELAS UKURAN) [3 DATACENTER]");
+        System.out.println("  SKENARIO 1: DATASET SINTETIS (1000 TASKS - 3 KELAS UKURAN) [2 DATACENTER]");
         System.out.println("=".repeat(75));
 
         List<MetricsCollector.ExperimentResult> syntheticResults = new ArrayList<>();
@@ -80,7 +80,7 @@ public class MainSimulation {
         String swfPath = findSwfFile();
         if (swfPath != null) {
             System.out.println("\n\n" + "=".repeat(75));
-            System.out.println("  SKENARIO 2: DATASET REAL TRACE (NASA iPSC - SWF 1000 TASKS) [3 DATACENTER]");
+            System.out.println("  SKENARIO 2: DATASET REAL TRACE (NASA iPSC - SWF 1000 TASKS) [2 DATACENTER]");
             System.out.println("=".repeat(75));
 
             List<MetricsCollector.ExperimentResult> nasaResults = new ArrayList<>();
@@ -115,7 +115,7 @@ public class MainSimulation {
             MetricsCollector.exportToCsv(allResults, RESULTS_DIR + "/all_results.csv");
         }
 
-        // Simpan rekapitulasi sinkronisasi 3 Datacenter ke CSV
+        // Simpan rekapitulasi sinkronisasi 2 Datacenter ke CSV
         if (!allSyncReports.isEmpty()) {
             DatacenterSynchronizer.exportSyncToCsv(allSyncReports, RESULTS_DIR + "/datacenter_sync_results.csv");
         }
@@ -124,15 +124,15 @@ public class MainSimulation {
     }
 
     /**
-     * Menjalankan satu eksperimen lengkap dengan 3 Datacenter.
+     * Menjalankan satu eksperimen lengkap dengan 2 Datacenter.
      *
      * Alur Operasi:
-     *   1. Bangun 3 Datacenter Heterogen (DC-1 Entry, DC-2 Standard, DC-3 Premium)
+     *   1. Bangun 2 Datacenter Heterogen (DC-1 Standard, DC-2 Premium)
      *   2. Buat Broker dan pasang DatacenterMapper agar tiap VM terpetakan ke DC yang tepat
-     *   3. Submit VM list (30 VM dari 3 DC) dan Cloudlets (1000 tasks)
+     *   3. Submit VM list (40 VM dari 2 DC) dan Cloudlets (1000 tasks)
      *   4. Jalankan Simulasi CloudSim Plus
      *   5. Kumpulkan metrik performa global
-     *   6. Lakukan proses SINKRONISASI & VERIFIKASI akhir antar ke-3 Datacenter
+     *   6. Lakukan proses SINKRONISASI & VERIFIKASI akhir antar ke-2 Datacenter
      */
     private static SimulationOutcome runExperiment(
             String algorithm, String datasetName, String swfPath) throws Exception {
@@ -141,14 +141,13 @@ public class MainSimulation {
         System.out.printf("  |  Algoritma   : %-44s |%n", getAlgorithmName(algorithm));
         System.out.printf("  |  Dataset     : %-44s |%n", datasetName);
         System.out.printf("  |  Tasks       : %-44d |%n", MAX_TASKS);
-        System.out.printf("  |  Infrastruktur: %-43s |%n", "3 Datacenter (24 Host, 30 VM)");   // [LABEL] sesuaikan jumlah DC/host/VM
+        System.out.printf("  |  Infrastruktur: %-43s |%n", "2 Datacenter (10 Host, 40 VM)");
         System.out.printf("  +-------------------------------------------------------------+%n%n");
 
         CloudSimPlus simulation = new CloudSimPlus();
 
-        // 1. Bangun 3 Datacenter Heterogen
-        System.out.println("  [1/5] Membangun Arsitektur 3 Datacenter Heterogen...");
-        // [UBAH-DC/HOST/VM] Konfigurasi infrastruktur diatur di DatacenterBuilder.java (DC_CONFIGS, NUM_HOSTS_PER_TYPE).
+        // 1. Bangun 2 Datacenter Heterogen
+        System.out.println("  [1/5] Membangun Arsitektur 2 Datacenter Heterogen...");
         DatacenterBuilder.MultiDatacenterResult multiDcResult =
                 DatacenterBuilder.buildMultiple(simulation);
 
@@ -180,7 +179,7 @@ public class MainSimulation {
         broker.submitCloudletList(cloudlets);
 
         // 5. Jalankan Simulasi
-        System.out.println("  [4/5] Menjalankan Simulasi CloudSim Plus (3 Datacenter)...");
+        System.out.println("  [4/5] Menjalankan Simulasi CloudSim Plus (2 Datacenter)...");
         long startTime = System.currentTimeMillis();
         simulation.start();
         long elapsedSimRealTime = System.currentTimeMillis() - startTime;
@@ -198,8 +197,8 @@ public class MainSimulation {
         MetricsCollector.printReport(metricResult);
         MetricsCollector.printCloudletTable(finishedCloudlets, algorithm, 10);
 
-        // 7. SINKRONISASI & VERIFIKASI AKHIR ANTAR 3 DATACENTER
-        System.out.println("  [5/5] Melakukan Sinkronisasi & Verifikasi State Antar 3 Datacenter...");
+        // 7. SINKRONISASI & VERIFIKASI AKHIR ANTAR 2 DATACENTER
+        System.out.println("  [5/5] Melakukan Sinkronisasi & Verifikasi State Antar 2 Datacenter...");
         DatacenterSynchronizer.MultiDatacenterSyncReport syncReport =
                 DatacenterSynchronizer.synchronizeAndVerify(
                         algoFullName, multiDcResult, finishedCloudlets, cloudlets.size(), simulation.clock());
@@ -251,15 +250,14 @@ public class MainSimulation {
         System.out.println("   Kelompok 8 - Strategi Optimasi Komputasi Awan                    ");
         System.out.println("   Departemen Teknologi Informasi, ITS                              ");
         System.out.println("                                                                    ");
-        System.out.println("   Arsitektur          : 3 Datacenter Heterogen                     ");   // [LABEL]
-        System.out.println("                         - DC-1: Entry-Level (Host A & B, VM Small) ");
-        System.out.println("                         - DC-2: Standard    (Host B & C, VM Medium)");
-        System.out.println("                         - DC-3: Premium     (Host C & D, VM Large) ");
-        System.out.println("   Kapasitas Total     : 24 Host, 30 VM, SPECpower Energy Model     ");   // [LABEL]
+        System.out.println("   Arsitektur          : 2 Datacenter Heterogen                     ");
+        System.out.println("                         - DC-1: Jakarta (5 Host B, 2 Small+2 Medium/Host)");
+        System.out.println("                         - DC-2: Bandung (5 Host C/D, 4 Large/Host)    ");
+        System.out.println("   Kapasitas Total     : 10 Host, 40 VM, SPECpower Energy Model     ");
         System.out.println("   Algoritma Diusulkan : PEFT (Predict Earliest Finish Time)        ");
         System.out.println("   Algoritma Baseline  : FCFS, Round Robin                          ");
         System.out.println("   Simulator           : CloudSim Plus 8.0                          ");
-        System.out.println("   Fitur Sinkronisasi  : Verifikasi Sinkronisasi 3 Datacenter       ");
+        System.out.println("   Fitur Sinkronisasi  : Verifikasi Sinkronisasi 2 Datacenter       ");
         System.out.println("====================================================================");
     }
 

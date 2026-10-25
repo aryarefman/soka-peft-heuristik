@@ -36,6 +36,11 @@ import java.util.*;
  *      vm* = argmin_{vm_j in EligibleVMs(task_i)} EFT(task_i, vm_j)
  *
  * 6. Perbarui jadwal ketersediaan core pada vm* dan bind task ke vm*.
+ *
+ * Constraint tambahan (tidak boleh ada VM kosong):
+ *    Selama masih ada VM eligible yang belum menerima task, kandidat dibatasi pada
+ *    VM kosong tersebut (tetap dipilih yang EFT-nya terkecil). Setelah setiap VM
+ *    menerima minimal 1 task, pemilihan kembali ke seluruh VM eligible.
  */
 public class PeftBroker extends DatacenterBrokerSimple {
 
@@ -68,11 +73,19 @@ public class PeftBroker extends DatacenterBrokerSimple {
                 .comparingDouble(Cloudlet::getSubmissionDelay)
                 .thenComparing((c1, c2) -> Long.compare(c2.getLength(), c1.getLength())));
 
+        // VM yang sudah menerima minimal 1 task
+        Set<Long> usedVmIds = new HashSet<>();
+
         // Proses penjadwalan PEFT untuk setiap task
         for (Cloudlet cloudlet : waitingList) {
             long taskLength = cloudlet.getLength();
             int taskPes = (int) cloudlet.getPesNumber();
             double arrivalTime = cloudlet.getSubmissionDelay();
+
+            // Constraint VM tidak boleh kosong: jika masih ada VM eligible yang kosong,
+            // task hanya boleh dipetakan ke VM kosong tersebut.
+            boolean onlyEmptyVms = vmList.stream()
+                    .anyMatch(vm -> vm.getPesNumber() >= taskPes && !usedVmIds.contains(vm.getId()));
 
             Vm bestVm = null;
             double minEft = Double.MAX_VALUE;
@@ -81,6 +94,9 @@ public class PeftBroker extends DatacenterBrokerSimple {
             for (Vm vm : vmList) {
                 // Batasan Kesesuaian Alokasi: VM harus memiliki PE yang cukup
                 if (vm.getPesNumber() < taskPes) {
+                    continue;
+                }
+                if (onlyEmptyVms && usedVmIds.contains(vm.getId())) {
                     continue;
                 }
 
@@ -112,6 +128,7 @@ public class PeftBroker extends DatacenterBrokerSimple {
 
             if (bestVm != null) {
                 cloudlet.setVm(bestVm);
+                usedVmIds.add(bestVm.getId());
 
                 // Perbarui ketersediaan core pada VM yang terpilih
                 double[] peReady = vmPeReadyTimes.get(bestVm.getId());
