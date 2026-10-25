@@ -1,0 +1,2 @@
+# Skrip shell harus tetap LF agar bisa dijalankan bash di Windows maupun Linux
+*.sh text eol=lf
