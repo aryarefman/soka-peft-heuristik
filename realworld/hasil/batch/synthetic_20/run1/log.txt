@@ -1,0 +1,151 @@
+============================================================================================
+ REAL-WORLD HEURISTIC SCHEDULING - Kelompok 8 SOKA
+ Datacenter: cluster Kubernetes 'soka-dc' | 2 host | 4 VM (2 per host)
+============================================================================================
+
+[1] Memeriksa VM di datacenter:
+    vm-1  | host-1 | node soka-dc-worker   | 1 PE | http://localhost:30001
+    vm-2  | host-1 | node soka-dc-worker   | 2 PE | http://localhost:30002
+    vm-3  | host-2 | node soka-dc-worker2  | 2 PE | http://localhost:30003
+    vm-4  | host-2 | node soka-dc-worker2  | 4 PE | http://localhost:30004
+
+[2] Kalibrasi kecepatan VM (task uji 2000 MI di semua PE):
+    vm-1  :    985 MIPS per PE (1 PE)
+    vm-2  :  1,000 MIPS per PE (2 PE)
+    vm-3  :  1,999 MIPS per PE (2 PE)
+    vm-4  :  1,997 MIPS per PE (4 PE)
+
+[3] Dataset synthetic: 20 task
+    1 PE :  6 task | 935 - 1,798 MI
+    2 PE :  8 task | 2,531 - 4,989 MI
+    4 PE :  6 task | 6,914 - 10,090 MI
+    Kedatangan: 0 - 12.27 s
+
+--------------------------------------------------------------------------------------------
+ EKSEKUSI PEFT - 20 task dikirim ke VM sesuai waktu kedatangan
+--------------------------------------------------------------------------------------------
+  [  1.17 s] task  9 (1 PE,  1,704 MI) selesai di host-2/vm-3 | tunggu  0.00 s | eksekusi  0.85 s
+  [  2.49 s] task  5 (1 PE,  1,798 MI) selesai di host-2/vm-3 | tunggu  0.00 s | eksekusi  0.90 s
+  [  3.23 s] task 10 (1 PE,  1,158 MI) selesai di host-1/vm-1 | tunggu  0.00 s | eksekusi  1.26 s
+  [  4.73 s] task  8 (1 PE,  1,239 MI) selesai di host-1/vm-1 | tunggu  0.89 s | eksekusi  1.41 s
+  [  6.96 s] task 16 (2 PE,  4,989 MI) selesai di host-1/vm-2 | tunggu  0.00 s | eksekusi  5.00 s
+  [  6.96 s] task 14 (4 PE,  7,474 MI) selesai di host-2/vm-4 | tunggu  0.00 s | eksekusi  5.55 s
+  [  7.02 s] task 18 (2 PE,  4,777 MI) selesai di host-2/vm-3 | tunggu  0.85 s | eksekusi  4.38 s
+  [  7.85 s] task 11 (1 PE,    935 MI) selesai di host-2/vm-4 | tunggu  2.34 s | eksekusi  0.86 s
+  [  8.26 s] task 17 (1 PE,  1,589 MI) selesai di host-2/vm-4 | tunggu  3.27 s | eksekusi  1.26 s
+  [  9.48 s] task  0 (2 PE,  4,302 MI) selesai di host-2/vm-4 | tunggu  2.46 s | eksekusi  2.44 s
+  [ 10.11 s] task  2 (2 PE,  3,721 MI) selesai di host-2/vm-3 | tunggu  3.50 s | eksekusi  2.98 s
+  [ 14.35 s] task  1 (2 PE,  4,006 MI) selesai di host-2/vm-3 | tunggu  2.49 s | eksekusi  4.11 s
+  [ 15.80 s] task  6 (4 PE,  6,914 MI) selesai di host-2/vm-4 | tunggu  4.50 s | eksekusi  6.12 s
+  [ 16.20 s] task  4 (2 PE,  2,546 MI) selesai di host-2/vm-3 | tunggu  5.88 s | eksekusi  1.78 s
+  [ 17.11 s] task 13 (2 PE,  2,531 MI) selesai di host-2/vm-4 | tunggu  5.61 s | eksekusi  1.27 s
+  [ 17.22 s] task  3 (2 PE,  2,741 MI) selesai di host-2/vm-4 | tunggu  6.22 s | eksekusi  1.37 s
+  [ 24.12 s] task 12 (4 PE,  9,197 MI) selesai di host-2/vm-4 | tunggu  6.30 s | eksekusi  6.66 s
+  [ 30.57 s] task 15 (4 PE, 10,090 MI) selesai di host-2/vm-4 | tunggu 12.36 s | eksekusi  6.21 s
+  [ 35.72 s] task  7 (4 PE,  7,689 MI) selesai di host-2/vm-4 | tunggu 18.34 s | eksekusi  4.96 s
+  [ 39.85 s] task 19 (4 PE,  7,198 MI) selesai di host-2/vm-4 | tunggu 22.53 s | eksekusi  3.97 s
+
+  Distribusi task PEFT per VM:
+    host-1/vm-1  :  2 task,    2.7 detik-CPU
+    host-1/vm-2  :  1 task,   10.0 detik-CPU
+    host-2/vm-3  :  6 task,   28.3 detik-CPU
+    host-2/vm-4  : 11 task,  146.2 detik-CPU
+  Hasil PEFT:
+    Makespan (s)                :     39.849
+    Rata-rata turnaround (s)    :      8.351
+    Rata-rata waiting (s)       :      4.877
+    Throughput (task/s)         :      0.502
+    Rata-rata utilisasi VM (%)  :     36.602
+    Load balance (SD task/VM)   :      3.937
+    Estimasi energi (Wh)        :      3.927
+
+--------------------------------------------------------------------------------------------
+ EKSEKUSI FCFS - 20 task dikirim ke VM sesuai waktu kedatangan
+--------------------------------------------------------------------------------------------
+  [  2.06 s] task  9 (1 PE,  1,704 MI) selesai di host-1/vm-1 | tunggu  0.00 s | eksekusi  1.70 s
+  [  3.43 s] task  5 (1 PE,  1,798 MI) selesai di host-1/vm-2 | tunggu  0.00 s | eksekusi  1.80 s
+  [  5.34 s] task 17 (1 PE,  1,589 MI) selesai di host-1/vm-1 | tunggu  0.00 s | eksekusi  1.72 s
+  [  6.39 s] task 16 (2 PE,  4,989 MI) selesai di host-2/vm-3 | tunggu  0.00 s | eksekusi  4.44 s
+  [  6.96 s] task 14 (4 PE,  7,474 MI) selesai di host-2/vm-4 | tunggu  0.00 s | eksekusi  5.54 s
+  [  6.99 s] task 10 (1 PE,  1,158 MI) selesai di host-2/vm-3 | tunggu  4.31 s | eksekusi  0.58 s
+  [  7.60 s] task  8 (1 PE,  1,239 MI) selesai di host-2/vm-4 | tunggu  4.44 s | eksekusi  0.62 s
+  [  8.51 s] task 18 (2 PE,  4,777 MI) selesai di host-1/vm-2 | tunggu  1.77 s | eksekusi  4.90 s
+  [  8.89 s] task  2 (2 PE,  3,721 MI) selesai di host-2/vm-4 | tunggu  3.43 s | eksekusi  1.86 s
+  [ 10.02 s] task  1 (2 PE,  4,006 MI) selesai di host-2/vm-3 | tunggu  0.00 s | eksekusi  2.40 s
+  [ 12.52 s] task 13 (2 PE,  2,531 MI) selesai di host-2/vm-3 | tunggu  0.02 s | eksekusi  2.41 s
+  [ 12.99 s] task  0 (2 PE,  4,302 MI) selesai di host-1/vm-2 | tunggu  3.99 s | eksekusi  4.31 s
+  [ 13.94 s] task  6 (4 PE,  6,914 MI) selesai di host-2/vm-4 | tunggu  3.98 s | eksekusi  4.86 s
+  [ 13.96 s] task 11 (1 PE,    935 MI) selesai di host-1/vm-2 | tunggu  8.15 s | eksekusi  0.94 s
+  [ 15.26 s] task  4 (2 PE,  2,546 MI) selesai di host-2/vm-4 | tunggu  5.45 s | eksekusi  1.27 s
+  [ 16.81 s] task  3 (2 PE,  2,741 MI) selesai di host-1/vm-2 | tunggu  4.44 s | eksekusi  2.74 s
+  [ 20.14 s] task 12 (4 PE,  9,197 MI) selesai di host-2/vm-4 | tunggu  4.37 s | eksekusi  4.70 s
+  [ 25.90 s] task 15 (4 PE, 10,090 MI) selesai di host-2/vm-4 | tunggu  8.47 s | eksekusi  5.54 s
+  [ 29.98 s] task  7 (4 PE,  7,689 MI) selesai di host-2/vm-4 | tunggu 13.79 s | eksekusi  3.93 s
+  [ 34.16 s] task 19 (4 PE,  7,198 MI) selesai di host-2/vm-4 | tunggu 17.03 s | eksekusi  4.03 s
+
+  Distribusi task FCFS per VM:
+    host-1/vm-1  :  2 task,    3.4 detik-CPU
+    host-1/vm-2  :  5 task,   26.6 detik-CPU
+    host-2/vm-3  :  4 task,   19.1 detik-CPU
+    host-2/vm-4  :  9 task,  121.3 detik-CPU
+  Hasil FCFS:
+    Makespan (s)                :     34.158
+    Rata-rata turnaround (s)    :      7.485
+    Rata-rata waiting (s)       :      4.182
+    Throughput (task/s)         :      0.586
+    Rata-rata utilisasi VM (%)  :     41.437
+    Load balance (SD task/VM)   :      2.550
+    Estimasi energi (Wh)        :      3.372
+
+--------------------------------------------------------------------------------------------
+ EKSEKUSI RR - 20 task dikirim ke VM sesuai waktu kedatangan
+--------------------------------------------------------------------------------------------
+  [  1.17 s] task  9 (1 PE,  1,704 MI) selesai di host-2/vm-3 | tunggu  0.00 s | eksekusi  0.85 s
+  [  3.44 s] task  5 (1 PE,  1,798 MI) selesai di host-1/vm-1 | tunggu  0.00 s | eksekusi  1.83 s
+  [  5.53 s] task 11 (1 PE,    935 MI) selesai di host-1/vm-1 | tunggu  0.00 s | eksekusi  0.94 s
+  [  5.96 s] task 18 (2 PE,  4,777 MI) selesai di host-2/vm-3 | tunggu  0.00 s | eksekusi  4.18 s
+  [  7.05 s] task 16 (2 PE,  4,989 MI) selesai di host-1/vm-2 | tunggu  0.00 s | eksekusi  5.05 s
+  [  7.05 s] task 14 (4 PE,  7,474 MI) selesai di host-2/vm-4 | tunggu  0.00 s | eksekusi  5.62 s
+  [  7.66 s] task 10 (1 PE,  1,158 MI) selesai di host-2/vm-4 | tunggu  4.87 s | eksekusi  0.58 s
+  [  8.40 s] task  8 (1 PE,  1,239 MI) selesai di host-1/vm-2 | tunggu  4.49 s | eksekusi  1.30 s
+  [  8.71 s] task 17 (1 PE,  1,589 MI) selesai di host-1/vm-2 | tunggu  3.29 s | eksekusi  1.59 s
+  [  9.00 s] task  2 (2 PE,  3,721 MI) selesai di host-2/vm-4 | tunggu  3.47 s | eksekusi  1.86 s
+  [ 10.23 s] task  1 (2 PE,  4,006 MI) selesai di host-2/vm-3 | tunggu  0.00 s | eksekusi  2.59 s
+  [ 12.83 s] task  4 (2 PE,  2,546 MI) selesai di host-2/vm-3 | tunggu  1.87 s | eksekusi  2.49 s
+  [ 13.22 s] task  0 (2 PE,  4,302 MI) selesai di host-1/vm-2 | tunggu  4.15 s | eksekusi  4.33 s
+  [ 14.18 s] task  6 (4 PE,  6,914 MI) selesai di host-2/vm-4 | tunggu  4.03 s | eksekusi  4.97 s
+  [ 15.50 s] task 13 (2 PE,  2,531 MI) selesai di host-2/vm-4 | tunggu  4.00 s | eksekusi  1.27 s
+  [ 16.08 s] task  3 (2 PE,  2,741 MI) selesai di host-1/vm-2 | tunggu  3.70 s | eksekusi  2.74 s
+  [ 22.19 s] task 12 (4 PE,  9,197 MI) selesai di host-2/vm-4 | tunggu  4.57 s | eksekusi  6.43 s
+  [ 29.01 s] task 15 (4 PE, 10,090 MI) selesai di host-2/vm-4 | tunggu 10.40 s | eksekusi  6.58 s
+  [ 34.14 s] task  7 (4 PE,  7,689 MI) selesai di host-2/vm-4 | tunggu 16.77 s | eksekusi  4.96 s
+  [ 39.04 s] task 19 (4 PE,  7,198 MI) selesai di host-2/vm-4 | tunggu 21.04 s | eksekusi  4.71 s
+
+  Distribusi task RR per VM:
+    host-1/vm-1  :  2 task,    2.8 detik-CPU
+    host-1/vm-2  :  5 task,   27.1 detik-CPU
+    host-2/vm-3  :  4 task,   19.4 detik-CPU
+    host-2/vm-4  :  9 task,  139.9 detik-CPU
+  Hasil RR:
+    Makespan (s)                :     39.036
+    Rata-rata turnaround (s)    :      7.910
+    Rata-rata waiting (s)       :      4.332
+    Throughput (task/s)         :      0.512
+    Rata-rata utilisasi VM (%)  :     39.067
+    Load balance (SD task/VM)   :      2.550
+    Estimasi energi (Wh)        :      3.828
+
+============================================================================================
+ PERBANDINGAN HASIL EKSEKUSI NYATA
+============================================================================================
+ Metrik                       |       PEFT |       FCFS |         RR | PEFT vs FCFS
+--------------------------------------------------------------------------------------------
+ Makespan (s)                 |     39.849 |     34.158 |     39.036 |      +16.66%
+ Rata-rata turnaround (s)     |      8.351 |      7.485 |      7.910 |      +11.57%
+ Rata-rata waiting (s)        |      4.877 |      4.182 |      4.332 |      +16.62%
+ Throughput (task/s)          |      0.502 |      0.586 |      0.512 |      -14.28%
+ Rata-rata utilisasi VM (%)   |     36.602 |     41.437 |     39.067 |      -11.67%
+ Load balance (SD task/VM)    |      3.937 |      2.550 |      2.550 |      +54.42%
+ Estimasi energi (Wh)         |      3.927 |      3.372 |      3.828 |      +16.46%
+============================================================================================
+ Hasil tersimpan di realworld/hasil\batch\synthetic_20\run1/

@@ -1,0 +1,8 @@
+Metrik,PEFT,FCFS,RR
+Makespan (s),55.4183,55.7377,54.9525
+Rata-rata turnaround (s),13.0826,14.8733,14.0202
+Rata-rata waiting (s),9.0467,11.0303,10.2142
+Throughput (task/s),0.5413,0.5382,0.5459
+Rata-rata utilisasi VM (%),43.6754,37.6788,39.1730
+Load balance (SD task/VM),3.2016,4.5000,4.5000
+Estimasi energi (Wh),5.6389,5.4385,5.4127

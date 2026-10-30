@@ -34,3 +34,6 @@ docs/images/final_terminal/
 docs/Materi_Ujian_Lisan_SOKA_PEFT.pdf
 
 node_modules/
+
+# Root temporary screenshots
+/image*.png

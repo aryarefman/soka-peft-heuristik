@@ -1,0 +1,11 @@
+arya4@DESKTOP-8G8M19I MINGW64 ~/soka/realworld
+$ grep -a "menunggu" hasil/logs/batch_ulang_sintetis50_akhir.txt | head -n 3
+   .. menunggu laptop tenang (GAGAL vm-1=663 vm-2=999 vm-3=1995 vm-4=1997), cek lagi 60 s
+   .. menunggu laptop tenang (GAGAL vm-1=437 vm-2=966 vm-3=0 vm-4=0), cek lagi 60 s
+   .. menunggu laptop tenang (GAGAL vm-1=595 vm-2=969 vm-3=1049 vm-4=0), cek lagi 60 s
+arya4@DESKTOP-8G8M19I MINGW64 ~/soka/realworld
+$ kubectl exec vm-1 -- sh -c 'cat /sys/fs/cgroup/cpu.max; grep -E "nr_periods|nr_throttled|throttled_usec" /sys/fs/cgroup/cpu.stat'
+20000 100000
+nr_periods 37701
+nr_throttled 16345
+throttled_usec 737566200

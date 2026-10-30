@@ -1,0 +1,33 @@
+arya4@DESKTOP-8G8M19I MINGW64 ~/soka/realworld
+$ java broker/RealWorldBroker.java ALL gocj 30
+============================================================================================
+ REAL-WORLD HEURISTIC SCHEDULING - Kelompok 8 SOKA
+ Datacenter: cluster Kubernetes 'soka-dc' | 2 host | 4 VM (2 per host)
+============================================================================================
+
+[1] Memeriksa VM di datacenter:
+    vm-1  | host-1 | node soka-dc-worker   | 1 PE | http://localhost:30001
+    vm-2  | host-1 | node soka-dc-worker   | 2 PE | http://localhost:30002
+    vm-3  | host-2 | node soka-dc-worker2  | 2 PE | http://localhost:30003
+    vm-4  | host-2 | node soka-dc-worker2  | 4 PE | http://localhost:30004
+
+[2] Kalibrasi kecepatan VM (task uji 2000 MI di semua PE):
+    vm-1  :  1,000 MIPS per PE (1 PE)
+    vm-2  :  1,000 MIPS per PE (2 PE)
+    vm-3  :  1,996 MIPS per PE (2 PE)
+    vm-4  :  1,995 MIPS per PE (4 PE)
+
+[3] Dataset gocj: 30 task
+    1 PE : 30 task | 300 - 14,250 MI
+    Kedatangan: 0 - 0.00 s
+
+--------------------------------------------------------------------------------------------
+ EKSEKUSI PEFT - 30 task dikirim ke VM sesuai waktu kedatangan
+--------------------------------------------------------------------------------------------
+  [  0.35 s] task  5 (1 PE,    300 MI) selesai di host-1/vm-2 | tunggu  0.00 s | eksekusi  0.32 s
+  [  0.72 s] task  3 (1 PE,  1,260 MI) selesai di host-2/vm-4 | tunggu  0.00 s | eksekusi  0.68 s
+  [  0.92 s] task 19 (1 PE,    550 MI) selesai di host-1/vm-2 | tunggu  0.30 s | eksekusi  0.55 s
+  [  1.24 s] task  1 (1 PE,  1,660 MI) selesai di host-2/vm-4 | tunggu  0.00 s | eksekusi  1.19 s
+  [  1.33 s] task  2 (1 PE,  1,260 MI) selesai di host-1/vm-1 | tunggu  0.00 s | eksekusi  1.28 s
+  [  1.38 s] task  4 (1 PE,  1,300 MI) selesai di host-1/vm-2 | tunggu  0.00 s | eksekusi  1.32 s
+  ...

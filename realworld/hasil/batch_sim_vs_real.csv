@@ -1,0 +1,190 @@
+Dataset,Task,Algoritma,Run,Metrik,Sim_mean,SimFIFO_mean,Real_mean,Real_SD,Selisih_%
+gocj,10,FCFS,3,Makespan (s),5.8600,5.8600,6.0443,0.0460,3.15
+gocj,10,FCFS,3,Rata-rata turnaround (s),1.8320,1.8320,1.8187,0.0781,-0.73
+gocj,10,FCFS,3,Rata-rata waiting (s),0.6680,0.6680,0.5899,0.0743,-11.69
+gocj,10,FCFS,3,Throughput (task/s),1.7065,1.7065,1.6545,0.0125,-3.04
+gocj,10,FCFS,3,Rata-rata utilisasi VM (%),35.7509,35.7509,34.6967,0.2706,-2.95
+gocj,10,FCFS,3,Load balance (SD task/VM),0.5000,0.5000,0.5000,0.0000,0.00
+gocj,10,FCFS,3,Estimasi energi (Wh),0.4357,0.4357,0.4478,0.0030,2.76
+gocj,10,PEFT,3,Makespan (s),1.2700,1.2700,1.3700,0.0580,7.87
+gocj,10,PEFT,3,Rata-rata turnaround (s),0.9640,0.9640,0.9993,0.0557,3.66
+gocj,10,PEFT,3,Rata-rata waiting (s),0.0650,0.0650,0.0146,0.0004,-77.49
+gocj,10,PEFT,3,Throughput (task/s),7.8740,7.8740,7.3120,0.3005,-7.14
+gocj,10,PEFT,3,Rata-rata utilisasi VM (%),81.1844,81.1844,78.0533,2.5925,-3.86
+gocj,10,PEFT,3,Load balance (SD task/VM),1.5000,1.5000,1.5000,0.0000,0.00
+gocj,10,PEFT,3,Estimasi energi (Wh),0.1371,0.1371,0.1471,0.0086,7.30
+gocj,10,RR,3,Makespan (s),5.8600,5.8600,6.0340,0.0894,2.97
+gocj,10,RR,3,Rata-rata turnaround (s),1.8320,1.8320,1.9876,0.0865,8.49
+gocj,10,RR,3,Rata-rata waiting (s),0.6680,0.6680,0.7293,0.0503,9.17
+gocj,10,RR,3,Throughput (task/s),1.7065,1.7065,1.6576,0.0245,-2.86
+gocj,10,RR,3,Rata-rata utilisasi VM (%),35.7509,35.7509,34.7706,0.5049,-2.74
+gocj,10,RR,3,Load balance (SD task/VM),0.5000,0.5000,0.5000,0.0000,0.00
+gocj,10,RR,3,Estimasi energi (Wh),0.4357,0.4357,0.4471,0.0058,2.61
+gocj,20,FCFS,3,Makespan (s),7.9800,7.9800,8.8910,1.0010,11.42
+gocj,20,FCFS,3,Rata-rata turnaround (s),2.6825,2.6825,2.9535,0.2967,10.10
+gocj,20,FCFS,3,Rata-rata waiting (s),1.2720,1.2720,1.2881,0.1092,1.26
+gocj,20,FCFS,3,Throughput (task/s),2.5063,2.5063,2.2762,0.2374,-9.18
+gocj,20,FCFS,3,Rata-rata utilisasi VM (%),49.3186,49.3186,48.3023,0.1146,-2.06
+gocj,20,FCFS,3,Load balance (SD task/VM),0.0000,0.0000,0.0000,0.0000,
+gocj,20,FCFS,3,Estimasi energi (Wh),0.6713,0.6713,0.7465,0.0860,11.20
+gocj,20,PEFT,3,Makespan (s),7.1250,7.1250,8.2570,0.7743,15.89
+gocj,20,PEFT,3,Rata-rata turnaround (s),1.9505,1.9505,2.3339,0.0746,19.66
+gocj,20,PEFT,3,Rata-rata waiting (s),0.7935,0.7935,0.8097,0.0726,2.04
+gocj,20,PEFT,3,Throughput (task/s),2.8070,2.8070,2.4433,0.2252,-12.96
+gocj,20,PEFT,3,Rata-rata utilisasi VM (%),34.8363,34.8363,35.9117,4.6738,3.09
+gocj,20,PEFT,3,Load balance (SD task/VM),3.8992,3.8992,3.8992,0.3601,0.00
+gocj,20,PEFT,3,Estimasi energi (Wh),0.6146,0.6146,0.7278,0.0508,18.42
+gocj,20,RR,3,Makespan (s),7.9800,7.9800,8.6563,0.3794,8.48
+gocj,20,RR,3,Rata-rata turnaround (s),2.6825,2.6825,3.1861,0.3483,18.77
+gocj,20,RR,3,Rata-rata waiting (s),1.2720,1.2720,1.4744,0.1869,15.91
+gocj,20,RR,3,Throughput (task/s),2.5063,2.5063,2.3148,0.0993,-7.64
+gocj,20,RR,3,Rata-rata utilisasi VM (%),49.3186,49.3186,50.1088,1.8081,1.60
+gocj,20,RR,3,Load balance (SD task/VM),0.0000,0.0000,0.0000,0.0000,
+gocj,20,RR,3,Estimasi energi (Wh),0.6713,0.6713,0.7375,0.0428,9.86
+gocj,30,FCFS,3,Makespan (s),13.8600,13.8600,15.0233,1.0178,8.39
+gocj,30,FCFS,3,Rata-rata turnaround (s),4.1542,4.1542,4.4092,0.0567,6.14
+gocj,30,FCFS,3,Rata-rata waiting (s),2.4425,2.4425,2.4976,0.0196,2.26
+gocj,30,FCFS,3,Throughput (task/s),2.1645,2.1645,2.0061,0.1366,-7.32
+gocj,30,FCFS,3,Rata-rata utilisasi VM (%),53.2783,53.2783,49.5423,3.2785,-7.01
+gocj,30,FCFS,3,Load balance (SD task/VM),0.5000,0.5000,0.5000,0.0000,0.00
+gocj,30,FCFS,3,Estimasi energi (Wh),1.1543,1.1543,1.2311,0.0664,6.65
+gocj,30,PEFT,3,Makespan (s),7.1250,7.1250,7.5517,0.3219,5.99
+gocj,30,PEFT,3,Rata-rata turnaround (s),3.0666,3.0666,3.2462,0.0760,5.85
+gocj,30,PEFT,3,Rata-rata waiting (s),1.7580,1.7580,1.5406,0.0957,-12.37
+gocj,30,PEFT,3,Throughput (task/s),4.2105,4.2105,3.9797,0.1656,-5.48
+gocj,30,PEFT,3,Rata-rata utilisasi VM (%),61.2953,61.2953,66.3599,1.4811,8.26
+gocj,30,PEFT,3,Load balance (SD task/VM),7.3653,7.3653,7.3653,0.0481,0.00
+gocj,30,PEFT,3,Estimasi energi (Wh),0.7142,0.7142,0.8019,0.0264,12.28
+gocj,30,RR,3,Makespan (s),13.8600,13.8600,14.6260,0.2207,5.53
+gocj,30,RR,3,Rata-rata turnaround (s),4.1542,4.1542,5.0149,0.3850,20.72
+gocj,30,RR,3,Rata-rata waiting (s),2.4425,2.4425,2.9361,0.4017,20.21
+gocj,30,RR,3,Throughput (task/s),2.1645,2.1645,2.0516,0.0310,-5.22
+gocj,30,RR,3,Rata-rata utilisasi VM (%),53.2783,53.2783,53.6507,2.2739,0.70
+gocj,30,RR,3,Load balance (SD task/VM),0.5000,0.5000,0.5000,0.0000,0.00
+gocj,30,RR,3,Estimasi energi (Wh),1.1543,1.1543,1.2269,0.0023,6.28
+gocj,40,FCFS,3,Makespan (s),16.0400,16.0400,22.5833,3.4676,40.79
+gocj,40,FCFS,3,Rata-rata turnaround (s),5.0681,5.0681,7.0372,2.6877,38.85
+gocj,40,FCFS,3,Rata-rata waiting (s),3.3571,3.3571,4.5270,1.9614,34.85
+gocj,40,FCFS,3,Throughput (task/s),2.4938,2.4938,1.8117,0.2645,-27.35
+gocj,40,FCFS,3,Rata-rata utilisasi VM (%),60.5595,60.5595,53.0739,7.3432,-12.36
+gocj,40,FCFS,3,Load balance (SD task/VM),0.0000,0.0000,0.0000,0.0000,
+gocj,40,FCFS,3,Estimasi energi (Wh),1.3816,1.3816,1.9084,0.3649,38.14
+gocj,40,PEFT,3,Makespan (s),7.1250,7.1250,10.3127,3.9121,44.74
+gocj,40,PEFT,3,Rata-rata turnaround (s),4.3720,4.3720,4.3030,1.0401,-1.58
+gocj,40,PEFT,3,Rata-rata waiting (s),3.0290,3.0290,2.3501,0.4796,-22.41
+gocj,40,PEFT,3,Throughput (task/s),5.6140,5.6140,4.3752,1.3089,-22.07
+gocj,40,PEFT,3,Rata-rata utilisasi VM (%),83.2982,83.2982,73.2678,7.5750,-12.04
+gocj,40,PEFT,3,Load balance (SD task/VM),9.3896,9.3896,9.3896,0.0501,0.00
+gocj,40,PEFT,3,Estimasi energi (Wh),0.7993,0.7993,1.1206,0.4153,40.20
+gocj,40,RR,3,Makespan (s),16.0400,16.0400,24.7420,10.3674,54.25
+gocj,40,RR,3,Rata-rata turnaround (s),5.0681,5.0681,8.4885,4.1587,67.49
+gocj,40,RR,3,Rata-rata waiting (s),3.3571,3.3571,5.3670,2.6779,59.87
+gocj,40,RR,3,Throughput (task/s),2.4938,2.4938,1.8717,0.6100,-24.95
+gocj,40,RR,3,Rata-rata utilisasi VM (%),60.5595,60.5595,59.0427,4.3432,-2.50
+gocj,40,RR,3,Load balance (SD task/VM),0.0000,0.0000,0.0000,0.0000,
+gocj,40,RR,3,Estimasi energi (Wh),1.3816,1.3816,2.1652,0.9696,56.72
+gocj,50,FCFS,3,Makespan (s),34.0400,34.0400,38.5507,5.4306,13.25
+gocj,50,FCFS,3,Rata-rata turnaround (s),7.0535,7.0535,8.9929,1.7927,27.50
+gocj,50,FCFS,3,Rata-rata waiting (s),4.9396,4.9396,5.9432,1.2520,20.32
+gocj,50,FCFS,3,Throughput (task/s),1.4689,1.4689,1.3211,0.1710,-10.06
+gocj,50,FCFS,3,Rata-rata utilisasi VM (%),43.9244,43.9244,45.3839,1.6899,3.32
+gocj,50,FCFS,3,Load balance (SD task/VM),0.5000,0.5000,0.5000,0.0000,0.00
+gocj,50,FCFS,3,Estimasi energi (Wh),2.7301,2.7301,3.1392,0.4519,14.98
+gocj,50,PEFT,3,Makespan (s),9.8833,9.8833,15.9080,1.2585,60.96
+gocj,50,PEFT,3,Rata-rata turnaround (s),7.0366,7.0366,5.9395,0.4185,-15.59
+gocj,50,PEFT,3,Rata-rata waiting (s),5.3626,5.3626,3.5604,0.3510,-33.61
+gocj,50,PEFT,3,Throughput (task/s),5.0866,5.0866,3.1618,0.2370,-37.84
+gocj,50,PEFT,3,Rata-rata utilisasi VM (%),96.3343,96.3343,70.8803,8.7401,-26.42
+gocj,50,PEFT,3,Load balance (SD task/VM),6.7780,6.7780,6.7780,1.6757,0.00
+gocj,50,PEFT,3,Estimasi energi (Wh),1.1566,1.1566,1.6922,0.0573,46.31
+gocj,50,RR,3,Makespan (s),34.0400,34.0400,33.3773,1.5487,-1.95
+gocj,50,RR,3,Rata-rata turnaround (s),7.0535,7.0535,8.1846,0.8218,16.04
+gocj,50,RR,3,Rata-rata waiting (s),4.9396,4.9396,5.4253,0.6400,9.83
+gocj,50,RR,3,Throughput (task/s),1.4689,1.4689,1.5012,0.0694,2.20
+gocj,50,RR,3,Rata-rata utilisasi VM (%),43.9244,43.9244,47.9974,2.2717,9.27
+gocj,50,RR,3,Load balance (SD task/VM),0.5000,0.5000,0.5000,0.0000,0.00
+gocj,50,RR,3,Estimasi energi (Wh),2.7301,2.7301,2.7502,0.1335,0.74
+synthetic,10,FCFS,3,Makespan (s),17.4030,17.4030,22.1293,1.7936,27.16
+synthetic,10,FCFS,3,Rata-rata turnaround (s),3.0780,3.0780,4.8064,0.4717,56.15
+synthetic,10,FCFS,3,Rata-rata waiting (s),0.3271,0.3271,1.2356,0.2521,277.80
+synthetic,10,FCFS,3,Throughput (task/s),0.5746,0.5746,0.4550,0.0380,-20.82
+synthetic,10,FCFS,3,Rata-rata utilisasi VM (%),36.5522,36.5522,35.7828,0.3983,-2.11
+synthetic,10,FCFS,3,Load balance (SD task/VM),1.1180,1.1180,1.1180,0.0000,0.00
+synthetic,10,FCFS,3,Estimasi energi (Wh),1.6446,1.6446,2.1012,0.1764,27.76
+synthetic,10,PEFT,3,Makespan (s),17.4030,17.4030,22.0087,0.9441,26.46
+synthetic,10,PEFT,3,Rata-rata turnaround (s),2.5294,2.5294,5.0199,0.4243,98.46
+synthetic,10,PEFT,3,Rata-rata waiting (s),0.2470,0.2470,1.4748,0.2687,497.19
+synthetic,10,PEFT,3,Throughput (task/s),0.5746,0.5746,0.4552,0.0196,-20.78
+synthetic,10,PEFT,3,Rata-rata utilisasi VM (%),30.7509,30.7509,36.1342,0.2224,17.51
+synthetic,10,PEFT,3,Load balance (SD task/VM),2.7482,2.7482,2.7482,0.1755,0.00
+synthetic,10,PEFT,3,Estimasi energi (Wh),1.6428,1.6428,2.1771,0.0954,32.52
+synthetic,10,RR,3,Makespan (s),18.4675,18.4675,22.3540,2.5207,21.05
+synthetic,10,RR,3,Rata-rata turnaround (s),3.5159,3.5159,4.7765,0.5953,35.86
+synthetic,10,RR,3,Rata-rata waiting (s),0.7837,0.7837,1.3819,0.2857,76.34
+synthetic,10,RR,3,Throughput (task/s),0.5415,0.5415,0.4527,0.0474,-16.40
+synthetic,10,RR,3,Rata-rata utilisasi VM (%),33.3464,33.3464,32.4174,0.6770,-2.79
+synthetic,10,RR,3,Load balance (SD task/VM),1.1180,1.1180,1.1180,0.0000,0.00
+synthetic,10,RR,3,Estimasi energi (Wh),1.7137,1.7137,2.0724,0.2429,20.93
+synthetic,20,FCFS,3,Makespan (s),28.6145,28.6145,36.6763,1.8501,28.17
+synthetic,20,FCFS,3,Rata-rata turnaround (s),5.4137,5.4137,7.9021,0.6260,45.96
+synthetic,20,FCFS,3,Rata-rata waiting (s),2.8026,2.8026,4.4238,0.4787,57.85
+synthetic,20,FCFS,3,Throughput (task/s),0.6989,0.6989,0.5467,0.0283,-21.78
+synthetic,20,FCFS,3,Rata-rata utilisasi VM (%),42.4039,42.4039,40.5422,0.7596,-4.39
+synthetic,20,FCFS,3,Load balance (SD task/VM),2.5495,2.5495,2.5495,0.0000,0.00
+synthetic,20,FCFS,3,Estimasi energi (Wh),2.8311,2.8311,3.6109,0.1783,27.55
+synthetic,20,PEFT,3,Makespan (s),29.0025,29.0025,38.3150,1.2670,32.11
+synthetic,20,PEFT,3,Rata-rata turnaround (s),4.3705,4.3705,8.0917,0.3115,85.14
+synthetic,20,PEFT,3,Rata-rata waiting (s),2.0209,2.0209,4.7006,0.2369,132.60
+synthetic,20,PEFT,3,Throughput (task/s),0.6896,0.6896,0.5226,0.0173,-24.22
+synthetic,20,PEFT,3,Rata-rata utilisasi VM (%),36.8731,36.8731,36.8964,0.2218,0.06
+synthetic,20,PEFT,3,Load balance (SD task/VM),3.9370,3.9370,3.9370,0.0000,0.00
+synthetic,20,PEFT,3,Estimasi energi (Wh),2.8542,2.8542,3.7793,0.1220,32.41
+synthetic,20,RR,3,Makespan (s),28.6070,28.6070,35.9337,2.2067,25.61
+synthetic,20,RR,3,Rata-rata turnaround (s),5.1625,5.1625,7.4124,0.3637,43.58
+synthetic,20,RR,3,Rata-rata waiting (s),2.5577,2.5577,4.0244,0.2353,57.34
+synthetic,20,RR,3,Throughput (task/s),0.6991,0.6991,0.5586,0.0330,-20.10
+synthetic,20,RR,3,Rata-rata utilisasi VM (%),42.1735,42.1735,40.2052,0.8878,-4.67
+synthetic,20,RR,3,Load balance (SD task/VM),2.5495,2.5495,2.5495,0.0000,0.00
+synthetic,20,RR,3,Estimasi energi (Wh),2.8306,2.8306,3.5330,0.2096,24.81
+synthetic,30,FCFS,3,Makespan (s),44.4890,44.7335,55.2107,2.3398,24.10
+synthetic,30,FCFS,3,Rata-rata turnaround (s),8.1981,10.2971,14.7318,0.8790,79.70
+synthetic,30,FCFS,3,Rata-rata waiting (s),5.6282,7.7272,10.9152,0.6860,93.94
+synthetic,30,FCFS,3,Throughput (task/s),0.6743,0.6706,0.5444,0.0234,-19.27
+synthetic,30,FCFS,3,Rata-rata utilisasi VM (%),39.1424,38.9285,37.7002,0.0265,-3.68
+synthetic,30,FCFS,3,Load balance (SD task/VM),4.5000,4.5000,4.5000,0.0000,0.00
+synthetic,30,FCFS,3,Estimasi energi (Wh),4.3767,4.3926,5.3836,0.2326,23.00
+synthetic,30,PEFT,3,Makespan (s),39.2247,39.2247,56.2273,2.1624,43.35
+synthetic,30,PEFT,3,Rata-rata turnaround (s),7.1833,7.1833,13.3286,0.7024,85.55
+synthetic,30,PEFT,3,Rata-rata waiting (s),4.6350,4.6350,9.1752,0.4674,97.95
+synthetic,30,PEFT,3,Throughput (task/s),0.7654,0.7654,0.5343,0.0202,-30.19
+synthetic,30,PEFT,3,Rata-rata utilisasi VM (%),46.4368,46.4368,44.6786,1.2913,-3.79
+synthetic,30,PEFT,3,Load balance (SD task/VM),2.7353,2.7353,2.7353,0.6594,0.00
+synthetic,30,PEFT,3,Estimasi energi (Wh),4.0344,4.0344,5.7574,0.2656,42.71
+synthetic,30,RR,3,Makespan (s),42.2940,43.5955,53.9960,2.4599,27.67
+synthetic,30,RR,3,Rata-rata turnaround (s),7.5907,9.5527,13.5318,0.7425,78.27
+synthetic,30,RR,3,Rata-rata waiting (s),5.0249,6.9869,9.8218,0.5866,95.46
+synthetic,30,RR,3,Throughput (task/s),0.7093,0.6881,0.5568,0.0260,-21.50
+synthetic,30,RR,3,Rata-rata utilisasi VM (%),41.5590,40.3183,38.9437,0.3327,-6.29
+synthetic,30,RR,3,Load balance (SD task/VM),4.5000,4.5000,4.5000,0.0000,0.00
+synthetic,30,RR,3,Estimasi energi (Wh),4.2343,4.3188,5.3108,0.2412,25.42
+synthetic,40,FCFS,3,Makespan (s),57.6185,59.1315,76.6093,1.3622,32.96
+synthetic,40,FCFS,3,Rata-rata turnaround (s),12.9197,14.3793,20.8406,0.3482,61.31
+synthetic,40,FCFS,3,Rata-rata waiting (s),10.3161,11.7757,16.6129,0.2869,61.04
+synthetic,40,FCFS,3,Throughput (task/s),0.6942,0.6765,0.5223,0.0094,-24.77
+synthetic,40,FCFS,3,Rata-rata utilisasi VM (%),41.7509,40.6826,38.4240,0.2035,-7.97
+synthetic,40,FCFS,3,Load balance (SD task/VM),6.2048,6.2048,6.2048,0.0000,0.00
+synthetic,40,FCFS,3,Estimasi energi (Wh),5.7671,5.8653,7.5164,0.1290,30.33
+synthetic,40,PEFT,3,Makespan (s),53.1137,53.1137,79.2113,2.4351,49.14
+synthetic,40,PEFT,3,Rata-rata turnaround (s),10.3906,10.3906,19.0433,0.4359,83.27
+synthetic,40,PEFT,3,Rata-rata waiting (s),7.8117,7.8117,14.4147,0.3297,84.53
+synthetic,40,PEFT,3,Throughput (task/s),0.7531,0.7531,0.5055,0.0155,-32.88
+synthetic,40,PEFT,3,Rata-rata utilisasi VM (%),46.9689,46.9689,44.8219,0.3483,-4.57
+synthetic,40,PEFT,3,Load balance (SD task/VM),2.4625,2.4625,2.4625,0.3203,0.00
+synthetic,40,PEFT,3,Estimasi energi (Wh),5.4737,5.4737,8.1054,0.2378,48.08
+synthetic,40,RR,3,Makespan (s),58.1300,59.8390,75.6633,3.4427,30.16
+synthetic,40,RR,3,Rata-rata turnaround (s),13.5389,14.8561,21.1463,0.7789,56.19
+synthetic,40,RR,3,Rata-rata waiting (s),10.9215,12.2386,16.8901,0.6463,54.65
+synthetic,40,RR,3,Throughput (task/s),0.6881,0.6685,0.5298,0.0242,-23.01
+synthetic,40,RR,3,Rata-rata utilisasi VM (%),41.1820,40.0059,38.5068,0.5485,-6.50
+synthetic,40,RR,3,Load balance (SD task/VM),6.2048,6.2048,6.2048,0.0000,0.00
+synthetic,40,RR,3,Estimasi energi (Wh),5.8006,5.9115,7.4126,0.3266,27.79

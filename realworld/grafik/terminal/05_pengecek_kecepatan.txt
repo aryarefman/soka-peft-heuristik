@@ -1,0 +1,11 @@
+arya4@DESKTOP-8G8M19I MINGW64 ~/soka/realworld
+$ bash batch.sh
+== Bukti infrastruktur -> hasil/logs/infrastruktur.txt ==
+== gocj | 30 task | run 1 | percobaan 1 ==
+   cek kecepatan sebelum: OK vm-1=1000 vm-2=999 vm-3=1997 vm-4=1997 | sesudah: OK vm-1=999 vm-2=1000 vm-3=1998 vm-4=1997
+== gocj | 40 task | run 1 | percobaan 1 ==
+   cek kecepatan sebelum: OK vm-1=991 vm-2=1000 vm-3=1997 vm-4=1998 | sesudah: GAGAL vm-1=531 vm-2=999 vm-3=1992 vm-4=1998
+   !! laptop sedang sibuk (VM di bawah 95% rating): run dibuang, coba lagi 60 s
+== gocj | 40 task | run 1 | percobaan 2 ==
+   cek kecepatan sebelum: OK vm-1=999 vm-2=999 vm-3=1995 vm-4=1999 | sesudah: OK vm-1=1000 vm-2=999 vm-3=1998 vm-4=1998
+   ...

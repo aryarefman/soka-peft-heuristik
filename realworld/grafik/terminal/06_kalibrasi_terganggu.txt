@@ -1,0 +1,19 @@
+arya4@DESKTOP-8G8M19I MINGW64 ~/soka/realworld
+$ head -n 17 hasil/batch_terganggu/gocj_50_run1_batch1/log.txt
+============================================================================================
+ REAL-WORLD HEURISTIC SCHEDULING - Kelompok 8 SOKA
+ Datacenter: cluster Kubernetes 'soka-dc' | 2 host | 4 VM (2 per host)
+============================================================================================
+
+[1] Memeriksa VM di datacenter:
+    vm-1  | host-1 | node soka-dc-worker   | 1 PE | http://localhost:30001
+    vm-2  | host-1 | node soka-dc-worker   | 2 PE | http://localhost:30002
+    vm-3  | host-2 | node soka-dc-worker2  | 2 PE | http://localhost:30003
+    vm-4  | host-2 | node soka-dc-worker2  | 4 PE | http://localhost:30004
+
+[2] Kalibrasi kecepatan VM (task uji 2000 MI di semua PE):
+    vm-1  :    324 MIPS per PE (1 PE)
+    vm-2  :    348 MIPS per PE (2 PE)
+    vm-3  :    800 MIPS per PE (2 PE)
+    vm-4  :    527 MIPS per PE (4 PE)
+

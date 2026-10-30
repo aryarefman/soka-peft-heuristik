@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
  *   5. Eksekusi nyata             (task dikirim tepat pada waktu kedatangannya, POST /run)
  *   6. Hitung metrik              (makespan, turnaround, waiting, throughput, utilisasi, energi)
  *
- * Jalankan dari folder realworld/:  java broker/RealWorldBroker.java [ALL|PEFT|FCFS|RR] [synthetic|gocj] [jumlahTask]
+ * Jalankan dari folder realworld/:  java broker/RealWorldBroker.java [ALL|PEFT|FCFS|RR] [synthetic|gocj] [jumlahTask] [folderHasil]
  */
 public class RealWorldBroker {
 
@@ -67,6 +67,9 @@ public class RealWorldBroker {
         Task copy() { return new Task(id, length, pes, arrival); }
     }
 
+    /** Folder keluaran; argumen ke-4 opsional (dipakai batch.sh agar tiap run tidak saling menimpa). */
+    static Path outDir = Path.of("hasil");
+
     static final HttpClient HTTP = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_1_1).connectTimeout(Duration.ofSeconds(5)).build();
 
@@ -75,6 +78,7 @@ public class RealWorldBroker {
         String mode = args.length > 0 ? args[0].toUpperCase() : "ALL";
         String dataset = args.length > 1 ? args[1].toLowerCase() : "synthetic";
         int n = args.length > 2 ? Integer.parseInt(args[2]) : 30;
+        if (args.length > 3) outDir = Path.of(args[3]);
 
         line('=');
         System.out.println(" REAL-WORLD HEURISTIC SCHEDULING - Kelompok 8 SOKA");
@@ -332,7 +336,7 @@ public class RealWorldBroker {
     }
 
     static void saveTasks(String algo, String dataset, List<Task> tasks) throws IOException {
-        Path out = Path.of("hasil", "task_" + dataset + "_" + algo + ".csv");
+        Path out = outDir.resolve("task_" + dataset + "_" + algo + ".csv");
         Files.createDirectories(out.getParent());
         try (PrintWriter w = new PrintWriter(Files.newBufferedWriter(out))) {
             w.println("TaskId,LengthMI,Pes,Arrival(s),Vm,Host,Sent(s),Wait(s),Exec(s),Finish(s)");
@@ -344,7 +348,7 @@ public class RealWorldBroker {
     }
 
     static void saveSummary(String dataset, Map<String, Map<String, Double>> s) throws IOException {
-        Path out = Path.of("hasil", "ringkasan_" + dataset + ".csv");
+        Path out = outDir.resolve("ringkasan_" + dataset + ".csv");
         try (PrintWriter w = new PrintWriter(Files.newBufferedWriter(out))) {
             w.println("Metrik," + String.join(",", s.keySet()));
             for (String k : s.values().iterator().next().keySet()) {

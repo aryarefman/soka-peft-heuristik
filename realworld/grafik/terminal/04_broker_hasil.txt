@@ -1,0 +1,29 @@
+  ...
+  Distribusi task PEFT per VM:
+    host-1/vm-1  :  2 task,    3.5 detik-CPU
+    host-1/vm-2  :  6 task,    7.7 detik-CPU
+    host-2/vm-3  :  2 task,   14.0 detik-CPU
+    host-2/vm-4  : 20 task,   22.7 detik-CPU
+  Hasil PEFT:
+    Makespan (s)                :      7.406
+    Rata-rata turnaround (s)    :      3.353
+    Rata-rata waiting (s)       :      1.628
+    Throughput (task/s)         :      4.051
+    Rata-rata utilisasi VM (%)  :     67.703
+    Load balance (SD task/VM)   :      7.399
+    Estimasi energi (Wh)        :      0.795
+  ...
+============================================================================================
+ PERBANDINGAN HASIL EKSEKUSI NYATA
+============================================================================================
+ Metrik                       |       PEFT |       FCFS |         RR | PEFT vs FCFS
+--------------------------------------------------------------------------------------------
+ Makespan (s)                 |      7.406 |     13.769 |     14.642 |      -46.21%
+ Rata-rata turnaround (s)     |      3.353 |      4.359 |      4.488 |      -23.08%
+ Rata-rata waiting (s)        |      1.628 |      2.470 |      2.378 |      -34.11%
+ Throughput (task/s)          |      4.051 |      2.179 |      2.049 |      +85.92%
+ Rata-rata utilisasi VM (%)   |     67.703 |     53.666 |     53.549 |      +26.16%
+ Load balance (SD task/VM)    |      7.399 |      0.500 |      0.500 |    +1379.86%
+ Estimasi energi (Wh)         |      0.795 |      1.149 |      1.230 |      -30.74%
+============================================================================================
+ Hasil tersimpan di realworld/hasil\batch\gocj_30\run2/
