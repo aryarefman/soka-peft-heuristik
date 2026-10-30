@@ -39,7 +39,7 @@
 6. [Hasil Eksekusi Real-World](#6-hasil-eksekusi-real-world)
 7. [Cara Membandingkan Simulasi dengan Dunia Nyata](#7-cara-membandingkan-simulasi-dengan-dunia-nyata)
 8. [Grafik dan Analisis Simulasi vs Real-World](#8-grafik-dan-analisis-simulasi-vs-real-world)
-9. [Gangguan dari Luar: Program Lain, Baterai, dan Memori Laptop](#9-gangguan-dari-luar-program-lain-baterai-dan-memori-laptop)
+9. [Gangguan Eksternal: Beban Lain, Mode Daya, dan Memori Laptop](#9-gangguan-eksternal-beban-lain-mode-daya-dan-memori-laptop)
 10. [Kaitan dengan Simulasi CloudSim Skala Besar](#10-kaitan-dengan-simulasi-cloudsim-skala-besar)
 11. [Kesimpulan](#11-kesimpulan)
 12. [Keterbatasan](#12-keterbatasan)
@@ -51,40 +51,44 @@
 
 ## 1. Ringkasan
 
-Di folder induk, algoritma **PEFT** diuji di **simulator** (CloudSim Plus). Simulator hanya *menghitung* berapa lama task akan selesai. Di folder ini, PEFT dijalankan di **cloud sungguhan** buatan sendiri: sebuah cluster **Kubernetes** berisi 1 datacenter, 2 host, dan 4 VM. Task benar-benar dikerjakan oleh CPU, dan waktunya diukur dengan stopwatch, bukan dihitung.
+Di folder induk, algoritma **PEFT** diuji di **simulator** (CloudSim Plus). Simulator hanya *menghitung* berapa lama task akan selesai. Di folder ini, PEFT dijalankan di **cloud nyata** buatan sendiri: sebuah cluster **Kubernetes** berisi 1 datacenter, 2 host, dan 4 VM. Task dieksekusi secara nyata oleh CPU, dan waktunya diukur sebagai waktu jam dinding (*wall-clock time*), bukan dihitung oleh model.
 
 PEFT dibandingkan dengan dua algoritma sederhana, **FCFS** dan **Round Robin (RR)**, pada dua jenis beban kerja: **GoCJ** (data job asli Google Cloud) dan **sintetis** (task buatan dengan kebutuhan 1, 2, atau 4 core).
 
-**Pertanyaan utama:** *apakah hasil di dunia nyata sama dengan hasil simulasi? Kalau berbeda, apa sebabnya?*
+**Pertanyaan utama:** *apakah hasil di dunia nyata sama dengan hasil simulasi? Jika berbeda, apa sebabnya?*
 
-Untuk menjawabnya secara adil, setiap percobaan nyata dibuatkan **kembaran simulasinya**: task yang sama, waktu datang yang sama, dan VM tujuan yang sama persis. Bedanya hanya satu: kembaran simulasi berjalan di "dunia ideal" (VM selalu secepat spesifikasinya dan tidak ada jeda jaringan). Jadi, kalau hasilnya berbeda, penyebabnya pasti dari dunia nyata, bukan dari keputusan algoritma.
+Untuk menjawabnya secara adil, setiap percobaan nyata dibuatkan **kembaran simulasinya**: task yang sama, waktu datang yang sama, dan VM tujuan yang sama persis. Bedanya hanya satu: kembaran simulasi berjalan di "kondisi ideal" (VM selalu secepat spesifikasinya dan tidak ada jeda jaringan). Dengan demikian, jika hasilnya berbeda, penyebabnya pasti dari dunia nyata, bukan dari keputusan algoritma.
 
 Percobaan dilakukan dalam **dua tahap**:
 1. **Percobaan pertama**: 30 task per dataset, dijalankan 1 kali. Dianalisis sangat detail sampai ke setiap task (Bagian 6.1 – 6.3 dan 8.1 – 8.9).
-2. **Eksperimen berskala**: 10, 20, 30, 40, dan 50 task, masing-masing dijalankan **3 kali**, total **27 run bersih** (Bagian 6.4 dan 8.10 – 8.16). Setiap run dijaga oleh **pengecek kecepatan**: run yang terganggu program lain di laptop otomatis dibuang dan diulang (Bagian 9).
+2. **Eksperimen berskala**: 10, 20, 30, 40, dan 50 task, masing-masing dijalankan **3 kali**, total **27 run bersih** (Bagian 6.4 dan 8.10 – 8.16). Setiap run dijaga oleh **pemeriksaan kecepatan**: run yang terganggu program lain di laptop otomatis dibuang dan diulang (Bagian 9).
 
 **Temuan utama:**
 - **Di GoCJ, PEFT unggul jauh di dunia nyata, di semua skala.** Makespan PEFT **7 – 77%** lebih cepat daripada FCFS (misalnya 15,91 detik vs 38,55 detik pada 50 task), dan waktu antrenya **37 – 97%** lebih singkat.
-- **Di data sintetis, keunggulan makespan PEFT hilang di dunia nyata.** Simulasi meramalkan PEFT 8 – 12% lebih cepat pada 30 – 40 task, tetapi kenyataannya PEFT justru 2 – 3% *lebih lambat*. PEFT hanya masih unggul di waktu antre (13 – 16% lebih singkat pada 30 – 40 task).
-- **Simulasi akurat kalau server tidak sibuk.** Pada GoCJ 10 – 30 task, makespan nyata hanya meleset 3 – 16% dari simulasi. Pada percobaan pertama, GoCJ FCFS/RR bahkan hanya meleset 0,07 – 0,20%.
-- **Simulasi terlalu optimis kalau server sibuk.** Pada data sintetis, makespan nyata selalu **21 – 49%** lebih lama dari simulasi. Penyebab utamanya: **host-2 kewalahan**. VM di host-2 berjalan 22 – 54% lebih lambat dari spesifikasinya, sedangkan VM di host-1 hampir selalu sesuai spesifikasi.
-- **PEFT paling dirugikan.** PEFT sengaja menumpuk task di host tercepat (host-2), padahal justru host itu yang paling kewalahan. Karena itu selisih simulasi vs nyata paling besar pada PEFT (sampai +49%).
-- **Laptop yang dipakai untuk hal lain ikut mengacaukan hasil.** 16 dari 30 run pertama harus dibuang karena VM hanya mencapai **324 – 970 MIPS** (seharusnya 1.000 – 2.000) akibat program lain, mode baterai, dan memori yang hampir habis. Di dunia nyata, kinerja cloud juga bergantung pada "tetangga" di mesin fisik yang sama, sesuatu yang tidak ada di simulasi.
+- **Di data sintetis, keunggulan makespan PEFT hilang di dunia nyata.** Simulasi memprediksi PEFT 8 – 12% lebih cepat pada 30 – 40 task, tetapi kenyataannya PEFT justru 2 – 3% *lebih lambat*. PEFT hanya masih unggul di waktu antre (13 – 16% lebih singkat pada 30 – 40 task).
+- **Simulasi akurat jika server tidak sibuk.** Pada GoCJ 10 – 30 task, makespan nyata hanya meleset 3 – 16% dari simulasi. Pada percobaan pertama, GoCJ FCFS/RR bahkan hanya meleset 0,07 – 0,20%.
+- **Simulasi terlalu optimis jika server sibuk.** Pada data sintetis, makespan nyata selalu **21 – 49%** lebih lama dari simulasi. Penyebab utamanya: **host-2 jenuh**. VM di host-2 berjalan 22 – 54% lebih lambat dari spesifikasinya, sedangkan VM di host-1 hampir selalu sesuai spesifikasi.
+- **PEFT paling dirugikan.** PEFT sengaja menumpuk task di host tercepat (host-2), padahal justru host itu yang paling jenuh. Karena itu selisih simulasi vs nyata paling besar pada PEFT (sampai +49%).
+- **Beban lain pada laptop memengaruhi hasil pengukuran.** 16 dari 30 run pertama harus dibuang karena VM hanya mencapai **324 – 970 MIPS** (seharusnya 1.000 – 2.000) akibat program lain, mode baterai, dan memori yang hampir habis. Di lingkungan nyata, kinerja cloud juga dipengaruhi beban lain pada mesin fisik yang sama (*noisy neighbor*), faktor yang tidak dimodelkan dalam simulasi.
 
-### Kamus istilah singkat
+### Daftar istilah
 
 | Istilah | Arti sederhana |
 | :--- | :--- |
 | **Task** | Satu pekerjaan yang harus dihitung oleh CPU. Ukurannya dalam **MI** (juta instruksi). |
 | **VM** | "Komputer virtual" tempat task dikerjakan. Di sini wujudnya pod Kubernetes. |
 | **Host** | "Komputer fisik" yang menampung beberapa VM. Di sini wujudnya node Kubernetes. |
-| **PE / core** | Inti prosesor di dalam VM. Task 4 PE butuh 4 core sekaligus. |
+| **PE / core** | Inti prosesor di dalam VM. Task 4 PE membutuhkan 4 core sekaligus. |
 | **MIPS** | Kecepatan core: berapa juta instruksi per detik. VM 2.000 MIPS dua kali lebih cepat dari VM 1.000 MIPS. |
 | **Makespan** | Waktu dari awal sampai task **terakhir** selesai. Makin kecil makin baik. |
 | **Waiting time** | Berapa lama task **mengantre** di VM sebelum mulai dikerjakan. |
 | **Turnaround time** | Total waktu task dari dikirim sampai selesai (antre + dikerjakan + jeda jaringan). |
-| **Kembaran simulasi** | Ulangan percobaan yang sama persis, tetapi di dunia ideal tanpa gangguan. |
-| **Rebutan CPU** | Beberapa VM di host yang sama berebut CPU yang terbatas, sehingga semuanya melambat. |
+| **Kembaran simulasi** | Ulangan percobaan yang sama persis, tetapi di kondisi ideal tanpa gangguan. |
+| **Kontensi CPU** | Kondisi ketika beberapa VM pada host yang sama bersaing menggunakan CPU yang terbatas, sehingga kinerja seluruhnya menurun. |
+| ***Noisy neighbor*** | VM atau proses lain pada mesin fisik yang sama yang menurunkan kinerja VM. |
+| **FIFO ketat** | Aturan antrean ketika task harus menunggu task di depannya meskipun ada core yang menganggur (*head-of-line blocking*). |
+| ***Backfilling*** | Aturan antrean CloudSim: task yang kebutuhan core-nya sudah terpenuhi boleh dieksekusi lebih dahulu. |
+| ***Race condition* urutan kedatangan** | Urutan tiba task di VM menjadi acak karena banyak task dikirim pada saat yang sama. |
 
 ---
 
@@ -97,7 +101,7 @@ Percobaan dilakukan dalam **dua tahap**:
 | Minimal 2 host | 2 node: `host-1` (Standard, maks. 1 CPU) dan `host-2` (Premium, maks. 2 CPU) | [`k8s/kind-cluster.yaml`](k8s/kind-cluster.yaml), [`setup.sh`](setup.sh) |
 | Minimal 2 VM per host | 4 pod, 2 di setiap host, dikunci dengan `nodeSelector` | [`k8s/vms.yaml`](k8s/vms.yaml) |
 | Algoritma heuristik yang dibuat sebelumnya | PEFT dengan rumus yang sama dengan [`PeftBroker.java`](../src/main/java/com/kelompok8/PeftBroker.java) | [`broker/RealWorldBroker.java`](broker/RealWorldBroker.java) |
-| Perbandingan & analisis simulasi vs nyata | Kembaran simulasi untuk setiap percobaan + 16 grafik; 27 run berskala dengan pengecek kecepatan | [`analisis/bandingkan_simulasi.py`](analisis/bandingkan_simulasi.py), [`grafik/`](grafik) |
+| Perbandingan & analisis simulasi vs nyata | Kembaran simulasi untuk setiap percobaan + 16 grafik; 27 run berskala dengan pemeriksaan kecepatan | [`analisis/bandingkan_simulasi.py`](analisis/bandingkan_simulasi.py), [`grafik/`](grafik) |
 
 ---
 
@@ -115,7 +119,7 @@ Laptop (broker)                 Datacenter: cluster Kubernetes "soka-dc"
 └──────────────────────┘ hasil  └─────────────────────────────────────────────────┘
 ```
 
-Cara membaca gambar: laptop berperan sebagai **broker** (pembagi tugas). Broker memutuskan setiap task dikirim ke VM mana, lalu mengirimnya lewat HTTP. VM mengerjakan task dan melaporkan berapa lama ia mengantre dan berapa lama ia bekerja.
+Laptop berperan sebagai **broker** (pembagi tugas). Broker memutuskan setiap task dikirim ke VM mana, lalu mengirimnya lewat HTTP. VM mengerjakan task dan melaporkan berapa lama ia mengantre dan berapa lama ia bekerja.
 
 | Di simulasi CloudSim | Di dunia nyata (Kubernetes) |
 | :--- | :--- |
@@ -123,9 +127,9 @@ Cara membaca gambar: laptop berperan sebagai **broker** (pembagi tugas). Broker 
 | Host | Node Kubernetes (container Docker) yang jumlah CPU-nya dibatasi |
 | VM | Pod yang menjalankan program [`worker/worker.py`](worker/worker.py) |
 | PE (core) | Satu proses Python di dalam pod |
-| MIPS | Kecepatan proses, dijaga oleh "rem kecepatan" di worker |
+| MIPS | Kecepatan proses, dijaga oleh pembatas laju (*rate limiter*) di worker |
 | Cloudlet (task) | Permintaan HTTP `POST /run` berisi ukuran task dan jumlah core |
-| Antrean task di VM | Antrean di worker: datang duluan, dilayani duluan; task yang sedang jalan tidak disela |
+| Antrean task di VM | Antrean di worker: FIFO (*first come, first served*) dan *non-preemptive* |
 | Broker | Program `RealWorldBroker.java` di laptop |
 
 ### 3.1 Spesifikasi VM
@@ -138,11 +142,11 @@ Cara membaca gambar: laptop berperan sebagai **broker** (pembagi tugas). Broker 
 | vm-4 | host-2 Premium | 4 | 2.000 MIPS | 0,8 / 1,6 CPU | VM Large |
 
 ### 3.2 Bagaimana kecepatan VM dijaga
-Semua VM berjalan di satu laptop, jadi kecepatannya bisa naik turun mengikuti kesibukan laptop. Agar VM berperilaku seperti VM di simulasi (kecepatannya tetap), dipakai dua pengaman:
+Semua VM berjalan di satu laptop, sehingga kecepatannya dapat naik turun mengikuti kesibukan laptop. Agar VM berperilaku seperti VM di simulasi (kecepatannya tetap), dipakai dua pengaman:
 1. **Kubernetes memberi jatah CPU** untuk setiap VM (kolom "jatah CPU" di atas).
-2. **Worker memasang "rem kecepatan".** Pekerjaan dipecah menjadi potongan kecil. Setelah setiap potongan, worker mengecek: *apakah saya lebih cepat dari spesifikasi?* Kalau ya, worker istirahat sebentar.
+2. **Worker memasang pembatas laju (*rate limiter*).** Pekerjaan dipecah menjadi potongan kecil. Setelah setiap potongan, worker mengecek: *apakah saya lebih cepat dari spesifikasi?* Jika ya, worker istirahat sebentar.
 
-Rem ini hanya bisa **memperlambat**, tidak bisa **mempercepat**. Ibarat mobil yang dibatasi 60 km/jam: kalau jalanan macet, mobil tetap tidak bisa melaju 60 km/jam. Begitu juga di sini: kalau CPU host sedang direbut VM lain, VM akan berjalan lebih lambat dari spesifikasinya. Efek ini nanti terlihat jelas di analisis (Bagian 8.2).
+Pembatas laju ini hanya dapat **memperlambat**, tidak dapat **mempercepat**. Apabila CPU host sedang digunakan oleh VM lain, VM tidak memperoleh cukup waktu CPU dan berjalan di bawah spesifikasinya. Efek ini dibahas pada analisis (Bagian 8.2).
 
 ### 3.3 Model energi
 Energi tidak diukur dari colokan listrik laptop. Energi **dihitung** dengan model SPECpower yang sama dengan simulasi: host yang sibuk memakai daya maksimum, host yang menganggur memakai daya idle.
@@ -162,7 +166,7 @@ Output asli `bash setup.sh` (salinan lengkap di [`hasil/logs/setup.txt`](hasil/l
 
 <p align="center"><img src="grafik/terminal/01_setup.png" alt="Output terminal bash setup.sh" width="720"></p>
 
-<details><summary>Teks output (bisa disalin)</summary>
+<details><summary>Teks output (dapat disalin)</summary>
 
 ```text
 arya4@DESKTOP-8G8M19I MINGW64 ~/soka/realworld
@@ -202,7 +206,7 @@ Bukti yang dicatat otomatis oleh `batch.sh` sebelum eksperimen berskala ([`hasil
 
 <p align="center"><img src="grafik/terminal/02_infrastruktur.png" alt="Output terminal kubectl: 2 host dan 2 VM per host" width="820"></p>
 
-<details><summary>Teks output (bisa disalin)</summary>
+<details><summary>Teks output (dapat disalin)</summary>
 
 ```text
 arya4@DESKTOP-8G8M19I MINGW64 ~/soka/realworld
@@ -233,8 +237,8 @@ vm-4   soka-dc-worker2   4     2000   800m      1600m
 
 </details>
 
-**Cara membaca:**
-- `kubectl get nodes` menunjukkan **1 datacenter** (`soka-dc`) dengan **2 host**: `soka-dc-worker` = host-1 (standard) dan `soka-dc-worker2` = host-2 (premium). `control-plane` adalah "otak" Kubernetes, bukan host.
+Dari output di atas:
+- `kubectl get nodes` menunjukkan **1 datacenter** (`soka-dc`) dengan **2 host**: `soka-dc-worker` = host-1 (standard) dan `soka-dc-worker2` = host-2 (premium). `control-plane` adalah komponen pengendali Kubernetes, bukan host.
 - `Batas CPU host` membuktikan host-1 hanya boleh memakai **1 CPU** dan host-2 **2 CPU**.
 - `kubectl get pods -o wide` kolom `NODE` membuktikan **2 VM per host**: vm-1 dan vm-2 di host-1, vm-3 dan vm-4 di host-2.
 - Tabel terakhir menunjukkan jumlah core (PES), kecepatan (MIPS), dan jatah CPU setiap VM, sama dengan Bagian 3.1.
@@ -246,7 +250,7 @@ vm-4   soka-dc-worker2   4     2000   800m      1600m
 ### 4.1 Worker (program di setiap VM)
 [`worker/worker.py`](worker/worker.py) menyediakan dua alamat:
 - `GET /info`: memberi tahu identitas VM (nama, host, jumlah core, kecepatan).
-- `POST /run`: menerima task. Kalau core yang dibutuhkan belum kosong, task **mengantre**. Setelah dapat giliran, task **dikerjakan sungguhan** oleh CPU. Worker lalu melaporkan dua angka: `wait` (lama mengantre) dan `exec` (lama dikerjakan).
+- `POST /run`: menerima task. Jika core yang dibutuhkan belum tersedia, task **mengantre**. Setelah memperoleh giliran, task **dieksekusi secara nyata** oleh CPU. Worker lalu melaporkan dua angka: `wait` (lama mengantre) dan `exec` (lama dikerjakan).
 
 ### 4.2 Broker (program di laptop)
 [`broker/RealWorldBroker.java`](broker/RealWorldBroker.java) bekerja dalam enam langkah:
@@ -260,26 +264,26 @@ vm-4   soka-dc-worker2   4     2000   800m      1600m
    vm-3  :  1,998 MIPS per PE (2 PE)
    vm-4  :  1,998 MIPS per PE (4 PE)
    ```
-   Hasil ukur hampir persis sama dengan spesifikasi (1.000 dan 2.000 MIPS), artinya rem kecepatan bekerja dengan baik saat VM diuji sendirian.
+   Hasil ukur hampir persis sama dengan spesifikasi (1.000 dan 2.000 MIPS), artinya pembatas laju bekerja dengan baik saat VM diuji sendirian.
 3. **Siapkan dataset** (Bagian 5).
 4. **Jadwalkan**: algoritma memutuskan setiap task dikirim ke VM mana.
 5. **Kirim dan kerjakan**: setiap task dikirim tepat pada waktu datangnya ke VM pilihan algoritma.
 6. **Hitung hasil**: makespan, waktu antre, turnaround, throughput, utilisasi, sebaran task, dan energi.
 
 ### 4.3 Cara kerja ketiga algoritma
-**PEFT** (sama dengan `PeftBroker.java` di simulasi). Untuk setiap task, PEFT "meramal" kapan task itu akan **selesai** di setiap VM, lalu memilih VM yang paling cepat menyelesaikannya:
-1. Urutkan task menurut waktu datang; kalau datang bersamaan, task terbesar didahulukan.
+**PEFT** (sama dengan `PeftBroker.java` di simulasi). Untuk setiap task, PEFT memprediksi kapan task tersebut akan **selesai** di setiap VM, lalu memilih VM yang paling cepat menyelesaikannya:
+1. Urutkan task menurut waktu datang; jika datang bersamaan, task terbesar didahulukan.
 2. Hanya VM yang core-nya cukup yang boleh dipilih.
-3. **Kapan bisa mulai** (EST) = yang lebih lambat antara waktu task datang dan waktu core di VM itu kosong.
+3. **Kapan dapat mulai** (EST) = yang lebih lambat antara waktu task datang dan waktu core di VM itu kosong.
 4. **Berapa lama dikerjakan** (EET) = ukuran task ÷ kecepatan VM.
-5. **Kapan selesai** (EFT) = kapan bisa mulai + berapa lama dikerjakan. Pilih VM dengan EFT paling kecil.
+5. **Kapan selesai** (EFT) = kapan dapat mulai + berapa lama dikerjakan. Pilih VM dengan EFT paling kecil.
 
 Dalam rumus: $\text{EFT} = \text{EST} + \text{EET} = \max(\text{datang},\ \text{core kosong}) + \frac{\text{ukuran}}{\text{MIPS}}$
 
 **FCFS**: task diurutkan menurut waktu datang, lalu dibagikan **bergiliran** ke VM yang core-nya cukup (VM 1, VM 2, VM 3, VM 4, VM 1, ...).
 **RR**: sama-sama bergiliran, tetapi mengikuti urutan task masuk tanpa diurutkan dulu.
 
-FCFS dan RR **tidak melihat ukuran task maupun kecepatan VM**. Akibatnya task raksasa bisa saja jatuh ke VM yang lambat. Di GoCJ, semua task datang bersamaan sehingga FCFS dan RR menghasilkan pembagian yang sama persis.
+FCFS dan RR **tidak melihat ukuran task maupun kecepatan VM**. Akibatnya task berukuran sangat besar dapat ditempatkan pada VM yang lambat. Di GoCJ, semua task datang bersamaan sehingga FCFS dan RR menghasilkan pembagian yang sama persis.
 
 ### 4.4 Contoh output terminal broker
 
@@ -289,7 +293,7 @@ Satu kali `java broker/RealWorldBroker.java ALL gocj 30` di terminal (salinan le
 
 <p align="center"><img src="grafik/terminal/03_broker_awal.png" alt="Output terminal broker: cek VM, kalibrasi, dataset, eksekusi" width="700"></p>
 
-<details><summary>Teks output (bisa disalin)</summary>
+<details><summary>Teks output (dapat disalin)</summary>
 
 ```text
 arya4@DESKTOP-8G8M19I MINGW64 ~/soka/realworld
@@ -333,7 +337,7 @@ $ java broker/RealWorldBroker.java ALL gocj 30
 
 <p align="center"><img src="grafik/terminal/04_broker_hasil.png" alt="Output terminal broker: sebaran task dan tabel perbandingan" width="680"></p>
 
-<details><summary>Teks output (bisa disalin)</summary>
+<details><summary>Teks output (dapat disalin)</summary>
 
 ```text
   ...
@@ -369,7 +373,7 @@ $ java broker/RealWorldBroker.java ALL gocj 30
 
 </details>
 
-**Cara membaca:** di bagian sebaran, PEFT mengirim 20 dari 30 task ke vm-4 (4 core cepat) dan dua job raksasa ke vm-3. Di tabel akhir, kolom `PEFT vs FCFS` bernilai negatif untuk makespan, turnaround, waiting, dan energi, artinya PEFT **lebih baik**.
+Di bagian sebaran, PEFT mengirim 20 dari 30 task ke vm-4 (4 core cepat) dan dua job berukuran sangat besar ke vm-3. Di tabel akhir, kolom `PEFT vs FCFS` bernilai negatif untuk makespan, turnaround, waiting, dan energi, artinya PEFT **lebih baik**.
 
 ---
 
@@ -383,7 +387,7 @@ Ukuran task diperkecil dari versi simulasi agar satu percobaan selesai dalam hit
 | Ukuran task | Ukuran asli ÷ 50 → **300 – 14.250 MI** | 1 core: 644 – 1.957 MI · 2 core: 2.546 – 5.956 MI · 4 core: 6.043 – 10.535 MI |
 | Kebutuhan core | Semua 1 core | 9 task 1 core, 12 task 2 core, 9 task 4 core |
 | Waktu datang | Semua datang bersamaan di detik 0 | Tersebar antara detik 0 – 14,26 |
-| Ciri khas | Ukuran sangat beragam; ada dua job raksasa (10.500 dan 14.250 MI) | Banyak task 4 core yang **hanya bisa** dikerjakan vm-4 |
+| Ciri khas | Ukuran sangat beragam; ada dua job berukuran sangat besar (10.500 dan 14.250 MI) | Banyak task 4 core yang **hanya bisa** dikerjakan vm-4 |
 
 ---
 
@@ -417,7 +421,7 @@ Sumber: [`hasil/ringkasan_gocj.csv`](hasil/ringkasan_gocj.csv), [`hasil/ringkasa
 | Sebaran task (SD task/VM) | **3,04** | 4,50 | 4,50 | -32,41% | -32,41% |
 | Estimasi energi (Wh) | 4,951 | **4,868** | 4,885 | 1,71% | 1,35% |
 
-### 6.3 Ke mana saja task dikirim?
+### 6.3 Distribusi task per VM
 
 Format sel: **jumlah task · total detik kerja CPU**.
 
@@ -429,12 +433,12 @@ Format sel: **jumlah task · total detik kerja CPU**.
 | vm-4 (host-2, 4 core × 2.000) | 20 · 25,0 | 7 · 12,0 | 7 · 11,4 | 11 · 180,6 | 15 · 178,8 | 15 · 180,9 |
 
 Tabel ini menjelaskan hasil di atas:
-- **GoCJ**: FCFS/RR membagi rata (7 – 8 task per VM) tanpa melihat ukuran. Akibatnya job raksasa ikut jatuh ke VM lambat: task 21 (10.500 MI) dikerjakan vm-2 yang lambat dan butuh 10,50 detik. PEFT lebih cerdas: kedua job raksasa dikirim ke vm-3 yang cepat, dan 20 job kecil dikumpulkan di vm-4 yang punya 4 core cepat.
-- **Sintetis**: kesembilan task 4 core **wajib** dikerjakan vm-4 (satu-satunya VM dengan 4 core), algoritma apa pun yang dipakai. vm-4 menjadi **leher botol** (sekitar 180 detik kerja di ketiga algoritma). PEFT hanya bisa mengatur task 1 dan 2 core, jadi selisih makespan-nya kecil. Meski begitu, waktu antre dan turnaround PEFT tetap lebih singkat.
+- **GoCJ**: FCFS/RR membagi rata (7 – 8 task per VM) tanpa melihat ukuran. Akibatnya job berukuran sangat besar ikut ditempatkan pada VM lambat: task 21 (10.500 MI) dikerjakan vm-2 yang lambat dan membutuhkan 10,50 detik. PEFT mempertimbangkan ukuran task dan kecepatan VM: kedua job berukuran sangat besar dikirim ke vm-3 yang cepat, dan 20 job kecil dikumpulkan di vm-4 yang memiliki 4 core cepat.
+- **Sintetis**: kesembilan task 4 core **wajib** dikerjakan vm-4 (satu-satunya VM dengan 4 core), algoritma apa pun yang dipakai. vm-4 menjadi ***bottleneck*** (sekitar 180 detik kerja di ketiga algoritma). PEFT hanya dapat mengatur task 1 dan 2 core, sehingga selisih makespan-nya kecil. Meski demikian, waktu antre dan turnaround PEFT tetap lebih singkat.
 
 ### 6.4 Eksperimen berskala: 10 – 50 task, rata-rata 3 run
 
-Sumber: [`hasil/batch/`](hasil/batch) (setiap run punya `log.txt`, `ringkasan_*.csv`, dan `task_*.csv`), ringkasan di [`hasil/batch_tabel.md`](hasil/batch_tabel.md). Angka `± SD` adalah simpangan baku antar-3 run: makin kecil, makin konsisten hasilnya. Data sintetis 50 task **tidak tersedia** karena tidak bisa diukur dengan bersih (Bagian 9).
+Sumber: [`hasil/batch/`](hasil/batch) (setiap run memiliki `log.txt`, `ringkasan_*.csv`, dan `task_*.csv`), ringkasan di [`hasil/batch_tabel.md`](hasil/batch_tabel.md). Angka `± SD` adalah simpangan baku antar-3 run: semakin kecil, semakin konsisten hasilnya. Data sintetis 50 task **tidak tersedia** karena tidak dapat diukur dengan bersih (Bagian 9).
 
 **GoCJ**
 
@@ -473,50 +477,50 @@ Sumber: [`hasil/batch/`](hasil/batch) (setiap run punya `log.txt`, `ringkasan_*.
 | 40 | FCFS | 76,61 ± 1,36 | 20,84 | 16,61 ± 0,29 | 0,522 | 38,42 | 6,20 | 7,516 |
 | 40 | RR | 75,66 ± 3,44 | 21,15 | 16,89 ± 0,65 | 0,530 | 38,51 | 6,20 | 7,413 |
 
-**Cara membaca:**
-- **GoCJ**: makespan PEFT selalu paling kecil, dan selisihnya makin besar saat task bertambah (pada 50 task: 15,91 detik vs 38,55 detik FCFS). Utilisasi VM PEFT juga paling tinggi (66 – 78%), artinya VM lebih jarang menganggur.
-- **Sintetis**: ketiga algoritma hampir seri. Makespan PEFT malah sedikit lebih besar pada 20 – 40 task, tetapi waktu antre PEFT paling kecil pada 30 – 40 task. Alasannya dibahas di Bagian 8.10 dan 8.15.
-- **Mengapa sintetis 30 task di sini (56,23 detik) lebih lambat daripada percobaan pertama (47,84 detik)?** Datasetnya sama persis, tetapi laptopnya tidak dalam kondisi yang sama. Pengecek kecepatan hanya menguji 1 core per VM, sehingga perlambatan ringan saat semua core sibuk tetap bisa lolos (Bagian 12). Selisih antar-sesi ini adalah contoh lain bahwa hasil di dunia nyata **tidak pernah persis sama** dari waktu ke waktu, berbeda dengan simulasi yang selalu memberi angka identik.
+Dari tabel di atas:
+- **GoCJ**: makespan PEFT selalu paling kecil, dan selisihnya semakin besar saat task bertambah (pada 50 task: 15,91 detik vs 38,55 detik FCFS). Utilisasi VM PEFT juga paling tinggi (66 – 78%), artinya VM lebih jarang menganggur.
+- **Sintetis**: kinerja ketiga algoritma hampir setara. Makespan PEFT justru sedikit lebih besar pada 20 – 40 task, tetapi waktu antre PEFT paling kecil pada 30 – 40 task. Alasannya dibahas di Bagian 8.10 dan 8.15.
+- **Mengapa sintetis 30 task di sini (56,23 detik) lebih lambat daripada percobaan pertama (47,84 detik)?** Datasetnya sama persis, tetapi laptopnya tidak dalam kondisi yang sama. Pemeriksaan kecepatan hanya menguji 1 core per VM, sehingga perlambatan ringan saat semua core sibuk tetap dapat lolos (Bagian 12). Selisih antar-sesi ini adalah contoh lain bahwa hasil di dunia nyata **tidak pernah persis sama** dari waktu ke waktu, berbeda dengan simulasi yang selalu memberi angka identik.
 
 ---
 
 ## 7. Cara Membandingkan Simulasi dengan Dunia Nyata
 
-Hasil nyata (30 task, 4 VM) tidak bisa langsung dibandingkan dengan hasil CloudSim di folder induk (1.000 task, 30 – 40 VM), karena ukurannya berbeda jauh. Ibarat membandingkan waktu tempuh mobil di jalan tol dengan motor di gang: tidak adil.
+Hasil nyata (30 task, 4 VM) tidak dapat langsung dibandingkan dengan hasil CloudSim di folder induk (1.000 task, 30 – 40 VM), karena skala infrastruktur dan beban kerjanya berbeda jauh, sehingga perbandingan langsung tidak setara.
 
-Karena itu dibuat **kembaran simulasi** ([`analisis/bandingkan_simulasi.py`](analisis/bandingkan_simulasi.py)). Untuk setiap percobaan nyata, skrip mengulang percobaan yang **sama persis** di dunia ideal:
+Karena itu dibuat **kembaran simulasi** ([`analisis/bandingkan_simulasi.py`](analisis/bandingkan_simulasi.py)). Untuk setiap percobaan nyata, skrip mengulang percobaan yang **sama persis** di kondisi ideal:
 
 | Aspek | Kembaran simulasi | Dunia nyata |
 | :--- | :--- | :--- |
 | Task, ukuran, kebutuhan core, waktu datang | Sama persis | Sama persis |
 | Task dikirim ke VM mana | Sama persis (diambil dari keputusan algoritma di percobaan nyata) | Sama persis |
-| Kecepatan VM | Selalu tepat 1.000 / 2.000 MIPS | Diukur; bisa turun kalau host sibuk |
+| Kecepatan VM | Selalu tepat 1.000 / 2.000 MIPS | Diukur; bisa turun jika host sibuk |
 | Jeda pengiriman & jaringan | Nol | Ada (pengiriman HTTP, Docker, Python) |
-| Aturan antrean di VM | Aturan CloudSim: task di antrean yang core-nya muat boleh "menyalip" | Aturan worker: antre ketat, tidak boleh menyalip |
+| Aturan antrean di VM | CloudSim: *backfilling* (task yang kebutuhan core-nya terpenuhi dapat dieksekusi lebih dahulu) | Worker: FIFO ketat (task harus menunggu task di depannya) |
 
 Karena keputusan algoritmanya sama, **setiap perbedaan hasil pasti disebabkan oleh dunia nyata.**
 
-Skrip juga membuat versi ketiga, **"simulasi antre ketat"**: dunia ideal, tetapi memakai aturan antrean worker (tidak boleh menyalip). Dengan begitu, kita bisa memisahkan dua hal: berapa bagian selisih yang disebabkan **aturan antrean** dan berapa yang disebabkan **mesin yang melambat**.
+Skrip juga membuat versi ketiga, **"simulasi FIFO ketat"**: kondisi ideal, tetapi dengan aturan antrean worker (tanpa *backfilling*). Dengan demikian, dapat dipisahkan dua hal: berapa bagian selisih yang disebabkan **aturan antrean** dan berapa yang disebabkan **mesin yang melambat**.
 
 | Berkas keluaran | Isi |
 | :--- | :--- |
-| [`hasil/perbandingan_sim_vs_real.csv`](hasil/perbandingan_sim_vs_real.csv) | Semua metrik: simulasi, simulasi antre ketat, nyata, dan selisihnya (%) |
+| [`hasil/perbandingan_sim_vs_real.csv`](hasil/perbandingan_sim_vs_real.csv) | Semua metrik: simulasi, simulasi FIFO ketat, nyata, dan selisihnya (%) |
 | [`hasil/dekomposisi_overhead.csv`](hasil/dekomposisi_overhead.csv) | Jeda pengiriman, jeda jaringan, dan seberapa lambat VM dibanding spesifikasinya |
 | [`grafik/*.png`](grafik) | Grafik di Bagian 8 |
 
-### 7.1 Penjaga kebersihan data (eksperimen berskala)
+### 7.1 Validasi kondisi pengukuran (eksperimen berskala)
 
-Eksperimen berskala dijalankan otomatis oleh [`batch.sh`](batch.sh): 2 dataset × 5 skala × 3 run, masing-masing menjalankan PEFT, FCFS, dan RR. Karena laptop juga dipakai untuk hal lain, setiap run dijaga oleh **pengecek kecepatan**:
+Eksperimen berskala dijalankan otomatis oleh [`batch.sh`](batch.sh): 2 dataset × 5 skala × 3 run, masing-masing menjalankan PEFT, FCFS, dan RR. Karena laptop juga dipakai untuk hal lain, setiap run dijaga oleh **pemeriksaan kecepatan**:
 
-1. **Sebelum run**: setiap VM diberi task uji 2.000 MI sendirian. Kalau ada VM yang berjalan di bawah **95%** spesifikasinya, laptop sedang sibuk. Skrip menunggu dan mengecek lagi setiap 60 detik (maksimal 30 menit).
-2. **Sesudah run**: pengecekan diulang. Kalau gagal, berarti ada gangguan di tengah run.
+1. **Sebelum run**: setiap VM diberi task uji 2.000 MI sendirian. Jika ada VM yang berjalan di bawah **95%** spesifikasinya, laptop sedang sibuk. Skrip menunggu dan mengecek lagi setiap 60 detik (maksimal 30 menit).
+2. **Sesudah run**: pengecekan diulang. Jika gagal, berarti ada gangguan di tengah run.
 3. Run yang gagal **dibuang** ke [`hasil/batch_terganggu/`](hasil/batch_terganggu) dan diulang (maksimal 5 kali).
 
 Contoh output terminal ([`hasil/logs/batch_ulang.txt`](hasil/logs/batch_ulang.txt)). Run pertama lolos, run kedua dibuang karena vm-1 tiba-tiba turun ke 531 MIPS di tengah run, lalu diulang dan lolos:
 
-<p align="center"><img src="grafik/terminal/05_pengecek_kecepatan.png" alt="Output terminal batch.sh dengan pengecek kecepatan" width="880"></p>
+<p align="center"><img src="grafik/terminal/05_pengecek_kecepatan.png" alt="Output terminal batch.sh dengan pemeriksaan kecepatan" width="880"></p>
 
-<details><summary>Teks output (bisa disalin)</summary>
+<details><summary>Teks output (dapat disalin)</summary>
 
 ```text
 arya4@DESKTOP-8G8M19I MINGW64 ~/soka/realworld
@@ -558,15 +562,15 @@ Bagian 8.1 – 8.9 memakai **percobaan pertama** (30 task, 1 run) dan menjelaska
 
 **Apa yang terlihat.**
 - Dunia nyata hampir selalu sedikit lebih lambat, tetapi selisihnya **sangat tidak merata**: hampir nol untuk GoCJ FCFS/RR, tetapi hampir seperempat untuk sintetis PEFT.
-- **Urutan juara tidak berubah**: PEFT tetap paling cepat di kedua dataset, baik di simulasi maupun di dunia nyata.
+- **Peringkat algoritma tidak berubah**: PEFT tetap paling cepat di kedua dataset, baik di simulasi maupun di dunia nyata.
 
 **Mengapa terjadi.**
-- Makespan ditentukan oleh **VM yang paling terakhir selesai**, seperti rombongan yang baru bisa pulang setelah anggota paling lambat tiba. Jadi makespan nyata hanya meleset kalau VM "paling akhir" itu melambat.
+- Makespan ditentukan oleh **VM yang paling akhir selesai** (*critical path*). Oleh karena itu, makespan nyata hanya menyimpang apabila VM pada *critical path* tersebut melambat.
 - **Sintetis**: VM paling akhir selalu vm-4 (tempat semua task 4 core). vm-4 berada di host-2 yang paling sibuk (Bagian 8.2), sehingga makespan ikut membengkak.
-- **GoCJ PEFT**: VM paling akhir adalah vm-3, yang mengerjakan job raksasa 14.250 MI (7,37 detik nyata vs 7,13 detik ideal). vm-4 sebenarnya melambat jauh lebih parah (+57,8%), tetapi tetap selesai lebih dulu (detik 6,66). Keterlambatan vm-4 "tertutup" oleh vm-3, sehingga makespan hanya naik 6,78%.
+- **GoCJ PEFT**: VM paling akhir adalah vm-3, yang mengerjakan job berukuran sangat besar 14.250 MI (7,37 detik nyata vs 7,13 detik ideal). vm-4 sebenarnya melambat jauh lebih besar (+57,8%), tetapi tetap selesai lebih dulu (detik 6,66). Keterlambatan vm-4 tidak berada pada *critical path* karena vm-3 selesai lebih akhir, sehingga makespan hanya naik 6,78%.
 - **GoCJ FCFS/RR**: VM paling akhir berada di host-1, yang tidak pernah melambat. Karena itu hasilnya hampir persis sama dengan simulasi.
 
-### 8.2 Beban per VM: penyebab utama adalah rebutan CPU di host
+### 8.2 Beban per VM: penyebab utama adalah kontensi CPU di host
 <p align="center"><img src="grafik/grafik_beban_per_vm.png" alt="Beban per VM" width="880"></p>
 
 Seberapa lambat setiap VM bekerja dibanding spesifikasinya (0% = tepat sesuai spesifikasi):
@@ -581,37 +585,37 @@ Seberapa lambat setiap VM bekerja dibanding spesifikasinya (0% = tepat sesuai sp
 | Sintetis RR | +0,4% | +0,2% | +38,6% | +9,5% | 207,8 |
 
 **Apa yang terlihat.**
-- Task dikirim ke VM yang sama di simulasi dan di dunia nyata. Jadi kalau batang oranye lebih tinggi dari biru, artinya VM itu **bekerja lebih lambat** dari seharusnya.
+- Task dikirim ke VM yang sama di simulasi dan di dunia nyata. Oleh karena itu, jika batang oranye lebih tinggi dari biru, artinya VM itu **bekerja lebih lambat** dari seharusnya.
 - **host-1** (vm-1, vm-2): batang simulasi dan nyata hampir sama tinggi. VM di host-1 tidak pernah melambat lebih dari 1%.
-- **host-2** (vm-3, vm-4): batang nyata lebih tinggi. Paling parah pada vm-4 di GoCJ PEFT (15,8 → 25,0 detik kerja) dan vm-3 di sintetis PEFT (36,1 → 51,8 detik kerja). **Makin banyak kerja yang ditumpuk di host-2, makin lambat VM-nya.**
+- **host-2** (vm-3, vm-4): batang nyata lebih tinggi. Perlambatan terbesar terjadi pada vm-4 di GoCJ PEFT (15,8 → 25,0 detik kerja) dan vm-3 di sintetis PEFT (36,1 → 51,8 detik kerja). **Semakin banyak kerja yang ditumpuk di host-2, semakin lambat VM-nya.**
 
 **Mengapa terjadi.**
-- **host-1 selalu longgar.** VM 1.000 MIPS hanya butuh sedikit CPU. Ketiga core di host-1 memakai sekitar 30% dari 1 CPU yang tersedia, jadi masih banyak sisa.
-- **host-2 bisa kewalahan.** Enam core 2.000 MIPS di host-2 butuh sekitar 1,2 dari 2 CPU yang tersedia. Belum lagi program pendukung yang juga butuh CPU: Python, server HTTP di worker, program Kubernetes, dan aplikasi lain di laptop. Saat semua core sibuk bersamaan, CPU tidak cukup untuk semua. Ingat, rem kecepatan worker hanya bisa memperlambat, tidak bisa mempercepat (Bagian 3.2), jadi VM pun berjalan di bawah spesifikasinya.
-- **Simulasi tidak mengenal masalah ini.** CloudSim menganggap setiap VM punya CPU sendiri yang tidak bisa diganggu VM lain. Di dunia nyata, VM yang tinggal di host yang sama ibarat **tetangga satu kos yang berbagi satu dapur**: kalau semua masak bersamaan, semuanya jadi lebih lama.
-- **PEFT paling dirugikan.** PEFT selalu memilih VM yang diramalkan paling cepat selesai, dan itu hampir selalu VM 2.000 MIPS di host-2. Akibatnya PEFT menumpuk pekerjaan di host-2 (GoCJ: 22 dari 30 task; sintetis: 232,5 detik kerja vs ~205 pada FCFS/RR). Makin penuh host-2, makin parah rebutannya. Ironisnya, **ramalan PEFT benar di atas kertas, tetapi keputusan berdasarkan ramalan itu justru membuat ramalannya meleset.**
-- **Mengapa ramalan PEFT tidak tahu?** Kecepatan VM diukur (langkah kalibrasi) **satu per satu saat host kosong**, sehingga hasilnya tepat 1.998 MIPS. Saat percobaan, VM itu berjalan bersama VM lain dan kecepatannya turun. Ibarat mengukur waktu tempuh jalan raya pada jam 3 pagi, lalu memakainya untuk memperkirakan perjalanan di jam sibuk.
+- **host-1 tidak pernah jenuh.** VM 1.000 MIPS hanya membutuhkan sedikit CPU. Ketiga core di host-1 memakai sekitar 30% dari 1 CPU yang tersedia, sehingga kapasitasnya masih tersisa banyak.
+- **host-2 dapat jenuh.** Enam core 2.000 MIPS di host-2 membutuhkan sekitar 1,2 dari 2 CPU yang tersedia. Selain itu, terdapat proses pendukung yang juga membutuhkan CPU: Python, server HTTP di worker, program Kubernetes, dan aplikasi lain di laptop. Ketika seluruh core aktif bersamaan, kapasitas CPU tidak mencukupi. Karena pembatas laju worker hanya dapat memperlambat (Bagian 3.2), VM berjalan di bawah spesifikasinya.
+- **Simulasi tidak memodelkan kondisi ini.** CloudSim menganggap setiap VM memiliki CPU sendiri yang tidak dapat diganggu VM lain. Di lingkungan nyata, VM pada host yang sama berbagi CPU fisik, sehingga beban satu VM menurunkan kinerja VM lain (*noisy neighbor*).
+- **PEFT paling dirugikan.** PEFT selalu memilih VM yang diprediksi paling cepat selesai, dan itu hampir selalu VM 2.000 MIPS di host-2. Akibatnya PEFT menumpuk pekerjaan di host-2 (GoCJ: 22 dari 30 task; sintetis: 232,5 detik kerja vs ~205 pada FCFS/RR). Semakin padat host-2, semakin tinggi kontensinya. Dengan kata lain, **prediksi PEFT benar secara teoretis, tetapi keputusan penjadwalan berdasarkan prediksi tersebut justru mengubah kondisi yang diprediksi.**
+- **Mengapa prediksi PEFT tidak memperhitungkan hal ini?** Kecepatan VM diukur (langkah kalibrasi) **satu per satu saat host kosong**, sehingga hasilnya tepat 1.998 MIPS. Saat percobaan, VM tersebut berjalan bersamaan dengan VM lain sehingga kecepatan efektifnya turun. Akibatnya, estimasi waktu eksekusi (EET) yang digunakan PEFT terlalu optimis.
 
 ### 8.3 Memisahkan dua penyebab: aturan antrean vs mesin melambat
 <p align="center"><img src="grafik/grafik_dekomposisi_makespan.png" alt="Dekomposisi makespan" width="880"></p>
 
-| Percobaan | Waiting simulasi | Waiting simulasi antre ketat | Waiting nyata | Porsi selisih karena aturan antrean |
+| Percobaan | Waiting simulasi | Waiting simulasi FIFO ketat | Waiting nyata | Porsi selisih karena aturan antrean |
 | :--- | ---: | ---: | ---: | ---: |
 | Sintetis PEFT | 4,74 s | 4,74 s | 7,52 s | 0% |
 | Sintetis FCFS | 5,63 s | 7,73 s | 9,38 s | **56%** |
 | Sintetis RR | 5,02 s | 6,99 s | 9,05 s | **49%** |
 
 **Apa yang terlihat.**
-- Batang hijau adalah simulasi yang memakai aturan antrean worker (tidak boleh menyalip), tetapi mesinnya tetap ideal.
+- Batang hijau adalah simulasi yang memakai aturan antrean worker (FIFO ketat), tetapi kecepatan VM tetap ideal.
   - Jarak **biru → hijau** = selisih karena **aturan antrean**.
   - Jarak **hijau → oranye** = selisih karena **mesin melambat** di dunia nyata.
 - Untuk **PEFT** dan seluruh **GoCJ**, biru dan hijau sama tinggi. Artinya seluruh selisih mereka disebabkan mesin yang melambat (Bagian 8.2).
 - Untuk **FCFS/RR sintetis**, aturan antrean menyumbang sekitar **separuh** tambahan waktu antre.
 
 **Mengapa terjadi.**
-- Di CloudSim, antrean VM boleh **disalip**: kalau task terdepan butuh 4 core tetapi baru ada 1 core kosong, task di belakangnya yang hanya butuh 1 core boleh jalan duluan. Di worker, antreannya **ketat** seperti antre di kasir: yang di belakang harus menunggu yang di depan, walaupun ada kasir yang kosong.
-- Masalah ini hanya muncul kalau satu VM menerima campuran task kecil dan besar, yaitu vm-4 di data sintetis. Di GoCJ semua task 1 core, jadi kedua aturan memberi hasil yang sama.
-- FCFS/RR mengirim task kecil ke vm-4 secara bergiliran tanpa melihat isi antreannya, sehingga task kecil sering terjebak di belakang task 4 core. PEFT tidak kena karena saat meramal, PEFT sudah menghitung kapan core di VM itu benar-benar kosong. Di percobaan ini, PEFT tidak pernah menaruh task kecil di belakang task besar yang menghalanginya.
+- CloudSim menerapkan ***backfilling***: apabila task terdepan membutuhkan 4 core sementara baru tersedia 1 core, task di belakangnya yang hanya membutuhkan 1 core dapat dieksekusi lebih dahulu. Worker menerapkan **FIFO ketat**: task di belakang harus menunggu task di depannya meskipun ada core yang menganggur (*head-of-line blocking*).
+- Masalah ini hanya muncul jika satu VM menerima campuran task kecil dan besar, yaitu vm-4 di data sintetis. Di GoCJ semua task 1 core, sehingga kedua aturan memberi hasil yang sama.
+- FCFS/RR mengirim task kecil ke vm-4 secara bergiliran tanpa melihat isi antreannya, sehingga task kecil sering tertahan di belakang task 4 core. PEFT tidak terdampak karena saat memprediksi, PEFT sudah menghitung kapan core di VM itu benar-benar kosong. Di percobaan ini, PEFT tidak pernah menaruh task kecil di belakang task besar yang menghalanginya.
 
 ### 8.4 Waktu antre (waiting) dan turnaround
 <p align="center"><img src="grafik/grafik_waiting_sim_vs_real.png" alt="Waiting simulasi vs real" width="880"></p>
@@ -638,9 +642,9 @@ Jeda tambahan yang tidak ada di simulasi:
 - Pada GoCJ, waktu antre PEFT dan RR hampir sama dengan simulasi, tetapi turnaround-nya tetap lebih besar.
 
 **Mengapa terjadi.**
-- **Keterlambatan menular di antrean.** Kalau satu task dikerjakan sedikit lebih lama, **semua** task di belakangnya ikut menunggu lebih lama, seperti antrean di kasir yang ikut tertahan kalau satu pembeli lama membayar. Di sintetis, antrean vm-4 panjang (11 – 15 task), sehingga keterlambatan kecil per task (Bagian 8.2) ditambah masalah antre ketat (Bagian 8.3) menumpuk menjadi +59 – 80%.
+- **Keterlambatan berakumulasi di antrean.** Apabila satu task dieksekusi sedikit lebih lama, **seluruh** task di belakangnya ikut menunggu lebih lama. Di sintetis, antrean vm-4 panjang (11 – 15 task), sehingga keterlambatan kecil per task (Bagian 8.2) ditambah masalah FIFO ketat (Bagian 8.3) menumpuk menjadi +59 – 80%.
 - **Turnaround memuat jeda jaringan, waiting tidak.** Setiap task harus dikirim lewat jaringan dan hasilnya dikirim balik. Di laptop Windows, jalurnya panjang: Windows → WSL2 → Docker → Kubernetes → pod. Jeda ini (0,1 – 0,4 detik per task) tidak mengubah waktu antre, tetapi menambah turnaround. Untuk task GoCJ yang pendek (1 – 2 detik), 0,13 – 0,17 detik itu cukup terasa.
-- Jeda jaringan di host-2 yang sibuk lebih besar (sintetis PEFT: 388 ms) dibanding host-1 (103 ms). Ini cocok dengan Bagian 8.2: server HTTP di worker juga ikut berebut CPU.
+- Jeda jaringan di host-2 yang sibuk lebih besar (sintetis PEFT: 388 ms) dibanding host-1 (103 ms). Ini cocok dengan Bagian 8.2: server HTTP di worker juga ikut bersaing memakai CPU.
 
 ### 8.5 Waktu selesai setiap task
 <p align="center"><img src="grafik/grafik_waktu_selesai_per_task.png" alt="Waktu selesai per task" width="880"></p>
@@ -648,27 +652,27 @@ Jeda tambahan yang tidak ada di simulasi:
 Setiap titik adalah satu task. Sumbu mendatar = kapan task selesai di simulasi, sumbu tegak = kapan selesai di dunia nyata. Titik **tepat di garis putus-putus** berarti nyata = simulasi; titik **di atas garis** berarti selesai lebih lambat.
 
 **Apa yang terlihat.**
-- **Sintetis**: titik-titik tersusun rapi di atas garis, dan makin ke kanan makin jauh dari garis.
+- **Sintetis**: titik-titik tersusun konsisten di atas garis, dan semakin ke kanan semakin jauh dari garis.
 - **GoCJ**: titik-titik tersebar acak di atas dan di bawah garis. Ada task yang selesai lebih cepat dari simulasi, ada yang lebih lambat.
 
 **Mengapa terjadi.**
-- **Sintetis**: keterlambatan terjadi **terus-menerus dan menumpuk**. Setiap task di vm-4 sedikit lebih lambat, lalu task berikutnya mewarisi keterlambatan itu. Ini bukan kebetulan, tetapi pola yang konsisten.
-- **GoCJ**: terjadi **"rebutan masuk pintu"**. Semua 30 task dikirim pada detik yang sama, jadi urutan tibanya di VM ditentukan oleh siapa yang lebih dulu sampai, dan itu acak. Di simulasi urutannya selalu rapi (task terbesar duluan). Akibatnya, task yang sama bisa kebagian giliran awal di satu percobaan dan giliran akhir di percobaan lain.
-- Yang menarik: urutan antrean hanya menentukan **siapa** yang menunggu, bukan **kapan VM selesai** mengerjakan semuanya. Karena itu, walaupun waktu selesai per task acak, makespan dan rata-rata waktu antre GoCJ tetap dekat dengan simulasi (PEFT: 1,76 detik vs 1,75 detik). Di sintetis, task datang bergantian sepanjang 0 – 14 detik, jadi rebutan masuk pintu jarang terjadi.
+- **Sintetis**: keterlambatan terjadi **terus-menerus dan menumpuk**. Setiap task di vm-4 sedikit lebih lambat, lalu task berikutnya mewarisi keterlambatan itu. Ini merupakan pola yang konsisten, bukan variasi acak.
+- **GoCJ**: terjadi ***race condition* urutan kedatangan**. Semua 30 task dikirim pada detik yang sama, sehingga urutan tibanya di VM bersifat acak. Di simulasi, urutannya selalu deterministik (task terbesar lebih dahulu). Akibatnya, task yang sama dapat memperoleh giliran awal pada satu percobaan dan giliran akhir pada percobaan lain.
+- Perlu dicatat bahwa urutan antrean hanya menentukan **siapa** yang menunggu, bukan **kapan VM selesai** mengerjakan semuanya. Karena itu, walaupun waktu selesai per task acak, makespan dan rata-rata waktu antre GoCJ tetap dekat dengan simulasi (PEFT: 1,76 detik vs 1,75 detik). Di sintetis, task datang bergantian sepanjang 0 – 14 detik, sehingga *race condition* urutan kedatangan jarang terjadi.
 
 ### 8.6 Kurva penyelesaian task
 <p align="center"><img src="grafik/grafik_kurva_penyelesaian.png" alt="Kurva penyelesaian task" width="880"></p>
 
-Kurva menunjukkan **berapa task yang sudah selesai** di setiap detik. Garis putus-putus = simulasi, garis utuh = nyata. Makin cepat kurva naik ke angka 30, makin baik.
+Kurva menunjukkan **berapa task yang sudah selesai** di setiap detik. Garis putus-putus = simulasi, garis utuh = nyata. Semakin cepat kurva naik ke angka 30, semakin baik.
 
 **Apa yang terlihat.**
-- **Sintetis**: kurva nyata menempel pada simulasi selama sekitar 10 detik pertama, lalu mulai tertinggal.
-- **GoCJ**: kurva PEFT nyata (biru utuh) melandai di detik 4 – 7, sedangkan kurva FCFS nyata hampir menempel pada simulasinya.
+- **Sintetis**: kurva nyata berimpit dengan simulasi selama sekitar 10 detik pertama, lalu mulai tertinggal.
+- **GoCJ**: kurva PEFT nyata (biru utuh) melandai di detik 4 – 7, sedangkan kurva FCFS nyata hampir berimpit dengan simulasinya.
 - Di kedua dataset, kurva **PEFT tetap mencapai 30 lebih dulu** daripada FCFS, baik di simulasi maupun nyata.
 
 **Mengapa terjadi.**
-- **Sintetis** tertinggal setelah detik ke-10 karena saat itulah task 4 core mulai menumpuk di vm-4 dan host-2 mulai kewalahan. Sebelumnya beban masih ringan, jadi dunia nyata = simulasi.
-- **GoCJ PEFT** melandai karena di rentang itu vm-4 sedang mengerjakan 20 job dengan kecepatan di bawah spesifikasi (+57,8%, Bagian 8.2). FCFS banyak memakai host-1 yang tidak pernah kewalahan, jadi kurvanya tetap sesuai simulasi.
+- **Sintetis** tertinggal setelah detik ke-10 karena saat itulah task 4 core mulai menumpuk di vm-4 dan host-2 mulai jenuh. Sebelumnya beban masih ringan, sehingga hasil nyata sesuai dengan simulasi.
+- **GoCJ PEFT** melandai karena di rentang itu vm-4 sedang mengerjakan 20 job dengan kecepatan di bawah spesifikasi (+57,8%, Bagian 8.2). FCFS banyak memakai host-1 yang tidak pernah jenuh, sehingga kurvanya tetap sesuai simulasi.
 
 ### 8.7 Energi
 <p align="center"><img src="grafik/grafik_energi_sim_vs_real.png" alt="Energi simulasi vs real" width="880"></p>
@@ -679,7 +683,7 @@ Kurva menunjukkan **berapa task yang sudah selesai** di setiap detik. Garis putu
 
 **Mengapa terjadi.**
 - Energi = (daya sibuk × lama sibuk) + (daya idle × lama menganggur) (Bagian 3.3). Di dunia nyata keduanya naik: VM yang melambat membuat host **lebih lama sibuk**, dan makespan yang lebih panjang membuat host **lebih lama menyala**.
-- PEFT paling terdampak karena bebannya menumpuk di host-2, yang **paling boros listrik** (300 W saat sibuk vs 135 W host-1) **sekaligus paling melambat**. Kerja tambahan akibat rebutan CPU dibayar dengan "tarif listrik" termahal.
+- PEFT paling terdampak karena bebannya menumpuk di host-2, yang **paling boros listrik** (300 W saat sibuk vs 135 W host-1) **sekaligus paling melambat**. Waktu eksekusi tambahan akibat kontensi CPU terjadi pada host dengan konsumsi daya tertinggi.
 
 ### 8.8 Apakah keunggulan PEFT bertahan di dunia nyata?
 <p align="center"><img src="grafik/grafik_keunggulan_peft_sim_vs_real.png" alt="Keunggulan PEFT simulasi vs real" width="880"></p>
@@ -695,30 +699,30 @@ Angka = seberapa jauh PEFT lebih baik daripada FCFS (positif = PEFT lebih baik).
 
 **Apa yang terlihat.**
 - **PEFT tetap menang** untuk makespan, turnaround, dan waktu antre di kedua dataset.
-- Keunggulan PEFT dalam **waktu antre** malah sedikit **membesar** di dunia nyata.
+- Keunggulan PEFT dalam **waktu antre** justru sedikit **membesar** di dunia nyata.
 - Yang menyusut tajam adalah keunggulan **makespan dan energi di data sintetis** (13,6% → 3,6%; 9,0% → -1,7%).
 
 **Mengapa terjadi.**
-- Keunggulan waktu antre membesar karena FCFS/RR kena **dua masalah** di dunia nyata (rebutan CPU + antre ketat, Bagian 8.3), sedangkan PEFT hanya kena **satu** (rebutan CPU).
-- Keunggulan makespan dan energi menyusut karena PEFT menumpuk pekerjaan di host-2, dan host-2 itulah yang paling melambat (Bagian 8.2). FCFS/RR menyebar pekerjaan ke host-1 yang tidak pernah melambat, sehingga lebih "terlindungi".
+- Keunggulan waktu antre membesar karena FCFS/RR terdampak **dua faktor** di dunia nyata (kontensi CPU + FIFO ketat, Bagian 8.3), sedangkan PEFT hanya terdampak **satu** (kontensi CPU).
+- Keunggulan makespan dan energi menyusut karena PEFT menumpuk pekerjaan di host-2, dan host-2 itulah yang paling melambat (Bagian 8.2). FCFS/RR menyebar pekerjaan ke host-1 yang tidak pernah melambat, sehingga lebih terlindung dari kontensi CPU.
 - Di GoCJ, keunggulan PEFT hampir utuh (48,6% → 45,0%) karena VM paling akhir PEFT adalah vm-3, yang hanya sedikit melambat (Bagian 8.1).
 
 ### 8.9 Ringkasan: mengapa dunia nyata berbeda dari simulasi?
 
 | Penyebab | Ada di simulasi? | Yang terpengaruh | Seberapa besar | Paling merugikan | Bagian |
 | :--- | :---: | :--- | :--- | :--- | :---: |
-| **Rebutan CPU di host** | Tidak (setiap VM dianggap punya CPU sendiri) | Makespan, energi, semua waktu | VM di host-2 sampai 58% lebih lambat | PEFT (menumpuk task di host cepat) | 8.1, 8.2 |
-| **Antrean ketat (tidak boleh menyalip)** | Tidak (CloudSim boleh menyalip) | Waktu antre, turnaround | Sekitar separuh tambahan waktu antre FCFS/RR | FCFS, RR | 8.3 |
+| **Kontensi CPU di host** | Tidak (setiap VM dianggap memiliki CPU sendiri) | Makespan, energi, semua waktu | VM di host-2 sampai 58% lebih lambat | PEFT (menumpuk task di host cepat) | 8.1, 8.2 |
+| **FIFO ketat (*head-of-line blocking*)** | Tidak (CloudSim menerapkan *backfilling*) | Waktu antre, turnaround | Sekitar separuh tambahan waktu antre FCFS/RR | FCFS, RR | 8.3 |
 | **Jeda jaringan** | Tidak (jeda nol) | Turnaround | 0,1 – 0,4 detik per task | Task yang pendek | 8.4 |
-| **Rebutan masuk pintu** | Tidak (urutan selalu rapi) | Waktu selesai per task | Acak per task, rata-rata hampir tetap | Semua, saat task datang bersamaan | 8.5 |
+| ***Race condition* urutan kedatangan** | Tidak (urutan selalu deterministik) | Waktu selesai per task | Acak per task, rata-rata hampir tetap | Semua, saat task datang bersamaan | 8.5 |
 | **Gangguan kecil & pengukuran** | Tidak (simulasi selalu sama) | Semua | ±0,25% kecepatan; beberapa % antar-percobaan | — | di bawah |
 
-**Bukti bahwa simulasi sangat akurat kalau penyebab di atas tidak ada.** Pada GoCJ RR, host-2 hanya sedikit dipakai (16,3 detik kerja) dan semua task 1 core (jadi aturan antrean tidak berpengaruh). Hasilnya: makespan hanya meleset -0,07%, energi -0,04%, dan utilisasi +0,14% dari simulasi. Kalibrasi juga mengukur kecepatan 999 – 1.000 dan 1.995 – 1.998 MIPS (hanya ±0,25% dari spesifikasi). **Jadi, kalau server tidak kewalahan, dunia nyata dan simulasi praktis sama persis.**
+**Bukti bahwa simulasi sangat akurat jika penyebab di atas tidak ada.** Pada GoCJ RR, host-2 hanya sedikit dipakai (16,3 detik kerja) dan semua task 1 core (sehingga aturan antrean tidak berpengaruh). Hasilnya: makespan hanya meleset -0,07%, energi -0,04%, dan utilisasi +0,14% dari simulasi. Kalibrasi juga mengukur kecepatan 999 – 1.000 dan 1.995 – 1.998 MIPS (hanya ±0,25% dari spesifikasi). **Dengan demikian, jika server tidak jenuh, dunia nyata dan simulasi praktis sama persis.**
 
 ### 8.10 Makespan di setiap skala
 <p align="center"><img src="grafik/grafik_batch_makespan.png" alt="Makespan simulasi vs real di setiap skala" width="900"></p>
 
-Garis putus-putus biru = simulasi, garis utuh oranye = rata-rata 3 run nyata, dan garis tegak kecil = simpangan baku (makin pendek, makin konsisten).
+Garis putus-putus biru = simulasi, garis utuh oranye = rata-rata 3 run nyata, dan garis tegak kecil = simpangan baku (semakin pendek, semakin konsisten).
 
 | Task | PEFT sim | PEFT real | Selisih | FCFS sim | FCFS real | Selisih | RR sim | RR real | Selisih |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -736,15 +740,15 @@ Garis putus-putus biru = simulasi, garis utuh oranye = rata-rata 3 run nyata, da
 | 40 | 53,11 | 79,21 | +49,14% | 57,62 | 76,61 | +32,96% | 58,13 | 75,66 | +30,16% |
 
 **Apa yang terlihat.**
-- **GoCJ**: garis nyata menempel pada simulasi di 10 – 30 task (selisih 3 – 16%). Pada 40 task, ketiga algoritma tiba-tiba melenceng 41 – 54% dengan simpangan baku besar. Pada 50 task, PEFT melenceng 61%, FCFS 13%, dan RR hampir tepat (-2%).
+- **GoCJ**: garis nyata berimpit dengan simulasi di 10 – 30 task (selisih 3 – 16%). Pada 40 task, ketiga algoritma tiba-tiba menyimpang 41 – 54% dengan simpangan baku besar. Pada 50 task, PEFT menyimpang 61%, FCFS 13%, dan RR hampir tepat (-2%).
 - **Sintetis**: garis nyata **selalu** di atas simulasi, bahkan sejak 10 task (21 – 27%). Selisih PEFT terus membesar (26% → 49%), sedangkan FCFS/RR tetap di kisaran 21 – 33%.
 
 **Mengapa terjadi.**
-- **Sintetis selalu membebani host-2.** Semua task 4 core hanya bisa dikerjakan vm-4 (di host-2), jadi host-2 sudah sibuk sejak skala terkecil. Rebutan CPU di host-2 (Bagian 8.2) langsung membuat makespan membengkak.
-- **PEFT menambah beban host-2 lebih banyak lagi.** Total kerja PEFT di host-2 adalah 268 detik-CPU pada 30 task dan 375 detik-CPU pada 40 task, lebih besar daripada FCFS/RR (224 dan 307 – 315 detik-CPU). Makin padat host-2, makin lambat VM-nya, makin jauh PEFT dari ramalan simulasi.
-- **GoCJ ringan di skala kecil.** Pada 10 – 30 task, kerja di host-2 hanya 3 – 36 detik-CPU, jadi host-2 belum kewalahan dan hasil nyata dekat dengan simulasi.
-- **Lonjakan di 40 – 50 task GoCJ** terjadi karena job yang lebih banyak dan lebih besar mulai memenuhi host-2. Simpangan baku besar pada 40 task (RR: ± 10,37 detik) berasal dari satu run yang masih terganggu di tengah jalan: pengecek kecepatan hanya mengecek sebelum dan sesudah run, bukan selama run (Bagian 12).
-- **RR pada GoCJ 50 task hampir tepat** karena RR menaruh paling sedikit kerja di host-2 (39,7 detik-CPU), sehingga VM yang paling akhir selesai berada di host-1 yang tidak kewalahan.
+- **Sintetis selalu membebani host-2.** Semua task 4 core hanya dapat dikerjakan vm-4 (di host-2), sehingga host-2 sudah sibuk sejak skala terkecil. Kontensi CPU di host-2 (Bagian 8.2) langsung membuat makespan membengkak.
+- **PEFT menambah beban host-2 lebih banyak lagi.** Total kerja PEFT di host-2 adalah 268 detik-CPU pada 30 task dan 375 detik-CPU pada 40 task, lebih besar daripada FCFS/RR (224 dan 307 – 315 detik-CPU). Semakin padat host-2, semakin lambat VM-nya, semakin jauh PEFT dari prediksi simulasi.
+- **GoCJ ringan di skala kecil.** Pada 10 – 30 task, kerja di host-2 hanya 3 – 36 detik-CPU, sehingga host-2 belum jenuh dan hasil nyata dekat dengan simulasi.
+- **Lonjakan di 40 – 50 task GoCJ** terjadi karena job yang lebih banyak dan lebih besar mulai memenuhi host-2. Simpangan baku besar pada 40 task (RR: ± 10,37 detik) berasal dari satu run yang masih terganggu di tengah jalan: pemeriksaan kecepatan hanya mengecek sebelum dan sesudah run, bukan selama run (Bagian 12).
+- **RR pada GoCJ 50 task hampir tepat** karena RR menaruh paling sedikit kerja di host-2 (39,7 detik-CPU), sehingga VM yang paling akhir selesai berada di host-1 yang tidak jenuh.
 
 ### 8.11 Seberapa jauh dunia nyata meleset dari simulasi?
 <p align="center"><img src="grafik/grafik_batch_selisih_makespan.png" alt="Selisih makespan real vs simulasi" width="880"></p>
@@ -755,10 +759,10 @@ Garis putus-putus biru = simulasi, garis utuh oranye = rata-rata 3 run nyata, da
 - **GoCJ**: semua algoritma rendah sampai 30 task, lalu melonjak bersama pada 40 task.
 
 **Mengapa terjadi.**
-- Garis PEFT sintetis yang naik terus adalah bukti paling jelas dari Bagian 8.2: **makin banyak task yang PEFT tumpuk di host cepat, makin besar ramalan PEFT meleset.**
-- FCFS/RR membagi task bergiliran ke keempat VM, termasuk host-1 yang tidak pernah kewalahan, sehingga selisihnya lebih stabil.
+- Garis PEFT sintetis yang naik terus adalah bukti paling jelas dari Bagian 8.2: **semakin banyak task yang PEFT tumpuk di host cepat, semakin besar prediksi PEFT meleset.**
+- FCFS/RR membagi task bergiliran ke keempat VM, termasuk host-1 yang tidak pernah jenuh, sehingga selisihnya lebih stabil.
 
-### 8.12 Bukti rebutan CPU di host
+### 8.12 Bukti kontensi CPU di host
 <p align="center"><img src="grafik/grafik_batch_kontensi_host.png" alt="Perlambatan VM terhadap beban host-2" width="880"></p>
 
 Setiap titik adalah satu skala. Sumbu mendatar = total kerja di host-2, sumbu tegak = seberapa lambat VM bekerja dibanding spesifikasinya. Garis utuh bulat = VM di host-2, garis titik-titik kotak = VM di host-1.
@@ -782,12 +786,12 @@ Setiap titik adalah satu skala. Sumbu mendatar = total kerja di host-2, sumbu te
 - **Garis host-1 (titik-titik) hampir selalu di dekat nol** (0 – 6%): VM di host-1 bekerja sesuai spesifikasi.
 - **Garis host-2 (utuh) selalu jauh di atas**: 22 – 54% lebih lambat pada data sintetis, dan 0 – 42% pada GoCJ (naik seiring beban).
 - Pada data sintetis, **garis PEFT selalu paling tinggi** (36 – 54%) dan berada paling kanan (kerja di host-2 paling banyak).
-- Ada satu titik GoCJ yang aneh: RR pada 40 task, host-1 +46% dan host-2 +85%. Itu adalah run yang terganggu di tengah jalan (lihat 8.10).
+- Terdapat satu titik GoCJ yang menyimpang: RR pada 40 task, host-1 +46% dan host-2 +85%. Itu adalah run yang terganggu di tengah jalan (lihat 8.10).
 
 **Mengapa terjadi.**
-- host-1 (1 CPU) hanya menampung VM 1.000 MIPS yang butuh sedikit CPU, jadi selalu longgar. host-2 (2 CPU) menampung 6 core 2.000 MIPS yang bersama-sama butuh hampir seluruh CPU-nya. Begitu semua core sibuk, mereka berebut CPU dan semuanya melambat.
-- Simulasi menganggap setiap VM punya CPU sendiri, jadi perlambatan 22 – 54% ini **sama sekali tidak terlihat** di simulasi. Inilah sumber terbesar perbedaan simulasi vs dunia nyata, dan polanya konsisten di semua skala.
-- Kolom "Overhead HTTP" juga naik dari ~0,2 detik (10 task) ke ~1 detik (40 task) per task, karena server HTTP di worker ikut berebut CPU di host yang sibuk.
+- host-1 (1 CPU) hanya menampung VM 1.000 MIPS yang membutuhkan sedikit CPU, sehingga selalu memiliki kapasitas tersisa. host-2 (2 CPU) menampung 6 core 2.000 MIPS yang bersama-sama membutuhkan hampir seluruh CPU-nya. Begitu semua core sibuk, mereka bersaing memakai CPU dan semuanya melambat.
+- Simulasi menganggap setiap VM memiliki CPU sendiri, sehingga perlambatan 22 – 54% ini **sama sekali tidak terlihat** di simulasi. Inilah sumber terbesar perbedaan simulasi vs dunia nyata, dan polanya konsisten di semua skala.
+- Kolom "Overhead HTTP" juga naik dari ~0,2 detik (10 task) ke ~1 detik (40 task) per task, karena server HTTP di worker ikut bersaing memakai CPU di host yang sibuk.
 
 ### 8.13 Waktu antre dan turnaround di setiap skala
 <p align="center"><img src="grafik/grafik_batch_waiting.png" alt="Waiting simulasi vs real di setiap skala" width="900"></p>
@@ -813,8 +817,8 @@ Setiap titik adalah satu skala. Sumbu mendatar = total kerja di host-2, sumbu te
 - **GoCJ PEFT justru kebalikannya**: pada 30 – 50 task, waktu antre nyata **lebih kecil** dari simulasi (12 – 34% lebih singkat).
 
 **Mengapa terjadi.**
-- **Sintetis**: keterlambatan menular di antrean (Bagian 8.4). Setiap task di host-2 sedikit lebih lambat, sehingga semua task di belakangnya ikut menunggu lebih lama. Untuk FCFS/RR ditambah masalah antre ketat (Bagian 8.3): kolom "Waiting sim FIFO ketat" di tabel 8.12 menunjukkan aturan antrean saja sudah menaikkan waktu antre FCFS dari 10,32 menjadi 11,78 detik pada 40 task.
-- **GoCJ PEFT lebih cepat dari simulasi** karena **rebutan masuk pintu** (Bagian 8.5). Di simulasi, PEFT mengantrekan task **terbesar dulu**, sehingga task kecil harus menunggu task besar. Di dunia nyata, semua task dikirim bersamaan dan urutan tibanya acak, sehingga sebagian task kecil kebetulan masuk lebih dulu. Rata-rata waktu antre pun turun, mirip efek "yang cepat duluan" di kasir.
+- **Sintetis**: keterlambatan berakumulasi di antrean (Bagian 8.4). Setiap task di host-2 sedikit lebih lambat, sehingga semua task di belakangnya ikut menunggu lebih lama. Untuk FCFS/RR ditambah masalah FIFO ketat (Bagian 8.3): kolom "Waiting sim FIFO ketat" di tabel 8.12 menunjukkan aturan antrean saja sudah menaikkan waktu antre FCFS dari 10,32 menjadi 11,78 detik pada 40 task.
+- **GoCJ PEFT lebih cepat dari simulasi** karena ***race condition* urutan kedatangan** (Bagian 8.5). Di simulasi, PEFT mengantrekan task **terbesar dulu**, sehingga task kecil harus menunggu task besar. Di dunia nyata, semua task dikirim bersamaan dan urutan tibanya acak, sehingga sebagian task kecil tiba lebih dahulu. Rata-rata waktu antre pun turun, serupa dengan efek penjadwalan *shortest job first*.
 
 Turnaround (antre + dikerjakan + jeda jaringan) mengikuti pola yang sama dengan waktu antre:
 
@@ -836,7 +840,7 @@ Turnaround (antre + dikerjakan + jeda jaringan) mengikuti pola yang sama dengan 
 
 **Mengapa terjadi.**
 - Energi dihitung dari lama host sibuk dan lama host menyala (Bagian 3.3). VM yang melambat membuat host-2 **lebih lama sibuk**, dan makespan yang lebih panjang membuat kedua host **lebih lama menyala**.
-- Kerja PEFT paling banyak di host-2, yang memakai daya paling besar (300 W saat sibuk). Jadi tambahan waktu akibat rebutan CPU dibayar dengan "tarif listrik" termahal.
+- Kerja PEFT paling banyak di host-2, yang memakai daya paling besar (300 W saat sibuk). Oleh karena itu, waktu tambahan akibat kontensi CPU terjadi pada host dengan konsumsi daya tertinggi.
 
 ### 8.15 Apakah keunggulan PEFT bertahan di setiap skala?
 <p align="center"><img src="grafik/grafik_batch_keunggulan_peft.png" alt="Keunggulan PEFT vs FCFS di setiap skala" width="880"></p>
@@ -861,14 +865,14 @@ Angka = seberapa jauh PEFT lebih baik daripada FCFS (positif = PEFT lebih baik, 
 **Apa yang terlihat.**
 - **GoCJ makespan**: garis nyata hampir menimpa garis simulasi di semua skala. PEFT unggul 50 – 59% pada 30 – 50 task.
 - **GoCJ waktu antre**: keunggulan PEFT di dunia nyata **lebih besar** daripada simulasi pada 30 – 50 task (38 – 48% vs -9 – 28%).
-- **Sintetis makespan**: simulasi meramalkan PEFT unggul 8 – 12% pada 30 – 40 task, tetapi di dunia nyata PEFT kalah tipis (-2 sampai -3%).
+- **Sintetis makespan**: simulasi memprediksi PEFT unggul 8 – 12% pada 30 – 40 task, tetapi di dunia nyata PEFT kalah tipis (-2 sampai -3%).
 - **Sintetis waktu antre**: PEFT kalah pada 10 – 20 task (-19% dan -6%), tetapi unggul pada 30 – 40 task (16% dan 13%).
 - **Penurunan tajam di GoCJ 20 task** muncul di simulasi **dan** dunia nyata.
 
 **Mengapa terjadi.**
-- **GoCJ**: keunggulan PEFT datang dari menaruh job raksasa di VM cepat, sementara FCFS/RR kadang menaruhnya di VM lambat. Efek ini besar dan tidak hilang walaupun ada rebutan CPU. Waktu antre PEFT bahkan terbantu oleh rebutan masuk pintu (8.13), sedangkan FCFS/RR dirugikan antre ketat.
-- **GoCJ 20 task**: kebetulan FCFS menaruh job terbesar (14.250 MI, task nomor 11) di vm-4 yang cepat, sehingga FCFS hampir sama baiknya dengan PEFT. Pada 30 task, FCFS menaruh job besar lain (10.500 MI, task 21) di vm-2 yang lambat, dan selisihnya kembali besar. Hasil FCFS/RR bergantung pada **untung-untungan urutan**, bukan perhitungan.
-- **Sintetis**: PEFT menumpuk task di host-2, lalu kena rebutan CPU paling parah (8.12). Ramalan EFT-nya terlalu optimis karena kecepatan VM diukur saat host kosong, sehingga keunggulan makespan-nya habis. Pada 10 – 20 task, PEFT menaruh task kecil di VM cepat host-2 yang ternyata melambat, sehingga task kecil itu malah menunggu lebih lama daripada di host-1 (pilihan FCFS). Pada 30 – 40 task, antrean vm-4 sangat panjang untuk semua algoritma, dan aturan antre ketat lebih merugikan FCFS/RR, sehingga PEFT kembali unggul di waktu antre.
+- **GoCJ**: keunggulan PEFT datang dari menaruh job berukuran sangat besar di VM cepat, sementara FCFS/RR kadang menaruhnya di VM lambat. Efek ini besar dan tidak hilang walaupun ada kontensi CPU. Waktu antre PEFT bahkan terbantu oleh *race condition* urutan kedatangan (8.13), sedangkan FCFS/RR dirugikan FIFO ketat.
+- **GoCJ 20 task**: urutan pembagian FCFS menempatkan job terbesar (14.250 MI, task nomor 11) di vm-4 yang cepat, sehingga FCFS hampir sama baiknya dengan PEFT. Pada 30 task, FCFS menaruh job besar lain (10.500 MI, task 21) di vm-2 yang lambat, dan selisihnya kembali besar. Hasil FCFS/RR bergantung pada **urutan task**, bukan pada perhitungan.
+- **Sintetis**: PEFT menumpuk task di host-2, lalu terdampak kontensi CPU paling besar (8.12). Prediksi EFT-nya terlalu optimis karena kecepatan VM diukur saat host kosong, sehingga keunggulan makespan-nya habis. Pada 10 – 20 task, PEFT menaruh task kecil di VM cepat host-2 yang ternyata melambat, sehingga task kecil itu justru menunggu lebih lama daripada di host-1 (pilihan FCFS). Pada 30 – 40 task, antrean vm-4 sangat panjang untuk semua algoritma, dan aturan FIFO ketat lebih merugikan FCFS/RR, sehingga PEFT kembali unggul di waktu antre.
 
 ### 8.16 Ringkasan: apakah eksperimen berskala menguatkan percobaan pertama?
 
@@ -877,21 +881,21 @@ Angka = seberapa jauh PEFT lebih baik daripada FCFS (positif = PEFT lebih baik, 
 | PEFT unggul jauh di GoCJ (makespan -44,99%) | Unggul 7 – 77%, dan 50 – 59% pada 30 – 50 task | **Terbukti** di semua skala |
 | Keunggulan PEFT di sintetis kecil (3,55%) | Hilang: PEFT -2 sampai -5% pada 20 – 40 task | **Lebih kuat**: keunggulannya bukan hanya kecil, tetapi hilang |
 | VM host-1 sesuai spesifikasi, VM host-2 melambat | host-1 0 – 6%, host-2 22 – 54% (sintetis) | **Terbukti** di semua skala |
-| PEFT paling jauh dari ramalan simulasi | Selisih PEFT sintetis naik 26% → 49%, selalu paling besar | **Terbukti**, dan makin parah seiring skala |
-| Simulasi akurat kalau host tidak sibuk | GoCJ 10 – 30 task: selisih 3 – 16% | **Terbukti** |
-| Rebutan masuk pintu membuat waktu selesai per task acak | Waktu antre GoCJ PEFT nyata 12 – 34% lebih kecil dari simulasi | **Temuan baru**: efeknya bisa menguntungkan |
+| PEFT paling jauh dari prediksi simulasi | Selisih PEFT sintetis naik 26% → 49%, selalu paling besar | **Terbukti**, dan makin parah seiring skala |
+| Simulasi akurat jika host tidak sibuk | GoCJ 10 – 30 task: selisih 3 – 16% | **Terbukti** |
+| *Race condition* urutan kedatangan membuat waktu selesai per task acak | Waktu antre GoCJ PEFT nyata 12 – 34% lebih kecil dari simulasi | **Temuan baru**: efeknya bisa menguntungkan |
 
 ---
 
-## 9. Gangguan dari Luar: Program Lain, Baterai, dan Memori Laptop
+## 9. Gangguan Eksternal: Beban Lain, Mode Daya, dan Memori Laptop
 
-Saat eksperimen berskala dijalankan pertama kali, hasilnya sangat aneh: sintetis 30 task butuh 82 detik, padahal percobaan pertama hanya 48 detik. Penyebabnya ternyata **bukan algoritma**, melainkan laptop yang menjalankan seluruh datacenter.
+Saat eksperimen berskala dijalankan pertama kali, hasilnya menyimpang jauh: sintetis 30 task membutuhkan 82 detik, padahal percobaan pertama hanya 48 detik. Penyebabnya **bukan algoritma**, melainkan kondisi laptop yang menjalankan seluruh datacenter.
 
-**Buktinya ada di langkah kalibrasi.** Sebelum setiap run, broker mengukur kecepatan setiap VM **sendirian** (Bagian 4.2). Kalau laptop tenang, hasilnya selalu sekitar 1.000 / 1.000 / 2.000 / 2.000 MIPS. Pada run yang terganggu, hasilnya jauh di bawah itu. Contoh output terminal dari GoCJ 50 task run 1 ([`hasil/batch_terganggu/gocj_50_run1_batch1/log.txt`](hasil/batch_terganggu/gocj_50_run1_batch1/log.txt)):
+**Buktinya ada di langkah kalibrasi.** Sebelum setiap run, broker mengukur kecepatan setiap VM **sendirian** (Bagian 4.2). Jika laptop tenang, hasilnya selalu sekitar 1.000 / 1.000 / 2.000 / 2.000 MIPS. Pada run yang terganggu, hasilnya jauh di bawah itu. Contoh output terminal dari GoCJ 50 task run 1 ([`hasil/batch_terganggu/gocj_50_run1_batch1/log.txt`](hasil/batch_terganggu/gocj_50_run1_batch1/log.txt)):
 
 <p align="center"><img src="grafik/terminal/06_kalibrasi_terganggu.png" alt="Output terminal kalibrasi saat laptop terganggu" width="680"></p>
 
-<details><summary>Teks output (bisa disalin)</summary>
+<details><summary>Teks output (dapat disalin)</summary>
 
 ```text
 arya4@DESKTOP-8G8M19I MINGW64 ~/soka/realworld
@@ -936,14 +940,14 @@ Semua run yang dibuang disimpan utuh di [`hasil/batch_terganggu/`](hasil/batch_t
 **Mengapa terjadi.**
 - **Program lain di laptop.** Semua host dan VM sebenarnya berbagi satu CPU fisik dengan aplikasi lain: browser (terutama halaman 3D yang berat), Discord, IDE, dan uji tampilan website. Saat aplikasi itu sibuk, VM kebagian CPU lebih sedikit.
 - **Mode baterai.** Saat laptop tidak dicolok charger, Windows mode *Balanced* menurunkan kecepatan prosesor untuk menghemat baterai. Saat pengecekan, Windows melaporkan baterai 60% dengan status 1 (*discharging*, tidak dicolok charger).
-  vm-1 yang paling dibatasi jatah CPU-nya (0,2 CPU) langsung jatuh ke ~660 MIPS. Kubernetes mencatat vm-1 sudah belasan ribu kali "ditahan" karena mencapai batas jatahnya (`nr_throttled` pada screenshot di bawah).
-- **Memori hampir habis.** Docker, WSL, browser, dan aplikasi lain memakai hampir seluruh 13,6 GB RAM (tersisa ~2 GB), sehingga Claude Code menghentikan proses eksperimen untuk mencegah laptop macet.
+  vm-1 yang paling dibatasi jatah CPU-nya (0,2 CPU) langsung turun ke ~660 MIPS. Kubernetes mencatat vm-1 sudah belasan ribu kali dibatasi (*throttled*) karena mencapai batas jatahnya (`nr_throttled` pada screenshot di bawah).
+- **Memori hampir habis.** Docker, WSL, browser, dan aplikasi lain memakai hampir seluruh 13,6 GB RAM (tersisa ~2 GB), sehingga Claude Code menghentikan proses eksperimen untuk mencegah sistem berhenti merespons.
 
-Output terminal di bawah menunjukkan dua hal: (1) baris log saat laptop memakai baterai, ketika pengecek kecepatan terus menunggu karena vm-1 tidak mencapai 95% kecepatannya; (2) penghitung throttling vm-1 (jumlah total sejak VM menyala): `cpu.max 20000 100000` berarti vm-1 hanya boleh memakai 0,2 CPU, dan `nr_throttled` adalah berapa kali vm-1 "ditahan" karena mencapai batas itu.
+Output terminal di bawah menunjukkan dua hal: (1) baris log saat laptop memakai baterai, ketika pemeriksaan kecepatan terus menunggu karena vm-1 tidak mencapai 95% kecepatannya; (2) penghitung throttling vm-1 (jumlah total sejak VM menyala): `cpu.max 20000 100000` berarti vm-1 hanya boleh memakai 0,2 CPU, dan `nr_throttled` adalah berapa kali vm-1 dibatasi (*throttled*) karena mencapai batas tersebut.
 
 <p align="center"><img src="grafik/terminal/07_baterai_throttling.png" alt="Output terminal pengecek menunggu dan throttling vm-1" width="880"></p>
 
-<details><summary>Teks output (bisa disalin)</summary>
+<details><summary>Teks output (dapat disalin)</summary>
 
 ```text
 arya4@DESKTOP-8G8M19I MINGW64 ~/soka/realworld
@@ -961,7 +965,7 @@ throttled_usec 737566200
 
 </details>
 
-**Kaitannya dengan cloud sungguhan.** Di cloud publik, VM kita juga berbagi mesin fisik dengan VM pelanggan lain ("tetangga berisik"), dan penyedia cloud bisa menurunkan kecepatan prosesor untuk menghemat daya atau mengatasi panas. CloudSim **tidak memodelkan** satu pun dari hal ini: di simulasi, VM 1.000 MIPS selalu tepat 1.000 MIPS. Karena itu, eksperimen nyata harus dijaga dengan pengecekan seperti di Bagian 7.1, dan hasilnya harus dirata-rata dari beberapa run.
+**Kaitannya dengan cloud nyata.** Di cloud publik, VM juga berbagi mesin fisik dengan VM pelanggan lain (*noisy neighbor*), dan penyedia cloud dapat menurunkan kecepatan prosesor untuk menghemat daya atau mengatasi panas. CloudSim **tidak memodelkan** satu pun dari hal ini: di simulasi, VM 1.000 MIPS selalu tepat 1.000 MIPS. Karena itu, eksperimen nyata harus dijaga dengan pengecekan seperti di Bagian 7.1, dan hasilnya harus dirata-rata dari beberapa run.
 
 ---
 
@@ -974,40 +978,40 @@ Di README induk, keunggulan PEFT di GoCJ mencapai 80%, sedangkan di sini hanya 4
 | GoCJ | 80,87% / 79,21% | 45,55% / 49,99% | 48,59% / 48,6% | 44,99% / 49,7% |
 | Sintetis | 15,39% / 29,78% | 12,82% / 6,02% | 13,62% / 11,8% | 3,55% / -1,8% |
 
-Cara membaca: bandingkan kolom bersebelahan. Penurunan dari kolom 1 ke kolom 3 disebabkan **ukuran percobaan**; penurunan dari kolom 3 ke kolom 4 disebabkan **dunia nyata**.
+Bandingkan kolom yang bersebelahan: penurunan dari kolom 1 ke kolom 3 disebabkan **ukuran percobaan**; penurunan dari kolom 3 ke kolom 4 disebabkan **dunia nyata**.
 
-- **GoCJ**: penurunan besar 80% → 49% sudah terjadi **di dalam simulasi**, hanya karena jumlah job dan VM lebih sedikit. Dengan 1.000 job, FCFS/RR menumpuk puluhan job besar di VM lambat; dengan 30 job, kerugiannya terbatas. Perpindahan ke dunia nyata hanya mengurangi 3,6 poin pada percobaan pertama, dan pada rata-rata 3 run malah tidak mengurangi sama sekali (48,6% → 49,7%). Hasil kembaran 30 task (48,59%) juga mirip dengan CloudSim 100 job (45,55 – 49,99%). Pada keduanya, makespan PEFT ditentukan oleh **satu job terbesar** (450,21 detik di CloudSim; 7,13 detik di sini = 14.250 MI ÷ 2.000 MIPS). Itu batas tercepat yang mungkin dicapai algoritma apa pun.
-- **Sintetis**: kembaran 30 task (13,62%) masih dalam rentang CloudSim (6 – 30%), jadi ukuran percobaan bukan masalahnya. Penurunan terbesar (13,62% → 3,55% pada percobaan pertama, dan 11,8% → -1,8% pada rata-rata 3 run) justru terjadi **saat pindah ke dunia nyata**, dan Bagian 8.2 menjelaskan sebabnya.
+- **GoCJ**: penurunan besar 80% → 49% sudah terjadi **di dalam simulasi**, hanya karena jumlah job dan VM lebih sedikit. Dengan 1.000 job, FCFS/RR menumpuk puluhan job besar di VM lambat; dengan 30 job, kerugiannya terbatas. Perpindahan ke dunia nyata hanya mengurangi 3,6 poin pada percobaan pertama, dan pada rata-rata 3 run justru tidak mengurangi sama sekali (48,6% → 49,7%). Hasil kembaran 30 task (48,59%) juga mirip dengan CloudSim 100 job (45,55 – 49,99%). Pada keduanya, makespan PEFT ditentukan oleh **satu job terbesar** (450,21 detik di CloudSim; 7,13 detik di sini = 14.250 MI ÷ 2.000 MIPS). Itu batas tercepat yang mungkin dicapai algoritma apa pun.
+- **Sintetis**: kembaran 30 task (13,62%) masih dalam rentang CloudSim (6 – 30%), sehingga ukuran percobaan bukan masalahnya. Penurunan terbesar (13,62% → 3,55% pada percobaan pertama, dan 11,8% → -1,8% pada rata-rata 3 run) justru terjadi **saat pindah ke dunia nyata**, dan Bagian 8.2 menjelaskan sebabnya.
 
-**Kesimpulannya:** CloudSim **benar dalam menentukan siapa juaranya**, tetapi **terlalu membesar-besarkan selisih kemenangan PEFT** ketika beban kerja membuat host cepat kewalahan.
+**Kesimpulannya:** CloudSim **tepat dalam menentukan peringkat algoritma**, tetapi **menaksir terlalu tinggi besarnya keunggulan PEFT** ketika beban kerja membuat host cepat jenuh.
 
 ---
 
 ## 11. Kesimpulan
 
-1. **PEFT berhasil dijalankan di cloud sungguhan** (Kubernetes, 1 datacenter, 2 host, 4 VM) dengan rumus yang sama dengan simulasi, memakai kecepatan VM hasil pengukuran langsung. Seluruh hasil didukung 27 run bersih (3 run per skala) ditambah percobaan pertama yang dianalisis per task.
-2. **Pada GoCJ, PEFT adalah algoritma terbaik di dunia nyata, di semua skala.** Makespan 7 – 77% lebih cepat dan waktu antre 37 – 97% lebih singkat daripada FCFS. Keunggulan ini dekat dengan ramalan simulasi.
-3. **Pada data sintetis, keunggulan makespan PEFT yang diramalkan simulasi (8 – 12%) hilang di dunia nyata** (-2 sampai -5%). PEFT hanya masih unggul di waktu antre pada 30 – 40 task (13 – 16%).
-4. **Simulasi akurat kalau syaratnya terpenuhi.** Kalau host tidak kewalahan (GoCJ 10 – 30 task), selisih makespan simulasi vs nyata hanya 3 – 16%, bahkan 0,07 – 0,20% pada percobaan pertama GoCJ FCFS/RR.
-5. **Simulasi terlalu optimis kalau syaratnya dilanggar.** Anggapan CloudSim yang paling lemah adalah **"setiap VM punya CPU sendiri dan tidak terganggu VM lain"**. Pada data sintetis, VM di host-2 bekerja 22 – 54% lebih lambat dari spesifikasinya, sehingga makespan nyata 21 – 49% lebih lama dari simulasi.
-6. **Algoritma yang selalu memilih VM tercepat paling dirugikan oleh rebutan CPU.** Selisih simulasi vs nyata PEFT paling besar dan makin parah seiring jumlah task (26% → 49% pada sintetis).
+1. **PEFT berhasil dijalankan di cloud nyata** (Kubernetes, 1 datacenter, 2 host, 4 VM) dengan rumus yang sama dengan simulasi, memakai kecepatan VM hasil pengukuran langsung. Seluruh hasil didukung 27 run bersih (3 run per skala) ditambah percobaan pertama yang dianalisis per task.
+2. **Pada GoCJ, PEFT adalah algoritma terbaik di dunia nyata, di semua skala.** Makespan 7 – 77% lebih cepat dan waktu antre 37 – 97% lebih singkat daripada FCFS. Keunggulan ini dekat dengan prediksi simulasi.
+3. **Pada data sintetis, keunggulan makespan PEFT yang diprediksi simulasi (8 – 12%) hilang di dunia nyata** (-2 sampai -5%). PEFT hanya masih unggul di waktu antre pada 30 – 40 task (13 – 16%).
+4. **Simulasi akurat jika syaratnya terpenuhi.** Jika host tidak jenuh (GoCJ 10 – 30 task), selisih makespan simulasi vs nyata hanya 3 – 16%, bahkan 0,07 – 0,20% pada percobaan pertama GoCJ FCFS/RR.
+5. **Simulasi terlalu optimis jika syaratnya dilanggar.** Anggapan CloudSim yang paling lemah adalah **"setiap VM memiliki CPU sendiri dan tidak terganggu VM lain"**. Pada data sintetis, VM di host-2 bekerja 22 – 54% lebih lambat dari spesifikasinya, sehingga makespan nyata 21 – 49% lebih lama dari simulasi.
+6. **Algoritma yang selalu memilih VM tercepat paling dirugikan oleh kontensi CPU.** Selisih simulasi vs nyata PEFT paling besar dan semakin besar seiring jumlah task (26% → 49% pada sintetis).
 7. **Dunia nyata juga dipengaruhi hal di luar cloud itu sendiri.** Program lain, mode baterai, dan memori laptop membuat 16 dari 30 run pertama harus dibuang (VM hanya 324 – 970 MIPS, makespan 57 – 79% lebih lama). Eksperimen cloud nyata harus dijaga dengan pengecekan kondisi mesin dan diulang beberapa kali.
 8. **Saran perbaikan PEFT untuk dunia nyata:**
-   - Ukur kecepatan VM **saat VM lain juga sedang sibuk**, atau perbarui terus dari waktu kerja task yang sudah selesai, supaya ramalannya mengikuti kondisi nyata.
-   - Beri **"denda" untuk host yang sudah penuh**, misalnya kecepatan VM dianggap lebih lambat saat host-nya sudah padat: $\text{EET} = \frac{\text{ukuran}}{\text{MIPS} \times f_{\text{host}}}$ dengan $f_{\text{host}} < 1$.
-   - Izinkan task kecil **menyalip** di antrean worker, supaya perilakunya sama dengan CloudSim.
+   - Ukur kecepatan VM **saat VM lain juga sedang sibuk**, atau perbarui terus dari waktu kerja task yang sudah selesai, supaya prediksinya mengikuti kondisi nyata.
+   - Tambahkan **penalti untuk host yang sudah padat**, misalnya kecepatan VM dianggap lebih lambat saat host-nya sudah padat: $\text{EET} = \frac{\text{ukuran}}{\text{MIPS} \times f_{\text{host}}}$ dengan $f_{\text{host}} < 1$.
+   - Terapkan ***backfilling*** pada antrean worker agar perilakunya sama dengan CloudSim.
 
 ---
 
 ## 12. Keterbatasan
 
 - **Sintetis 50 task tidak berhasil diukur.** Semua percobaannya terganggu (baterai, memori, atau program lain) dan dibuang, sehingga data sintetis hanya sampai 40 task.
-- **Pengecek kecepatan hanya mengecek sebelum dan sesudah run**, dengan task uji 1 core per VM. Gangguan singkat di tengah run atau perlambatan ringan saat semua core sibuk tetap bisa lolos (contoh: GoCJ RR 40 task, ± 10,37 detik). Ini juga menjelaskan mengapa hasil antar-sesi berbeda (sintetis 30 task PEFT: 47,84 detik pada percobaan pertama vs 56,23 ± 2,16 detik pada eksperimen berskala).
+- **Pemeriksaan kecepatan hanya mengecek sebelum dan sesudah run**, dengan task uji 1 core per VM. Gangguan singkat di tengah run atau perlambatan ringan saat semua core sibuk tetap dapat lolos (contoh: GoCJ RR 40 task, ± 10,37 detik). Ini juga menjelaskan mengapa hasil antar-sesi berbeda (sintetis 30 task PEFT: 47,84 detik pada percobaan pertama vs 56,23 ± 2,16 detik pada eksperimen berskala).
 - 3 run per skala masih sedikit. Simpangan baku sudah dilaporkan, tetapi belum ada uji statistik.
-- Seluruh "datacenter" berjalan di **satu laptop**. Kedua host sebenarnya berbagi CPU fisik yang sama, sehingga rebutan CPU bisa lebih parah (atau berbeda pola) dibanding server fisik yang benar-benar terpisah.
+- Seluruh "datacenter" berjalan di **satu laptop**. Kedua host sebenarnya berbagi CPU fisik yang sama, sehingga kontensi CPU dapat lebih besar (atau berbeda pola) dibanding server fisik yang benar-benar terpisah.
 - Ukuran task diperkecil (GoCJ ÷ 50, sintetis juga dikecilkan) agar percobaan cepat. Akibatnya jeda jaringan yang tetap (0,1 – 1 detik) terasa lebih besar dibanding pada task berukuran asli.
 - Energi adalah **perkiraan** dari model SPECpower berdasarkan lama sibuk nyata, bukan hasil pengukuran listrik.
-- Kembaran simulasi meniru aturan CloudSim Plus (VM berkecepatan tetap, antrean boleh menyalip), tetapi bukan CloudSim Plus itu sendiri yang dijalankan pada infrastruktur 4 VM.
+- Kembaran simulasi meniru aturan CloudSim Plus (VM berkecepatan tetap, antrean dengan *backfilling*), tetapi bukan CloudSim Plus itu sendiri yang dijalankan pada infrastruktur 4 VM.
 
 ---
 
@@ -1040,7 +1044,7 @@ Perintah lain yang berguna:
 
 ```bash
 kubectl logs vm-4                  # log VM
-kubectl top pod                    # (butuh metrics-server) pemakaian CPU per VM
+kubectl top pod                    # (memerlukan metrics-server) pemakaian CPU per VM
 kind delete cluster --name soka-dc # hapus datacenter
 ```
 
@@ -1051,7 +1055,7 @@ kind delete cluster --name soka-dc # hapus datacenter
 ```
 realworld/
 ├── setup.sh                         # Bangun cluster kind, batasi CPU host, jalankan 4 VM
-├── batch.sh                         # Eksperimen berskala 10-50 task x 3 run + pengecek kecepatan
+├── batch.sh                         # Eksperimen berskala 10-50 task x 3 run + pemeriksaan kecepatan
 ├── k8s/
 │   ├── kind-cluster.yaml            # Datacenter: 1 control-plane + 2 worker node (host)
 │   └── vms.yaml                     # 4 pod VM (2 per host) + Service NodePort 30001-30004
@@ -1068,7 +1072,7 @@ realworld/
 │   ├── perbandingan_sim_vs_real.csv # Percobaan pertama: simulasi vs FIFO ketat vs real
 │   ├── dekomposisi_overhead.csv     # Percobaan pertama: dispatch, HTTP, inflasi eksekusi
 │   ├── batch/{dataset}_{n}/run{r}/  # 27 run bersih: log.txt, ringkasan, data per task
-│   ├── batch_terganggu/             # Run yang dibuang pengecek kecepatan (bukti Bagian 9)
+│   ├── batch_terganggu/             # Run yang dibuang pemeriksaan kecepatan (bukti Bagian 9)
 │   ├── batch_sim_vs_real.csv        # Eksperimen berskala: simulasi vs real per skala
 │   ├── batch_host_inflasi.csv       # Eksperimen berskala: perlambatan host & overhead
 │   ├── batch_tabel.md               # Tabel siap tempel untuk README
